@@ -1,4 +1,4 @@
-Que queremos que tenga nuestro proyecto en el formato
+cQue queremos que tenga nuestro proyecto en el formato
 
 Como usuario, quiero ____ para _____
 
@@ -49,7 +49,7 @@ Como usuario 1, quiero aceptar o rechazar la solicitud del usuario 2 de cambiar 
 
 
 
-Como moderador, quiero ver los chats de los usuarios reportados para aplicar medidas de ser necesario.
+Como moderador, quiero ver los chats de los usuarios reportados para aplicar medidas en caso de ser necesario.
 
 
 Como desarrollador, quiero añadir nuevos juegos para crear una experiencia diferente.
