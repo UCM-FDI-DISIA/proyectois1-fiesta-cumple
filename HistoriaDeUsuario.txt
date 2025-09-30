@@ -1,7 +1,13 @@
-cQue queremos que tenga nuestro proyecto en el formato
+cQue queremos que tenga nuestro proyecto en el formato?
 
 Como usuario, quiero ____ para _____
 
+
+*USUARIOS
+
+Eduardo: 28 años, vive con sus padres, no trabaja ni estudia (nini), está buscando una pareja estable que tenga dinera y pueda mantenerle por el resto de su vida. No le importa la edad de su futura pareja. Le gusta jugar videojuegos y ver películas en el sofá, su sueño frustrado es ser director de cine.
+
+Eustaquia: Soltera y viuda de 55 años, quiere experimentar cosas nuevas, no se cierra a nada, su anterior pareja era un hombre, pero actualmente le gustaría encontrar el anmor con una mujer, ya que en sus últimos dos años de matrimonio se dio cuenta de que ya no le gustaban los hombres
 
 
 Como usuario, quiero tener una interfaz gráfica llamativa para que sea agradable usar la aplicación.
