@@ -14,6 +14,8 @@ Javi: 20 años, no tiene ningún interés en encontrar pareja ya que ahora mismo
 Manuela: 19 años, novia de Javi, es estudiante de criminología y le ha pedido a su novio Javi que se instale la aplicación porque quieren abrir la relación, Manuela está cansada de que Javi se conforme con cualquier cosa, y piensa que tal vez poniendo a su novio en una tesitura tan tensa este se tome en serio su relación. Manuela se ha instalado la aplicación para hacer más fuerza en la reacción de Javi.
 
 
+
+
 Como usuario, quiero tener una interfaz gráfica llamativa para que sea agradable usar la aplicación.
 
 Como usuario, quiero tener una interfaz gráfica intuitiva, para poder moverme con facilidad sin tener que recordar dónde están las cosas.
