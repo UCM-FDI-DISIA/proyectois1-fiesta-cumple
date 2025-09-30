@@ -45,6 +45,8 @@ Como usuario 1, quiero ganar puntos jugando con el usuario 2, para avanzar.
 
 Como usuario 1, quiero jugar a juegos cooperativos para conocer más al usuario 2.
 
+Como usuario 1, quiero poder enviar emoticonos y mensajes predeterminados al usuario 2 mientras estamos jugando.
+
 Como usuario 1, quiero avanzar lo suficiente en el juego con el usuario 2 para poder hablar y quedar con él. 
 
 Como usuario 1, quiero chatear con otros usuarios una vez hayamos avanzado en el juego para poder conocernos mejor.
