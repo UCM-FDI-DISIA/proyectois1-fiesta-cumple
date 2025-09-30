@@ -57,6 +57,8 @@ Como usuario, quiero salir de los juegos para dejar de jugar.
 
 Como usuario, quiero invitar a la gente para jugar juntos.
 
+Como usuario, quiero que haya un apartado donde se guarden los logros conseguidos en los juegos con otros usuarios.
+
 Como usuario 1, quiero emitir una solicitud al usuario 2 para cambiar de juego.
 
 Como usuario 1, quiero aceptar o rechazar la solicitud del usuario 2 de cambiar de juego para seguir jugando.
