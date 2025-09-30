@@ -5,9 +5,13 @@ Como usuario, quiero ____ para _____
 
 *USUARIOS
 
-Eduardo: 28 años, vive con sus padres, no trabaja ni estudia (nini), está buscando una pareja estable que tenga dinera y pueda mantenerle por el resto de su vida. No le importa la edad de su futura pareja. Le gusta jugar videojuegos y ver películas en el sofá, su sueño frustrado es ser director de cine.
+Eduardo: 28 años, vive con sus padres, no trabaja ni estudia (nini), está buscando una pareja estable que tenga dinero y pueda mantenerle por el resto de su vida. No le importa la edad de su futura pareja. Le gusta jugar videojuegos y ver películas en el sofá, su sueño frustrado es ser director de cine.
 
-Eustaquia: Soltera y viuda de 55 años, quiere experimentar cosas nuevas, no se cierra a nada, su anterior pareja era un hombre, pero actualmente le gustaría encontrar el anmor con una mujer, ya que en sus últimos dos años de matrimonio se dio cuenta de que ya no le gustaban los hombres
+Eustaquia: Soltera y viuda de 55 años, quiere experimentar cosas nuevas, no se cierra a nada, su anterior pareja era un hombre, pero actualmente le gustaría encontrar el anmor con una mujer, ya que en sus últimos dos años de matrimonio se dio cuenta de que ya no le gustaban los hombres. Vive con su perro y sus cinco gallinas, en una pequeña granja en medio del campo, para ella son toda su vida, su pareja debe ser alguien predispuesto a compartir esta pasión por el ganado.
+
+Javi: 20 años, no tiene ningún interés en encontrar pareja ya que ahora mismo está centrado en sus estudios y en su novia, pero debido a la pérdida de intensidad en la relación han decidido abrir la pareja hacia nuevos horizontes. Javi no está muy de acuerdo con esto, pero Manuela tiene muchas ganas de probar esto.
+
+Manuela: 19 años, novia de Javi, es estudiante de criminología y le ha pedido a su novio Javi que se instale la aplicación porque quieren abrir la relación, Manuela está cansada de que Javi se conforme con cualquier cosa, y piensa que tal vez poniendo a su novio en una tesitura tan tensa este se tome en serio su relación. Manuela se ha instalado la aplicación para hacer más fuerza en la reacción de Javi.
 
 
 Como usuario, quiero tener una interfaz gráfica llamativa para que sea agradable usar la aplicación.
