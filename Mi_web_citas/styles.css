@@ -32,7 +32,7 @@ button:hover {
 }
 
 /*BOTON INICIAR SESIÓN*/
-#botonIniciarSesion {
+#botonUsuario {
   position: fixed; /* Fija el botón en la pantalla */
   top: 20px; /* Distancia desde la parte superior */
   right: 20px; /* Distancia desde la derecha */
@@ -66,4 +66,48 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Contenedor para centrar los botones verticalmente y ocupar todo el ancho */
+#ventanaIS .contenedor-botones {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* Centra los botones horizontalmente */
+  justify-content: center;  /* Centra los botones verticalmente */
+  gap: 15px;                /* Espacio entre los botones */
+}
+
+/* Estilos para los botones de la ventana de inicio/registro */
+#ventanaIS button {
+  width: 80%;               /* Mismo ancho para ambos */
+  min-width: 180px;         /* Ancho mínimo para ambos */
+  max-width: 250px;         /* Ancho máximo para ambos */
+  height: 44px;             /* Misma altura */
+  padding: 10px;
+  margin: 0 auto;
+  display: block;
+  font-size: 1em;
+  border-radius: 8px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#ventanaIS button:hover {
+  background-color: #217dbb;
+}
+
+/* Fondo oscuro semitransparente detrás de la ventana */
+#fondoIS {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1500;
+  display: none;
 }

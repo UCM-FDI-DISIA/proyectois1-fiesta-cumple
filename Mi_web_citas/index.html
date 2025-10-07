@@ -8,14 +8,21 @@
 </head>
 <body>
 <!-- BOTON INICIAR SESION -->
-  <button id="botonIniciarSesion" title="Botón iniciar sesion">
+  <button id="botonUsuario" title="Botón usuario">
     <!-- Icono de estrella, puedes cambiarlo por otro si lo prefieres -->
     ★
   </button>
 
 <!-- VENTANA INICIAR SESIÓN -->
+  <!-- Fondo oscuro para la ventana, permite cerrar la pantalla, oculto por defecto -->
+  <div id="fondoIS" style="display:none;"></div>
+
   <div id="ventanaIS" style="display:none;">
-    <!-- Aquí irá el contenido del formulario de login/registro en el futuro -->
+  <!-- Contenido de la ventana de iniciar sesión -->
+    <div class="contenedor-botones">
+      <button id="botonIniciarSesion">Iniciar sesión</button>
+      <button id="botonRegistrarse">Registrarse</button>
+    </div>
   </div>
 
   <header>
