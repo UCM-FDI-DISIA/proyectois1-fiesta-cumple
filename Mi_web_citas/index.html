@@ -1,31 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html> <!-- Indica que el documento es HTML5 -->
+<html lang="es"> <!-- El idioma principal del documento es español -->
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi primera página</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8"> <!-- Define la codificación de caracteres como UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Hace que la página sea adaptable a dispositivos móviles -->
+  <title>Mi primera página</title> <!-- Título que aparece en la pestaña del navegador -->
+  <link rel="stylesheet" href="styles.css"> <!-- Enlaza la hoja de estilos externa -->
 </head>
 <body>
+<!-- BOTON INICIAR SESION -->
+  <button id="botonIniciarSesion" title="Botón iniciar sesion">
+    <!-- Icono de estrella, puedes cambiarlo por otro si lo prefieres -->
+    ★
+  </button>
+
+<!-- VENTANA INICIAR SESIÓN -->
+  <div id="ventanaIS" style="display:none;">
+    <!-- Aquí irá el contenido del formulario de login/registro en el futuro -->
+  </div>
+
   <header>
-    <h1>¡Hola! Soy Daniel Pulido 👋</h1>
-    <p>Bienvenido a mi primera página web.</p>
+    <h1>¡Hola! Soy Daniel Pulido 👋</h1> <!-- Título principal de la página -->
+    <p>Bienvenido a mi primera página web.</p> <!-- Mensaje de bienvenida -->
   </header>
 
   <section id="sobre-mi">
-    <h2>Sobre mí</h2>
-    <p>Estudio informática y matemáticas, y estoy aprendiendo a programar.</p>
+    <h2>Sobre mí</h2> <!-- Título de la sección "Sobre mí" -->
+    <p>Estudio informática y matemáticas, y estoy aprendiendo a programar.</p> <!-- Breve descripción personal -->
   </section>
 
   <section id="contacto">
-    <h2>Contacto</h2>
-    <button id="botonSaludo">Haz clic para saludarme</button>
+    <h2>Contacto</h2> <!-- Título de la sección "Contacto" -->
+    <button id="botonSaludo">Haz clic para saludarme</button> <!-- Botón para interactuar con el usuario -->
   </section>
 
   <footer>
-    <p>© 2025 Daniel Pulido</p>
+    <p>© 2025 Daniel Pulido</p> <!-- Pie de página con derechos de autor -->
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js"></script> <!-- Enlaza el archivo JavaScript externo -->
 </body>
 </html>

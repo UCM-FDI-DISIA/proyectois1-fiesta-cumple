@@ -30,3 +30,40 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+/*BOTON INICIAR SESIÓN*/
+#botonIniciarSesion {
+  position: fixed; /* Fija el botón en la pantalla */
+  top: 20px; /* Distancia desde la parte superior */
+  right: 20px; /* Distancia desde la derecha */
+  width: 48px; /* Ancho del botón */
+  height: 48px; /* Alto del botón */
+  border-radius: 50%; /* Hace el botón circular */
+  background-color: #3498db; /* Color de fondo */
+  border: none; /* Sin borde */
+  color: white; /* Color del icono o texto */
+  display: flex; /* Centra el contenido */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* Sombra ligera */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+  z-index: 1000; /* Se asegura de que esté por encima de otros elementos */
+  font-size: 1.5em; /* Tamaño del icono o texto */
+}
+
+/*VENTANA INICIAR SESIÓN*/
+#ventanaIS {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20vw;           /* Un quinto del ancho de la pantalla */
+  height: 33vh;          /* Un tercio de la altura de la pantalla */
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
