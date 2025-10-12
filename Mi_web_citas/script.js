@@ -1,5 +1,5 @@
-document.getElementById("botonSaludo").addEventListener("click", function() {
-  alert("¡Hola! Gracias por visitar mi página 😄");
+document.getElementById("Ir_a_inicio").addEventListener("click", function() {
+  alert("De aquí puedes ir a la página inicial.");
 });
 
 // Muestra la ventana de iniciar sesión al pulsar el botón 
