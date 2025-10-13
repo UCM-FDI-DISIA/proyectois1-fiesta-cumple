@@ -1,49 +1,118 @@
-<!DOCTYPE html> <!-- Indica que el documento es HTML5 -->
-<html lang="es"> <!-- El idioma principal del documento es español -->
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8"> <!-- Define la codificación de caracteres como UTF-8 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Hace que la página sea adaptable a dispositivos móviles -->
-  <title>Web_Citas</title> <!-- Título que aparece en la pestaña del navegador -->
-  <link rel="stylesheet" href="styles.css"> <!-- Enlaza la hoja de estilos externa -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mi web — Registro e Inicio de sesión</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<!-- BOTON INICIAR SESION -->
-  <button id="botonUsuario" title="Botón usuario">
-    <!-- Icono de estrella, puedes cambiarlo por otro si lo prefieres -->
-    ★
-  </button>
+    <!-- Barra superior -->
+    <header>
+        <h1>Bienvenido a Web_Citas</h1> <!-- Título principal de la página -->
+        <p>Un sitio para encontrar el amor.</p> <!-- Mensaje de bienvenida -->
+        <!-- Botón circular de usuario -->
+        <button id="userButton" class="user-button" title="Cuenta">
+            <span id="userButtonContent">👤</span>
+        </button>
+    </header>
 
-<!-- VENTANA INICIAR SESIÓN -->
-  <!-- Fondo oscuro para la ventana, permite cerrar la pantalla, oculto por defecto -->
-  <div id="fondoIS" style="display:none;"></div>
+    <section id="resumen">
+        <h2>Sobre la web</h2> <!-- Título de la sección "Sobre mí" -->
+        <p>Crea tu perfil para empezar a conocer gente.</p> <!-- Breve descripción personal -->
+    </section>
 
-  <div id="ventanaIS" style="display:none;">
-  <!-- Contenido de la ventana de iniciar sesión -->
-    <div class="contenedor-botones">
-      <button id="botonIniciarSesion">Iniciar sesión</button>
-      <button id="botonRegistrarse">Registrarse</button>
+    <section id="Inicio">
+        <h2>Inicio</h2> <!-- Título de la sección "Contacto" -->
+        <button id="Ir_a_inicio">Haz clic para ir a la página inicial</button> <!-- Botón para interactuar con el usuario -->
+    </section>
+
+    <footer>
+        <p>© 2025 Fiesta_Cumple</p> <!-- Pie de página con derechos de autor -->
+    </footer>
+
+    <!-- Contenido principal -->
+    <main class="contenedor">
+        <!-- Mensaje inicial según sesión -->
+        <div id="welcomeArea" class="welcome">No hay sesión iniciada.</div>
+        <p>Bienvenido a la página. Usa el botón de arriba a la derecha para registrarte o iniciar sesión.</p>
+    </main>
+
+    <!-- Modal principal (opciones de cuenta) -->
+    <div id="authModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeAuthModal">✕</button>
+            <h2>Cuenta</h2>
+
+            <!-- Botones de opciones (en vertical) -->
+            <div class="actions-vertical">
+                <button id="openRegister" class="btn-grey">Registrarse</button>
+                <button id="openLogin" class="btn-blue">Iniciar sesión</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <header>
-    <h1>Bienvenido a Web_Citas</h1> <!-- Título principal de la página -->
-    <p>Un sitio para encontrar el amor.</p> <!-- Mensaje de bienvenida -->
-  </header>
+    <!-- Modal de registro -->
+    <div id="registerModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeRegisterModal">✕</button>
+            <h2>Registrarse</h2>
 
-  <section id="resumen">
-    <h2>Sobre la web</h2> <!-- Título de la sección "Sobre mí" -->
-    <p>Crea tu perfil para empezar a conocer gente.</p> <!-- Breve descripción personal -->
-  </section>
+            <form id="formRegister">
+                <label>
+                    Usuario
+                    <input id="regUsername" name="username" type="text" placeholder="ej. maria" required />
+                </label>
+                <label>
+                    Contraseña
+                    <input id="regPassword" name="password" type="password" placeholder="Tu contraseña" required />
+                </label>
+                <div id="regMessage" class="message"></div>
 
-  <section id="Inicio">
-    <h2>Inicio</h2> <!-- Título de la sección "Contacto" -->
-    <button id="Ir_a_inicio">Haz clic para ir a la página inicial</button> <!-- Botón para interactuar con el usuario -->
-  </section>
+                <div class="form-actions">
+                    <button type="submit">Crear cuenta</button>
+                    <button type="button" id="cancelRegister">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-  <footer>
-    <p>© 2025 Fiesta_Cumple</p> <!-- Pie de página con derechos de autor -->
-  </footer>
+    <!-- Modal de inicio de sesión -->
+    <div id="loginModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeLoginModal">✕</button>
+            <h2>Iniciar sesión</h2>
 
-  <script src="script.js"></script> <!-- Enlaza el archivo JavaScript externo -->
+            <form id="formLogin">
+                <label>
+                    Usuario
+                    <input id="loginUsername" name="username" type="text" placeholder="ej. maria" required />
+                </label>
+                <label>
+                    Contraseña
+                    <input id="loginPassword" name="password" type="password" placeholder="Tu contraseña" required />
+                </label>
+                <div id="loginMessage" class="message"></div>
+
+                <div class="form-actions">
+                    <button type="submit">Continuar</button>
+                    <button type="button" id="cancelLogin">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Panel de sesión (oculto por defecto) -->
+    <div id="sessionPanel" class="session-panel" aria-hidden="true" style="display:none;">
+        <div class="session-panel-inner">
+            <div><strong>Usuario:</strong> <span id="spUsername"></span></div>
+            <div><strong>Contraseña:</strong> <span id="spPasswordMasked"></span></div>
+            <div class="session-actions">
+                <button id="logoutBtn">Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

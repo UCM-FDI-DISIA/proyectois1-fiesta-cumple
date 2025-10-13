@@ -1,113 +1,187 @@
+/* styles.css - estilos básicos y layout */
+
+/* Reset muy simple */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Fondo y tipografía */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f7f9fc;
-  color: #333;
-  margin: 0;
-  padding: 0;
-  text-align: center;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f7f9fc;
+    color: #333;
+    min-height: 100vh;
+    text-align: center;
 }
 
 header {
-  background-color: #007bff;
-  color: white;
-  padding: 20px 0;
+    background-color: #007bff;
+    color: white;
+    padding: 20px 0;
 }
 
 section {
-  margin: 30px 0;
+    margin: 30px 0;
 }
 
 button {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-button:hover {
-  background-color: #0056b3;
+    button:hover {
+        background-color: #0056b3;
+    }
+
+/* Logo simple */
+.logo {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f1724;
 }
 
-/*BOTON INICIAR SESIÓN*/
-#botonUsuario {
-  position: fixed; /* Fija el botón en la pantalla */
-  top: 20px; /* Distancia desde la parte superior */
-  right: 20px; /* Distancia desde la derecha */
-  width: 48px; /* Ancho del botón */
-  height: 48px; /* Alto del botón */
-  border-radius: 50%; /* Hace el botón circular */
-  background-color: #3498db; /* Color de fondo */
-  border: none; /* Sin borde */
-  color: white; /* Color del icono o texto */
-  display: flex; /* Centra el contenido */
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* Sombra ligera */
-  cursor: pointer; /* Cambia el cursor al pasar por encima */
-  z-index: 1000; /* Se asegura de que esté por encima de otros elementos */
-  font-size: 1.5em; /* Tamaño del icono o texto */
+/* Botón circular usuario (arriba derecha) */
+.user-button {
+    position: fixed; /* Fija el botón en la pantalla */
+    top: 20px; /* Distancia desde la parte superior */
+    right: 20px; /* Distancia desde la derecha */
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: none;
+    background: #eef2f6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/*VENTANA INICIAR SESIÓN*/
-#ventanaIS {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 20vw;           /* Un quinto del ancho de la pantalla */
-  height: 33vh;          /* Un tercio de la altura de la pantalla */
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Contenedor principal */
+.contenedor {
+    max-width: 820px;
+    margin: 28px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(16,24,40,0.04);
 }
 
-/* Contenedor para centrar los botones verticalmente y ocupar todo el ancho */
-#ventanaIS .contenedor-botones {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;      /* Centra los botones horizontalmente */
-  justify-content: center;  /* Centra los botones verticalmente */
-  gap: 15px;                /* Espacio entre los botones */
+/* Modal base (oculto por defecto con aria-hidden) */
+.modal {
+    position: fixed;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    display: none; /* mostramos desde JS */
+    align-items: center;
+    justify-content: center;
+    background: rgba(8,12,20,0.35);
+    z-index: 50;
 }
 
-/* Estilos para los botones de la ventana de inicio/registro */
-#ventanaIS button {
-  width: 80%;               /* Mismo ancho para ambos */
-  min-width: 180px;         /* Ancho mínimo para ambos */
-  max-width: 250px;         /* Ancho máximo para ambos */
-  height: 44px;             /* Misma altura */
-  padding: 10px;
-  margin: 0 auto;
-  display: block;
-  font-size: 1em;
-  border-radius: 8px;
-  border: none;
-  background-color: #3498db;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
+/* Panel interior del modal */
+.modal-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 18px;
+    width: 360px;
+    box-shadow: 0 8px 32px rgba(4,8,20,0.08);
+    position: relative;
 }
 
-#ventanaIS button:hover {
-  background-color: #217dbb;
+/* Botón cerrar del modal */
+.modal .close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-/* Fondo oscuro semitransparente detrás de la ventana */
-#fondoIS {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.4);
-  z-index: 1500;
-  display: none;
+/* Formularios */
+label {
+    display: block;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #e6eef7;
+    background: #fbfdff;
+}
+
+/* Mensaje de estado */
+.message {
+    margin-top: 10px;
+    min-height: 18px;
+    color: #b91c1c; /* rojo por defecto (error) */
+    font-size: 13px;
+}
+
+/* Botones dentro del formulario */
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+    .form-actions button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .form-actions button[type="submit"] {
+            background: #0f62fe;
+            color: white;
+        }
+
+        .form-actions button[type="button"] {
+            background: #eef2f6;
+        }
+
+/* Panel de sesión (cuando hay usuario conectado) */
+.session-panel {
+    position: absolute;
+    top: 64px;
+    right: 20px;
+    width: 320px;
+    display: none; /* se muestra desde JS */
+    z-index: 60;
+}
+
+.session-panel-inner {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 8px 28px rgba(4,8,20,0.09);
+}
+
+.session-actions {
+    margin-top: 12px;
+}
+
+/* Botón cerrar sesión */
+#logoutBtn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
 }
