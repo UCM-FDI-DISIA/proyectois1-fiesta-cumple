@@ -55,7 +55,7 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
 Gracias a todas las personas que han participado en el desarrollo de este proyecto:
 
 <a href="https://github.com/UCM-FDI-DISIA/proyectois1-fiesta-cumple/graphs/contributors">
-  <img src="Contribuidores.png" alt="Contribuidores" width="250"/>
+  <img src="Contribuidores.jpg" alt="Contribuidores" width="250"/>
 </a>
 
 ---
