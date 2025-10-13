@@ -40,6 +40,29 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
    index.html
 ```
 
+> [!NOTE]
+> La aplicación se ejecuta directamente desde un archivo **HTML** local.  
+> Asegúrate de mantenerlo en su ubicación original para evitar errores al abrir la web.
 
+## Tecnologías utilizadas
+
+- **HTML5** → estructura del contenido  
+- **CSS3** → diseño y estilos responsivos  
+- **JavaScript (ES6)** → interacción y lógica del juego 
+
+## Contribuidores
+
+Gracias a todas las personas que han participado en el desarrollo de este proyecto:
+
+<a href="https://github.com/TU_USUARIO/NOMBRE_DEL_REPOSITORIO/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=TU_USUARIO/NOMBRE_DEL_REPOSITORIO" />
+</a>
+
+---
+
+## ⚖️ Licencia
+
+NOMBRE se distribuye bajo la licencia **MIT**.  
+Puedes usarlo y modificarlo libremente, siempre dando crédito a los autores.
 
 
