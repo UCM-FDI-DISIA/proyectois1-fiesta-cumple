@@ -1,4 +1,4 @@
-#NOMBRE
+# NOMBRE
 
 
 **NOMBRE** es una aplicación de citas en la que los usuarios pueden entablar conversaciones con otras personas con el fin de conocerse y establecer relaciones amorosos. 
@@ -9,16 +9,16 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 
 ---
 
-##Vista previa
+## Vista previa
 [IMAGEN]
 
 ---
 
-##Objetivo del proyecto
+## Objetivo del proyecto
 
 Este proyecto busca proponer una alternativa más **entretenida y significativa** para conocer gente, fomentando la búsqueda de relaciones **auténticas y serias**.
 
-#Ejecutando NOMBRE localmente
+## Ejecutando NOMBRE localmente
 
 El método para ejecutar la página web desde tu dispositivo es sencillo: 
 
