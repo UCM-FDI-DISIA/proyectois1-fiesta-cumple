@@ -54,13 +54,13 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
 
 Gracias a todas las personas que han participado en el desarrollo de este proyecto:
 
-<a href="https://github.com/TU_USUARIO/NOMBRE_DEL_REPOSITORIO/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=TU_USUARIO/NOMBRE_DEL_REPOSITORIO" />
+<a href="https://github.com/UCM-FDI-DISIA/proyectois1-fiesta-cumple/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=UCM-FDI-DISIA/proyectois1-fiesta-cumple/">
 </a>
 
 ---
 
-## ⚖️ Licencia
+## Licencia
 
 NOMBRE se distribuye bajo la licencia **MIT**.  
 Puedes usarlo y modificarlo libremente, siempre dando crédito a los autores.
