@@ -44,6 +44,11 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
 > La aplicación se ejecuta directamente desde un archivo **HTML** local.  
 > Asegúrate de mantenerlo en su ubicación original para evitar errores al abrir la web.
 
+## Tests
+
+
+
+
 ## Tecnologías utilizadas
 
 - **HTML5** → estructura del contenido  
