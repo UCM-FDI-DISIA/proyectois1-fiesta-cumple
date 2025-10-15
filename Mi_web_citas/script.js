@@ -228,6 +228,13 @@ const logoutBtn = document.getElementById('logoutBtn');
 
 const welcomeArea = document.getElementById('welcomeArea');
 
+// Referencias a elementos de la encuesta
+const surveyModal = document.getElementById('surveyModal');
+const closeSurveyModal = document.getElementById('closeSurveyModal');
+const formSurvey = document.getElementById('formSurvey');
+const surveyName = document.getElementById('surveyName');
+const surveyMessage = document.getElementById('surveyMessage');
+
 /* Funciones para mostrar/ocultar modales (manejamos aria-hidden y display) */
 function abrirModal(modalEl) {
     modalEl.style.display = 'flex';      // mostramos (flex centra en CSS)
@@ -238,18 +245,23 @@ function cerrarModal(modalEl) {
     modalEl.setAttribute('aria-hidden', 'true');
 }
 
-/* Mostrar panel de sesión (cuando hay usuario conectado) */
+/* Mostrar panel de sesión (cuando hay usuario conectado) - MODIFICADO */
 function mostrarSessionPanel(username) {
     const datos = obtenerDatosUsuarioParaMostrar(username);
     if (!datos) return;
     spUsername.textContent = datos.username;
     spPasswordMasked.textContent = datos.passwordMasked;
-    // mostramos panel
+    
+    // Mostrar panel
     sessionPanel.style.display = 'block';
     sessionPanel.setAttribute('aria-hidden', 'false');
 
-    // actualizamos el botón circular con la inicial del usuario
-    const inicial = username.charAt(0).toUpperCase();
+    // Actualizar el botón circular con la inicial del usuario
+    // Si tiene nombre guardado, usar la inicial del nombre, sino del username
+    const nombreGuardado = obtenerNombreUsuario(username);
+    const inicial = nombreGuardado 
+        ? nombreGuardado.charAt(0).toUpperCase() 
+        : username.charAt(0).toUpperCase();
     userButtonContent.textContent = inicial;
 }
 
@@ -314,7 +326,7 @@ closeLoginModal.addEventListener('click', () => cerrarModal(loginModal));
 cancelRegister.addEventListener('click', () => cerrarModal(registerModal));
 cancelLogin.addEventListener('click', () => cerrarModal(loginModal));
 
-/* Envío del formulario de registro */
+/* Envío del formulario de registro - MODIFICADO */
 formRegister.addEventListener('submit', async (ev) => {
     ev.preventDefault();  // evitamos recarga de la página
     regMessage.textContent = ''; // limpiamos mensajes
@@ -334,8 +346,8 @@ formRegister.addEventListener('submit', async (ev) => {
     cerrarModal(registerModal);
     formRegister.reset();
 
-    // opcional: informar al usuario
-    alert('Usuario creado correctamente. Ahora puedes iniciar sesión.');
+    // ABRIR ENCUESTA en lugar de mostrar alert
+    abrirEncuesta(username);
 });
 
 /* Envío del formulario de login */
@@ -373,3 +385,93 @@ logoutBtn.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
     actualizarUIPorSesion();
 });
+
+// ============================
+// ENCUESTA - Guardar nombre del usuario 
+// ============================
+
+/* Función para guardar el nombre en el perfil del usuario */
+function guardarNombreUsuario(username, nombreCompleto) {
+    const users = leerUsuarios();
+    if (users[username]) {
+        // Guardamos el nombre en el campo "fields" que ya existe en la estructura
+        users[username].fields = users[username].fields || {};
+        users[username].fields.nombre = nombreCompleto;
+        users[username].fields.encuestaCompletada = true;
+        guardarUsuarios(users);
+        return true;
+    }
+    return false;
+}
+
+/* Función para abrir la encuesta después del registro exitoso */
+function abrirEncuesta(username) {
+    // Limpiar el formulario
+    formSurvey.reset();
+    surveyMessage.textContent = '';
+    
+    // Guardar el username en un data attribute para usarlo después
+    formSurvey.setAttribute('data-username', username);
+    
+    // Abrir el modal de encuesta
+    abrirModal(surveyModal);
+}
+
+/* Función para obtener el nombre del usuario si existe */
+function obtenerNombreUsuario(username) {
+    const users = leerUsuarios();
+    if (users[username] && users[username].fields && users[username].fields.nombre) {
+        return users[username].fields.nombre;
+    }
+    return null;
+}
+
+// ============================
+// EVENTOS NUEVOS 
+// ============================
+
+/* Envío del formulario de encuesta - NUEVO */
+formSurvey.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    surveyMessage.textContent = '';
+
+    const nombreCompleto = surveyName.value.trim();
+    const username = formSurvey.getAttribute('data-username');
+
+    if (!nombreCompleto) {
+        surveyMessage.textContent = 'Por favor, introduce tu nombre';
+        return;
+    }
+
+    if (!username) {
+        surveyMessage.textContent = 'Error: no se pudo identificar el usuario';
+        return;
+    }
+
+    // Guardar el nombre en el perfil del usuario
+    const exito = guardarNombreUsuario(username, nombreCompleto);
+    
+    if (exito) {
+        // Cerrar modal de encuesta
+        cerrarModal(surveyModal);
+        formSurvey.removeAttribute('data-username');
+        
+        // Mostrar mensaje de éxito
+        alert(`¡Perfecto, ${nombreCompleto}! Tu perfil se ha completado correctamente. Ahora puedes iniciar sesión.`);
+    } else {
+        surveyMessage.textContent = 'Error al guardar tu información';
+    }
+});
+
+// Cerrar modal de encuesta
+closeSurveyModal.addEventListener('click', () => {
+    const username = formSurvey.getAttribute('data-username');
+    cerrarModal(surveyModal);
+    formSurvey.removeAttribute('data-username');
+    
+    // Si cierran la encuesta sin completarla, mostrar mensaje normal
+    if (username) {
+        alert('Usuario creado correctamente. Puedes completar tu perfil más tarde.');
+    }
+});
+
