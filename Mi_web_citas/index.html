@@ -113,6 +113,30 @@
         </div>
     </div>
 
+    <!-- Modal de encuesta (nuevo) -->
+<div id="surveyModal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+        <button class="close" id="closeSurveyModal">✕</button>
+        <h2>Completa tu perfil</h2>
+
+        <form id="formSurvey">
+            <label>
+                Nombre completo
+                <input id="surveyName" name="name" type="text" placeholder="Ej: María García" required />
+            </label>
+            <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                Este nombre se asociará a tu cuenta y podrá ser visible para otros usuarios.
+            </p>
+            <div id="surveyMessage" class="message"></div>
+
+            <div class="form-actions">
+                <button type="submit">Guardar y continuar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <script src="script.js"></script>
 </body>
 </html>
+
