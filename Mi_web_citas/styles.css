@@ -185,3 +185,19 @@ input[type="password"] {
     border-radius: 8px;
     cursor: pointer;
 }
+
+/* Estilos para el modal de encuesta */
+#surveyModal .modal-panel {
+    width: 400px;
+}
+
+#surveyModal p {
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+/* Asegurar que los inputs de la encuesta tengan buen espaciado */
+#surveyModal input[type="text"] {
+    margin-bottom: 10px;
+}
+
