@@ -15,6 +15,10 @@
         <button id="userButton" class="user-button" title="Cuenta">
             <span id="userButtonContent">👤</span>
         </button>
+        <div id ="userMenu" class="user-menu" style="display: none;">
+            <button id="verPanelBtn">Ver panel rápido</button>
+            <button id="verPaginaBtn">Abrir perfil completo</button>
+        </div>
     </header>
 
     <section id="resumen">
@@ -128,7 +132,23 @@
                 Este nombre se asociará a tu cuenta y podrá ser visible para otros usuarios.
             </p>
             <div id="surveyMessage" class="message"></div>
+            <label>
+                Foto de perfil
+                <input id="surveyPhoto" name="photo" type="file" accept="image/*"/>
+            </label>
 
+            <label>
+                Hábitos
+                <input id="surveyHabits" name="photo" type="file" placeholder="Ej: madrugar, leer, hacer deporte"/>
+                <small>Separa con comas</small>
+            </label>
+
+            <label>
+                Intereses
+                <input id="surveyInterests" name="interests" type="text" placeholder="Ej: cine, videojuegos, animales"/>
+                <small>Separa con comas</small>
+            </label>
+            
             <div class="form-actions">
                 <button type="submit">Guardar y continuar</button>
             </div>
@@ -137,6 +157,17 @@
 </div>
 
     <script src="script.js"></script>
+    <div id="profilePanel" class="profile-panel" style="display: none;">
+        <div class="profile-panel-inner">
+            <button id="closeProfilePanel" class="close">✕</button>
+            <h3>Tu perfil</h3>
+            <img id="panelPhoto" src="" alt="Foto de perfil" />
+            <p><strong>Nombre:</strong> <span id="panelName"></span></p>
+            <div><strong>Hábitos:</strong> <div id="panelHabits" class="tag-container"></div></div>
+            <div><strong>Intereses:</strong> <div id="panelInterests" class="tag-container"></div></div>
+        </div>
+    </div>
 </body>
 </html>
+
 
