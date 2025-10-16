@@ -299,14 +299,35 @@ userButton.addEventListener('click', () => {
     const current = leerSesion();
     if (current) {
         // alternamos el panel de sesión
-        if (sessionPanel.style.display === 'block') {
-            ocultarSessionPanel();
-        } else {
-            mostrarSessionPanel(current);
-        }
+        const menu = document.getElementById('userMenu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     } else {
         abrirModal(authModal);
     }
+});
+
+document.getElementById('verPanelBtn').addEventListener('click', () => {
+    document.getElementById('userMenu').style.display = 'none';
+    const username = leerSesion();
+    const users = leerUsuarios();
+    const user = users[username];
+
+    if (!user || !user.fields || !user.fields.encuestaCompletada) return;
+
+    document.getElementById('panelName').textContent = user.fields.nombre;
+    document.getElementById('panelPhoto').src = user.fields.foto || 'default.jpg';
+    renderTags('panelHabits', user.fields.habitos || []);
+    renderTags('panelInterests', user.fields.intereses || []);
+    document.getElementById('profilePanel').style.display = 'block';
+    document.getElementById('closeProfilePanel').addEventListener('click', () => {
+        document.getElementById('profilePanel').style.display = 'none';
+    });
+
+});
+
+document.getElementById('verPaginaBtn').addEventListener('click', () => {
+    document.getElementById('userMenu').style.display = 'none';
+    window.location.href = 'perfil.html';
 });
 
 /* Botones para abrir registro o login desde modal de opciones */
@@ -474,4 +495,16 @@ closeSurveyModal.addEventListener('click', () => {
         alert('Usuario creado correctamente. Puedes completar tu perfil más tarde.');
     }
 });
+
+
+function renderTags(containerId, tags) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    tags.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = tag;
+        container.appendChild(span);
+    });
+}
 
