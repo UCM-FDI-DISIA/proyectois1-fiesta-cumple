@@ -1,8 +1,8 @@
-# NOMBRE
+# Veneris
 
 
-**NOMBRE** es una aplicación de citas en la que los usuarios pueden entablar conversaciones con otras personas con el fin de conocerse y establecer relaciones amorosos. 
-A diferencia de las aplicaciones de citas convenciales, **NOMBRE** incorpora juegos cooperativos en los que los usuarios interactúan entre sí para comprobar su compatibilidad. 
+**Veneris** es una aplicación de citas en la que los usuarios pueden entablar conversaciones con otras personas con el fin de conocerse y establecer relaciones amorosos. 
+A diferencia de las aplicaciones de citas convenciales, **Veneris** incorpora juegos cooperativos en los que los usuarios interactúan entre sí para comprobar su compatibilidad. 
 
 Al participar en estos juegos, los usuarios pueden ganar puntos con otros, los cuales servirán para **desbloquear la funcionalidad del chat**.
 De esta manera, se evitan las interacciones efímeras, y se fomenta la creación de **relaciones más duraderas y reales**.
@@ -10,7 +10,7 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 ---
 
 ## Vista previa
-[IMAGEN]
+
 
 ---
 
@@ -18,7 +18,7 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 
 Este proyecto busca proponer una alternativa más **entretenida y significativa** para conocer gente, fomentando la búsqueda de relaciones **auténticas y serias**.
 
-## Ejecutando NOMBRE localmente
+## Ejecutando Veneris localmente
 
 El método para ejecutar la página web desde tu dispositivo es sencillo: 
 
