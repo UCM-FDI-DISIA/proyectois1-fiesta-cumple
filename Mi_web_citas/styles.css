@@ -401,4 +401,64 @@ input[type="password"] {
         font-size: 14px;
     }
 }
+/* === Scroll infinito tipo Tinder === */
+.explorar-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    background-color: #ff5c5c;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .explorar-btn:hover {
+        background-color: #ff2a2a;
+    }
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    overflow-y: auto;
+    flex-direction: column;
+}
+
+.perfil {
+    width: 250px;
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+    .perfil img {
+        width: 100%;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
