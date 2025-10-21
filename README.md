@@ -1,5 +1,6 @@
 # Veneris
 
+<img src="Logo.png" alt="Contribuidores">
 
 **Veneris** es una aplicación de citas en la que los usuarios pueden entablar conversaciones con otras personas con el fin de conocerse y establecer relaciones amorosos. 
 A diferencia de las aplicaciones de citas convenciales, **Veneris** incorpora juegos cooperativos en los que los usuarios interactúan entre sí para comprobar su compatibilidad. 
