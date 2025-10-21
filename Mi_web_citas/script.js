@@ -306,6 +306,7 @@ userButton.addEventListener('click', () => {
     }
 });
 
+
 document.getElementById('verPanelBtn').addEventListener('click', () => {
     document.getElementById('userMenu').style.display = 'none';
     const username = leerSesion();
