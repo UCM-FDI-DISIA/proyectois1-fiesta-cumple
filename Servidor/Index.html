@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Citas - Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- PANTALLA DE LOGIN (para cuando actives autenticación) -->
+    <div id="login-screen" style="display:none;">
+        <h1>Bienvenido al Chat</h1>
+        <p>Inicia sesión o crea una cuenta nueva</p>
+
+        <input type="email" id="email" placeholder="Tu email (ejemplo@gmail.com)">
+        <input type="password" id="password" placeholder="Contraseña (mínimo 6 caracteres)">
+
+        <button onclick="login()">Iniciar Sesión</button>
+        <button onclick="register()">Crear Cuenta Nueva</button>
+
+        <p id="login-error" style="color:red;"></p>
+    </div>
+
+    <!-- PANTALLA DE CHAT (activa por defecto en versión sin login) -->
+    <div id="chat-screen" style="display:none;">
+        <div id="header">
+            <h2>Chat en Vivo</h2>
+            <div id="user-info"></div>
+            <button onclick="logout()">Cambiar Nombre</button>
+            <!-- Cuando actives autenticación, el botón dirá "Cerrar Sesión" -->
+        </div>
+
+        <div id="messages"></div>
+
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS DE FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <!-- AUTH: descomenta esta línea cuando actives autenticación -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>

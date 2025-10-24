@@ -1,0 +1,234 @@
+﻿/* ========================================
+   ESTILOS GENERALES
+======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+/* ========================================
+   PANTALLA DE LOGIN
+======================================== */
+#login-screen {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#login-screen h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#login-screen p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+#login-screen input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#login-screen button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#login-screen button:first-of-type {
+    background-color: #0084ff;
+    color: white;
+}
+
+#login-screen button:first-of-type:hover {
+    background-color: #0073e6;
+}
+
+#login-screen button:last-of-type {
+    background-color: #42b72a;
+    color: white;
+}
+
+#login-screen button:last-of-type:hover {
+    background-color: #36a420;
+}
+
+/* ========================================
+   PANTALLA DE CHAT
+======================================== */
+#chat-screen {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Header del chat - SIEMPRE VISIBLE */
+#header {
+    background-color: #0084ff;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 10px 10px 0 0;
+}
+
+#header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#user-info {
+    font-size: 14px;
+}
+
+#header button {
+    background-color: white;
+    color: #0084ff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#header button:hover {
+    background-color: #f0f2f5;
+}
+
+/* ========================================
+   ÁREA DE MENSAJES - CON SCROLL
+======================================== */
+#messages {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 20px;
+    background-color: #f0f2f5;
+}
+
+.message {
+    background: white;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    max-width: 70%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    word-wrap: break-word;
+    clear: both;
+}
+
+.message {
+    float: left;
+    margin-right: auto;
+}
+
+.message.my-message {
+    background-color: #0084ff;
+    color: white;
+    float: right;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    gap: 15px;
+}
+
+.my-message .message-header {
+    color: rgba(255,255,255,0.8);
+}
+
+.message-text {
+    font-size: 15px;
+    word-wrap: break-word;
+}
+
+.timestamp {
+    color: #999;
+    font-size: 11px;
+}
+
+.my-message .timestamp {
+    color: rgba(255,255,255,0.7);
+}
+
+/* ========================================
+   ÁREA DE ENTRADA DE MENSAJES - SIEMPRE VISIBLE
+======================================== */
+#input-area {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0;
+    border-radius: 0 0 10px 10px;
+}
+
+#message-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 15px;
+    outline: none;
+}
+
+#message-input:focus {
+    border-color: #0084ff;
+}
+
+#input-area button {
+    margin-left: 10px;
+    padding: 12px 25px;
+    background-color: #0084ff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#input-area button:hover {
+    background-color: #0073e6;
+}
