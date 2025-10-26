@@ -70,7 +70,7 @@ Gracias a todas las personas que han participado en el desarrollo de este proyec
 
 ## Licencia
 
-NOMBRE se distribuye bajo la licencia **MIT**.  
+Veneris se distribuye bajo la licencia **MIT**.  
 Puedes usarlo y modificarlo libremente, siempre dando crédito a los autores.
 
 
