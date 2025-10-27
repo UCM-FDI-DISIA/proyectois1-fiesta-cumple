@@ -22,6 +22,7 @@
     </div>
 
     <!-- PANTALLA DE CHAT (activa por defecto en versión sin login) -->
+    <!-- NOTA: Ahora empieza oculta, se mostrará al pulsar el botón -->
     <div id="chat-screen" style="display:none;">
         <div id="header">
             <h2>Chat en Vivo</h2>
@@ -36,6 +37,14 @@
             <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí...">
             <button onclick="sendMessage()">Enviar</button>
         </div>
+    </div>
+
+    <!-- ====================================
+         BOTÓN FLOTANTE PARA ABRIR/CERRAR CHAT
+         ==================================== -->
+    <!-- Botón fijo en la esquina inferior derecha -->
+    <div id="openChatBtn" class="chat-open-button">
+        Chat
     </div>
 
     <!-- SCRIPTS DE FIREBASE -->

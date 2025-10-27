@@ -36,11 +36,70 @@ let currentUser = null;
 */
 
 // ========================================
+// VARIABLES GLOBALES PARA EL CHAT
+// ========================================
+/*
+   Variables que almacenan referencias a los elementos del DOM
+   relacionados con el sistema de apertura/cierre del chat.
+   
+   Se inicializan en el evento DOMContentLoaded para asegurar
+   que los elementos HTML ya existan cuando se asignen.
+*/
+let chatScreen;      // Contenedor principal del chat (#chat-screen)
+let openChatBtn;     // Botón flotante para abrir el chat (#openChatBtn)
+let chatIsVisible = false; // Estado actual del chat (visible/oculto)
+
+// ========================================
 // VERSIÓN ACTUAL: INICIALIZACIÓN SIN LOGIN
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // ===== INICIALIZACIÓN DEL SISTEMA DE CHAT =====
+    console.log('Inicializando sistema de chat...');
+    
+    // Obtener referencias a los elementos del DOM
+    chatScreen = document.getElementById('chat-screen');
+    openChatBtn = document.getElementById('openChatBtn');
+    
+    // Verificar que los elementos existen
+    if (!chatScreen) {
+        console.error('ERROR: No se encontró el elemento #chat-screen');
+        return;
+    }
+    if (!openChatBtn) {
+        console.error('ERROR: No se encontró el elemento #openChatBtn');
+        return;
+    }
+    
+    // Asegurar que el chat empiece oculto
+    chatScreen.style.display = 'none';
+    chatIsVisible = false;
+    
+    // ===== CONFIGURAR EVENTO DEL BOTÓN FLOTANTE =====
+    /*
+       El botón flotante funciona como un toggle (interruptor):
+       - Si el chat está oculto, lo muestra
+       - Si el chat está visible, lo oculta
+       
+       Esto permite usar un único botón para ambas acciones,
+       mejorando la experiencia de usuario.
+    */
+    openChatBtn.addEventListener('click', function() {
+        if (chatIsVisible) {
+            // El chat está visible -> ocultarlo
+            ocultar_chat();
+        } else {
+            // El chat está oculto -> mostrarlo
+            mostrar_chat();
+        }
+    });
+    
+    console.log('[OK] Sistema de botón de chat configurado correctamente');
+    
+    // ===== SOLICITAR NOMBRE DE USUARIO =====
+    // Pedir el nombre antes de mostrar el chat por primera vez
     askForUsername();
     
+    // ===== CONFIGURAR TECLA ENTER EN EL INPUT =====
     const input = document.getElementById('message-input');
     if (input) {
         input.addEventListener('keypress', (e) => {
@@ -56,6 +115,34 @@ document.addEventListener('DOMContentLoaded', () => {
    Reemplaza el bloque DOMContentLoaded de arriba con este:
    ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // ===== INICIALIZACIÓN DEL SISTEMA DE CHAT =====
+    console.log('Inicializando sistema de chat...');
+    
+    chatScreen = document.getElementById('chat-screen');
+    openChatBtn = document.getElementById('openChatBtn');
+    
+    if (!chatScreen) {
+        console.error('ERROR: No se encontró el elemento #chat-screen');
+        return;
+    }
+    if (!openChatBtn) {
+        console.error('ERROR: No se encontró el elemento #openChatBtn');
+        return;
+    }
+    
+    chatScreen.style.display = 'none';
+    chatIsVisible = false;
+    
+    openChatBtn.addEventListener('click', function() {
+        if (chatIsVisible) {
+            ocultar_chat();
+        } else {
+            mostrar_chat();
+        }
+    });
+    
+    console.log('[OK] Sistema de botón de chat configurado correctamente');
+    
     // Configurar tecla Enter
     const input = document.getElementById('message-input');
     if (input) {
@@ -71,13 +158,69 @@ document.addEventListener('DOMContentLoaded', () => {
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
-        showChat();
+        // NO mostramos automáticamente, el usuario debe hacer clic en el botón
         loadMessages();
     } else {
         showLogin();
     }
 });
 */
+
+// ========================================
+// FUNCIÓN: MOSTRAR CHAT
+// ========================================
+/*
+   mostrar_chat()
+   
+   Función pública que muestra la ventana de chat en pantalla.
+   
+   ¿Qué hace?
+   1. Cambia el estilo display de 'none' a 'flex'
+   2. Actualiza la variable de estado chatIsVisible a true
+   3. Registra la acción en la consola para debugging
+   
+   ¿Por qué 'flex'?
+   El contenedor del chat usa flexbox para organizar verticalmente
+   el header, el área de mensajes y el área de entrada.
+   
+   ¿Cuándo se llama?
+   - Cuando el usuario hace clic en el botón flotante (y el chat está oculto)
+   - Puede ser llamada desde otras partes del código en el futuro
+     (por ejemplo, al recibir un mensaje nuevo)
+*/
+function mostrar_chat() {
+    chatScreen.style.display = 'flex';
+    chatIsVisible = true;
+    console.log('Chat mostrado');
+}
+
+// ========================================
+// FUNCIÓN: OCULTAR CHAT
+// ========================================
+/*
+   ocultar_chat()
+   
+   Función pública que oculta la ventana de chat de la pantalla.
+   
+   ¿Qué hace?
+   1. Cambia el estilo display a 'none'
+   2. Actualiza la variable de estado chatIsVisible a false
+   3. Registra la acción en la consola para debugging
+   
+   IMPORTANTE: NO borra los mensajes ni cierra la sesión.
+   Solo oculta visualmente el chat. Los mensajes siguen
+   cargándose en tiempo real en segundo plano.
+   
+   ¿Cuándo se llama?
+   - Cuando el usuario hace clic en el botón flotante (y el chat está visible)
+   - Puede ser llamada desde otras partes del código en el futuro
+     (por ejemplo, al cerrar sesión)
+*/
+function ocultar_chat() {
+    chatScreen.style.display = 'none';
+    chatIsVisible = false;
+    console.log('Chat ocultado');
+}
 
 // ========================================
 // VERSIÓN ACTUAL: PEDIR NOMBRE SIN LOGIN
@@ -89,11 +232,17 @@ function askForUsername() {
         currentUserName = 'Usuario Anónimo';
     }
     
+    // MODIFICACIÓN: Ya no mostramos automáticamente el chat
+    // El usuario debe hacer clic en el botón flotante
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('chat-screen').style.display = 'flex';
+    // Removemos esta línea: document.getElementById('chat-screen').style.display = 'flex';
+    
     document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
     
     loadMessages();
+    
+    console.log('Usuario configurado: ' + currentUserName);
+    console.log('Para ver el chat, haz clic en el botón flotante "Chat"');
 }
 
 /* ========================================
@@ -147,7 +296,7 @@ function login() {
             } else if (error.code === 'auth/invalid-email') {
                 errorElement.textContent = 'El email no es válido';
             } else {
-                errorElement.textContent = 'Error: ' + error.message;
+                errorElement.textContent = 'Error: ' + error.message';
             }
         });
 }
@@ -287,6 +436,7 @@ function formatTime(timestamp) {
 function showLogin() {
     document.getElementById('login-screen').style.display = 'block';
     document.getElementById('chat-screen').style.display = 'none';
+    chatIsVisible = false; // Actualizar estado
 }
 
 // ========================================
@@ -294,7 +444,8 @@ function showLogin() {
 // ========================================
 function showChat() {
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('chat-screen').style.display = 'flex';
+    // MODIFICACIÓN: Ya no mostramos automáticamente
+    // document.getElementById('chat-screen').style.display = 'flex';
     
     document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
     

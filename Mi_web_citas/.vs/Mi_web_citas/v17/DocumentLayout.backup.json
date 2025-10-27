@@ -26,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
@@ -38,8 +38,11 @@
               "RelativeToolTip": "index.html",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
-              "WhenOpened": "2025-10-21T00:47:16.888Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T00:47:16.888Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
             },
             {
               "$type": "Document",
@@ -51,8 +54,7 @@
               "RelativeToolTip": "package.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-21T08:09:31.971Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T08:09:31.971Z"
             },
             {
               "$type": "Document",
@@ -64,8 +66,7 @@
               "RelativeToolTip": "styles.css",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-21T00:47:19.348Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T00:47:19.348Z"
             },
             {
               "$type": "Document",
@@ -75,7 +76,7 @@
               "RelativeDocumentMoniker": "script.js",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\script.js",
               "RelativeToolTip": "script.js",
-              "ViewState": "AgIAAFEAAAAAAAAAAAAAAC4BAABAAAAAAAAAAA==",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAAAFMAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2025-10-21T00:47:19.03Z",
               "EditorCaption": ""

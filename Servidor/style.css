@@ -93,6 +93,7 @@ html, body {
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000; /* Asegura que el chat esté por encima de otros elementos */
 }
 
 /* Header del chat - SIEMPRE VISIBLE */
@@ -231,4 +232,81 @@ html, body {
 
 #input-area button:hover {
     background-color: #0073e6;
+}
+
+/* ========================================
+   BOTÓN FLOTANTE DE CHAT
+   ======================================== */
+/* 
+   Botón fijo en la esquina inferior derecha que permite
+   abrir y cerrar la ventana de chat con un simple clic.
+   
+   Características:
+   - Posicionamiento fijo (siempre visible al hacer scroll)
+   - Ubicado en la esquina inferior derecha
+   - Color azul coherente con el tema de la aplicación
+   - Efecto hover para mejorar la experiencia de usuario
+*/
+
+.chat-open-button {
+    /* Posicionamiento fijo en la esquina inferior derecha */
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    
+    /* Estilo visual del botón */
+    background-color: #0084ff; /* Azul del tema */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px; /* Bordes redondeados */
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.4); /* Sombra azul suave */
+    
+    /* Asegurar que esté por encima de otros elementos */
+    z-index: 999; /* Menor que el chat (1000) pero mayor que el resto */
+    
+    /* Transición suave para efectos hover */
+    transition: all 0.3s ease;
+    
+    /* Evitar selección de texto */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+/* Efecto hover: el botón se agranda ligeramente y cambia de color */
+.chat-open-button:hover {
+    background-color: #0073e6; /* Azul más oscuro */
+    transform: scale(1.05); /* Aumenta un 5% */
+    box-shadow: 0 6px 16px rgba(0, 132, 255, 0.5); /* Sombra más pronunciada */
+}
+
+/* Efecto al hacer clic: el botón se reduce momentáneamente */
+.chat-open-button:active {
+    transform: scale(0.98);
+}
+
+/* ========================================
+   RESPONSIVIDAD - ADAPTACIÓN A MÓVILES
+======================================== */
+/* 
+   En pantallas pequeñas, ajustamos el tamaño y posición
+   del botón para que no interfiera con el contenido
+*/
+
+@media (max-width: 768px) {
+    .chat-open-button {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    #chat-screen {
+        width: 95%;
+        height: calc(100vh - 20px);
+        top: 10px;
+    }
 }
