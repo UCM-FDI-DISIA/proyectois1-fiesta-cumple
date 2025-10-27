@@ -27,73 +27,201 @@ html, body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-#login-screen h1 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #333;
-}
+    #login-screen h1 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #333;
+    }
 
-#login-screen p {
-    text-align: center;
-    color: #666;
-    margin-bottom: 20px;
-}
+    #login-screen p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+    }
 
-#login-screen input {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-}
+    #login-screen input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
 
-#login-screen button {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: bold;
-}
+    #login-screen button {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-#login-screen button:first-of-type {
-    background-color: #0084ff;
-    color: white;
-}
+        #login-screen button:first-of-type {
+            background-color: #0084ff;
+            color: white;
+        }
 
-#login-screen button:first-of-type:hover {
-    background-color: #0073e6;
-}
+            #login-screen button:first-of-type:hover {
+                background-color: #0073e6;
+            }
 
-#login-screen button:last-of-type {
-    background-color: #42b72a;
-    color: white;
-}
+        #login-screen button:last-of-type {
+            background-color: #42b72a;
+            color: white;
+        }
 
-#login-screen button:last-of-type:hover {
-    background-color: #36a420;
-}
+            #login-screen button:last-of-type:hover {
+                background-color: #36a420;
+            }
 
 /* ========================================
-   PANTALLA DE CHAT
-======================================== */
+   CONTENEDOR PRINCIPAL DEL CHAT
+   ======================================== */
+/* 
+   Estructura de dos columnas:
+   - Barra lateral izquierda (lista de chats)
+   - Ventana de mensajes derecha
+*/
 #chat-screen {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
-    max-width: 800px;
+    max-width: 1000px; /* Aumentado para dar espacio a ambas secciones */
     height: calc(100vh - 40px);
-    display: flex;
-    flex-direction: column;
+    display: flex; /* Cambio clave: ahora usa flex para dos columnas */
+    flex-direction: row; /* Horizontal: barra lateral + ventana */
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 1000; /* Asegura que el chat esté por encima de otros elementos */
+    z-index: 1000;
+    overflow: hidden; /* Evita que los elementos internos se salgan */
+}
+
+/* ========================================
+   BARRA LATERAL DE CHATS
+   ======================================== */
+/*
+   Panel izquierdo que muestra la lista de conversaciones
+   del usuario. Se ajusta automáticamente al tamaño de la
+   ventana de chat principal.
+*/
+.chat-sidebar {
+    width: 300px; /* Ancho fijo de la barra lateral */
+    background-color: #f8f9fa;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; /* No se reduce aunque falte espacio */
+}
+
+/* Header de la barra lateral */
+.sidebar-header {
+    background-color: #0084ff;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+    .sidebar-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+/* Lista de chats */
+.chat-list {
+    flex: 1 1 auto; /* Ocupa todo el espacio disponible */
+    overflow-y: auto; /* Scroll si hay muchos chats */
+    overflow-x: hidden;
+    padding: 10px 0;
+}
+
+/* Mensaje cuando no hay chats */
+.no-chats-message {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Item individual de chat en la lista */
+.chat-item {
+    padding: 15px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .chat-item:hover {
+        background-color: #e8f4ff;
+    }
+
+    /* Chat seleccionado actualmente */
+    .chat-item.active {
+        background-color: #d0e8ff;
+        border-left: 3px solid #0084ff;
+    }
+
+/* Nombre del usuario en la lista de chats */
+.chat-item-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 15px;
+}
+
+/* Footer de la barra lateral (botón añadir) */
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+/* Botón para añadir nuevo chat */
+.add-chat-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #42b72a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .add-chat-btn:hover {
+        background-color: #36a420;
+    }
+
+    .add-chat-btn:active {
+        transform: scale(0.98);
+    }
+
+/* ========================================
+   VENTANA DE MENSAJES
+   ======================================== */
+/*
+   Panel derecho que muestra los mensajes
+   de la conversación seleccionada.
+*/
+.chat-window {
+    flex: 1 1 auto; /* Ocupa el espacio restante */
+    display: flex;
+    flex-direction: column;
+    background: white;
+    min-width: 0; /* Permite que se reduzca si es necesario */
 }
 
 /* Header del chat - SIEMPRE VISIBLE */
@@ -105,13 +233,12 @@ html, body {
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    border-radius: 10px 10px 0 0;
 }
 
-#header h2 {
-    margin: 0;
-    font-size: 18px;
-}
+    #header h2 {
+        margin: 0;
+        font-size: 18px;
+    }
 
 #user-info {
     font-size: 14px;
@@ -127,9 +254,9 @@ html, body {
     font-weight: bold;
 }
 
-#header button:hover {
-    background-color: #f0f2f5;
-}
+    #header button:hover {
+        background-color: #f0f2f5;
+    }
 
 /* ========================================
    ÁREA DE MENSAJES - CON SCROLL
@@ -141,6 +268,17 @@ html, body {
     padding: 20px;
     background-color: #f0f2f5;
 }
+
+    /* Estado vacío: cuando no hay chat seleccionado */
+    #messages.empty-state {
+        background-color: #e0e0e0; /* Gris más oscuro que el fondo normal */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #666;
+        font-size: 16px;
+        text-align: center;
+    }
 
 .message {
     background: white;
@@ -158,13 +296,13 @@ html, body {
     margin-right: auto;
 }
 
-.message.my-message {
-    background-color: #0084ff;
-    color: white;
-    float: right;
-    margin-left: auto;
-    margin-right: 0;
-}
+    .message.my-message {
+        background-color: #0084ff;
+        color: white;
+        float: right;
+        margin-left: auto;
+        margin-right: 0;
+    }
 
 .message-header {
     display: flex;
@@ -202,7 +340,6 @@ html, body {
     background: white;
     border-top: 1px solid #ddd;
     flex-shrink: 0;
-    border-radius: 0 0 10px 10px;
 }
 
 #message-input {
@@ -214,9 +351,16 @@ html, body {
     outline: none;
 }
 
-#message-input:focus {
-    border-color: #0084ff;
-}
+    #message-input:focus:not(:disabled) {
+        border-color: #0084ff;
+    }
+
+    /* Estilo cuando el input está deshabilitado */
+    #message-input:disabled {
+        background-color: #f0f2f5;
+        cursor: not-allowed;
+        color: #999;
+    }
 
 #input-area button {
     margin-left: 10px;
@@ -228,74 +372,55 @@ html, body {
     cursor: pointer;
     font-weight: bold;
     font-size: 15px;
+    transition: background-color 0.2s;
 }
 
-#input-area button:hover {
-    background-color: #0073e6;
-}
+    #input-area button:hover:not(:disabled) {
+        background-color: #0073e6;
+    }
+
+    /* Estilo cuando el botón está deshabilitado */
+    #input-area button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
 
 /* ========================================
    BOTÓN FLOTANTE DE CHAT
    ======================================== */
-/* 
-   Botón fijo en la esquina inferior derecha que permite
-   abrir y cerrar la ventana de chat con un simple clic.
-   
-   Características:
-   - Posicionamiento fijo (siempre visible al hacer scroll)
-   - Ubicado en la esquina inferior derecha
-   - Color azul coherente con el tema de la aplicación
-   - Efecto hover para mejorar la experiencia de usuario
-*/
-
 .chat-open-button {
-    /* Posicionamiento fijo en la esquina inferior derecha */
     position: fixed;
     bottom: 30px;
     right: 30px;
-    
-    /* Estilo visual del botón */
-    background-color: #0084ff; /* Azul del tema */
+    background-color: #0084ff;
     color: white;
     padding: 15px 25px;
-    border-radius: 25px; /* Bordes redondeados */
+    border-radius: 25px;
     cursor: pointer;
     font-weight: bold;
     font-size: 16px;
-    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.4); /* Sombra azul suave */
-    
-    /* Asegurar que esté por encima de otros elementos */
-    z-index: 999; /* Menor que el chat (1000) pero mayor que el resto */
-    
-    /* Transición suave para efectos hover */
+    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.4);
+    z-index: 999;
     transition: all 0.3s ease;
-    
-    /* Evitar selección de texto */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
 
-/* Efecto hover: el botón se agranda ligeramente y cambia de color */
-.chat-open-button:hover {
-    background-color: #0073e6; /* Azul más oscuro */
-    transform: scale(1.05); /* Aumenta un 5% */
-    box-shadow: 0 6px 16px rgba(0, 132, 255, 0.5); /* Sombra más pronunciada */
-}
+    .chat-open-button:hover {
+        background-color: #0073e6;
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 132, 255, 0.5);
+    }
 
-/* Efecto al hacer clic: el botón se reduce momentáneamente */
-.chat-open-button:active {
-    transform: scale(0.98);
-}
+    .chat-open-button:active {
+        transform: scale(0.98);
+    }
 
 /* ========================================
    RESPONSIVIDAD - ADAPTACIÓN A MÓVILES
 ======================================== */
-/* 
-   En pantallas pequeñas, ajustamos el tamaño y posición
-   del botón para que no interfiera con el contenido
-*/
-
 @media (max-width: 768px) {
     .chat-open-button {
         bottom: 20px;
@@ -303,10 +428,16 @@ html, body {
         padding: 12px 20px;
         font-size: 14px;
     }
-    
+
     #chat-screen {
         width: 95%;
         height: calc(100vh - 20px);
         top: 10px;
+        max-width: none;
+    }
+
+    /* En móviles, la barra lateral ocupa todo el ancho cuando está activa */
+    .chat-sidebar {
+        width: 250px;
     }
 }

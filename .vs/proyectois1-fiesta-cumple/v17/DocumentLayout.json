@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Servidor\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Servidor\\style.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\Index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Servidor\\Index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Mi_web_citas\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -22,11 +34,54 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "style.css",
+              "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css",
+              "RelativeDocumentMoniker": "Servidor\\style.css",
+              "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css",
+              "RelativeToolTip": "Servidor\\style.css",
+              "ViewState": "AgIAAJQBAAAAAAAAAAAgwLsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-27T08:13:06.744Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "Index.html",
+              "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\Index.html",
+              "RelativeDocumentMoniker": "Servidor\\Index.html",
+              "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\Index.html",
+              "RelativeToolTip": "Servidor\\Index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFwAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-10-27T08:13:05.714Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "app.js",
+              "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js",
+              "RelativeDocumentMoniker": "Servidor\\app.js",
+              "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js",
+              "RelativeToolTip": "Servidor\\app.js",
+              "ViewState": "AgIAAIIBAAAAAAAAAAAewJEBAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-27T08:13:04.111Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "styles.css",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\styles.css",
               "RelativeDocumentMoniker": "Mi_web_citas\\styles.css",
@@ -34,12 +89,11 @@
               "RelativeToolTip": "Mi_web_citas\\styles.css",
               "ViewState": "AgIAAEoAAAAAAAAAAAAUwHEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-11T21:04:48.824Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-11T21:04:48.824Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "script.js",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\script.js",
               "RelativeDocumentMoniker": "Mi_web_citas\\script.js",
@@ -47,18 +101,17 @@
               "RelativeToolTip": "Mi_web_citas\\script.js",
               "ViewState": "AgIAAAAAAAAAAAAAAAAiwBEAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-11T21:04:45.648Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-11T21:04:45.648Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "index.html",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\index.html",
               "RelativeDocumentMoniker": "Mi_web_citas\\index.html",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Mi_web_citas\\index.html",
               "RelativeToolTip": "Mi_web_citas\\index.html",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2025-10-11T21:04:24.337Z",
               "EditorCaption": ""
