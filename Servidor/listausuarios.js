@@ -168,9 +168,9 @@
             const users = [];
             snapshot.forEach(doc => {
                 const data = doc.data() || {};
-                // Priorizar el campo `username` (si existe) para mostrarlo en la lista.
-                // Si no existe, intentamos otros campos comunes y finalmente el id.
-                const display = data.username || data.displayName || data.name || data.email || doc.id;
+                // Priorizar el campo `userName` (usado en app.js). Si no existe,
+                // intentamos `username`, luego otros campos comunes y finalmente el id.
+                const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
                 users.push({ id: doc.id, display, raw: data });
             });
 
@@ -221,8 +221,12 @@
                     cursor: 'pointer'
                 });
                 action.addEventListener('click', () => {
-                    // Si el display es igual al id y existe un username en raw, preferimos copiar username.
-                    const toCopy = (u.display && u.display !== u.id) ? u.display : (u.raw && u.raw.username) ? u.raw.username : u.id;
+                    // Preferir copiar el valor mostrado (display). Si display es igual al id,
+                    // intentar prefijar los campos userName o username en el documento.
+                    const prefer = u.raw && (u.raw.userName || u.raw.username);
+                    const toCopy = (u.display && u.display !== u.id)
+                        ? u.display
+                        : (prefer ? (u.raw.userName || u.raw.username) : u.id);
                     copyToClipboard(toCopy);
                     action.textContent = 'Copiado';
                     setTimeout(() => action.textContent = 'Copiar usuario', 1200);
