@@ -57,6 +57,7 @@ let chatIsVisible = false; // Estado actual del chat (visible/oculto)
 let currentChatId = null;        // ID del chat actualmente abierto
 let currentChatPartner = null;   // Nombre del usuario con quien se está chateando
 let activeChatListener = null;   // Listener activo de mensajes (para poder desuscribirse)
+let chatsListener = null;        // Listener de la lista de chats (para evitar duplicados)
 
 // ========================================
 // VERSIÓN ACTUAL: INICIALIZACIÓN CON AUTENTICACIÓN
@@ -268,6 +269,13 @@ async function login() {
         // Cargar chats y mostrar interfaz
         loadUserChats();
         
+        // Mostrar botones flotantes después de iniciar sesión
+        document.getElementById('openChatBtn').style.display = 'block';
+        const usersBtn = document.getElementById('openUsersBtn');
+        if (usersBtn) {
+            usersBtn.style.display = 'block';
+        }
+        
         setTimeout(() => {
             showChatInterface();
             errorElement.textContent = '';
@@ -366,6 +374,13 @@ async function completeRegistration() {
         
         // Cargar chats y mostrar interfaz
         loadUserChats();
+        
+        // Mostrar botones flotantes después de crear cuenta
+        document.getElementById('openChatBtn').style.display = 'block';
+        const usersBtn = document.getElementById('openUsersBtn');
+        if (usersBtn) {
+            usersBtn.style.display = 'block';
+        }
         
         setTimeout(() => {
             showChatInterface();
@@ -492,6 +507,12 @@ function logout() {
     if (currentChatId) {
         closeCurrentChat();
     }
+    
+    // Desuscribir listener de chats
+    if (chatsListener) {
+        chatsListener();
+        chatsListener = null;
+    }
 
     // Limpiar la ventana de chat
     showEmptyState();
@@ -505,6 +526,12 @@ function logout() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
     document.getElementById('openChatBtn').style.display = 'none';
+    
+    // Ocultar botón de lista de usuarios
+    const usersBtn = document.getElementById('openUsersBtn');
+    if (usersBtn) {
+        usersBtn.style.display = 'none';
+    }
     
     // Limpiar campo de login
     document.getElementById('login-username').value = '';
@@ -580,12 +607,22 @@ function loadUserChats() {
     const chatList = document.getElementById('chat-list');
     const noChatsMessage = document.getElementById('no-chats-message');
     
+    // Si ya hay un listener activo, NO crear otro
+    if (chatsListener) {
+        console.log('Ya existe un listener de chats activo');
+        return;
+    }
+    
+    console.log('Creando listener de chats...');
+    
     // Escuchar cambios en tiempo real
-    db.collection('chats')
+    chatsListener = db.collection('chats')
         .where('participants', 'array-contains', currentUserId)
         .orderBy('lastMessageTime', 'desc')
         .onSnapshot(snapshot => {
-            // Limpiar lista actual
+            console.log('Snapshot de chats recibido:', snapshot.size, 'chats');
+            
+            // Limpiar lista actual COMPLETAMENTE
             chatList.innerHTML = '';
             
             if (snapshot.empty) {
@@ -598,7 +635,7 @@ function loadUserChats() {
                     const chatData = doc.data();
                     renderChatItem(doc.id, chatData);
                 });
-                console.log(`Cargados ${snapshot.size} chats`);
+                console.log(`Renderizados ${snapshot.size} chats`);
             }
         }, error => {
             console.error('Error al cargar chats:', error);
