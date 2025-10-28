@@ -228,15 +228,344 @@ async function populateProfileMenu() {
 
 async function viewProfile() {
     if (!currentUserId) { alert('No hay usuario conectado.'); return; }
+    createProfileModal();
+    showProfileModal();
+    await loadProfileData();
+}
+
+// Crear el modal de perfil si no existe
+function createProfileModal() {
+    if (document.getElementById('profileModal')) return;
+    
+    const modal = document.createElement('div');
+    modal.id = 'profileModal';
+    modal.className = 'profile-modal';
+    
+    modal.innerHTML = `
+        <div class="profile-modal-header">
+            <h2>Perfil de Usuario</h2>
+            <button class="profile-modal-close" onclick="hideProfileModal()">&times;</button>
+        </div>
+        <div class="profile-tabs">
+            <div class="profile-tab active" data-tab="view">Ver perfil</div>
+            <div class="profile-tab" data-tab="edit">Editar perfil</div>
+        </div>
+        <div class="profile-content">
+            <!-- Vista del perfil -->
+            <div id="viewProfileContent">
+                <div class="profile-photo-section">
+                    <div class="profile-photo-container" id="profilePhotoView">
+                        <!-- La foto se inserta aquí -->
+                    </div>
+                </div>
+                <div class="profile-info-section">
+                    <h3>Nombre de usuario</h3>
+                    <p id="profileNameView">Cargando...</p>
+                    
+                    <h3>Hábitos</h3>
+                    <div class="profile-habits" id="profileHabitsView">
+                        <!-- Los hábitos se insertan aquí -->
+                    </div>
+                    
+                    <h3>Gustos e intereses</h3>
+                    <p id="profileInterestsView">Cargando...</p>
+                </div>
+            </div>
+            
+            <!-- Formulario de edición -->
+            <div id="editProfileContent" style="display:none">
+                <form class="edit-profile-form" onsubmit="return false;">
+                    <div class="profile-photo-section">
+                        <div class="profile-photo-container" id="profilePhotoEdit">
+                            <!-- La foto se inserta aquí -->
+                        </div>
+                        <input type="file" id="newProfilePhoto" accept="image/*" style="display:none">
+                        <button type="button" onclick="document.getElementById('newProfilePhoto').click()">
+                            Cambiar foto
+                        </button>
+                    </div>
+                    
+                    <label>
+                        Nombre de usuario
+                        <input type="text" id="editProfileName">
+                    </label>
+                    
+                    <div class="habits-section">
+                        <h3>Hábitos</h3>
+                        <label><input type="checkbox" name="editHabit" value="Deportista"> Deportista</label>
+                        <label><input type="checkbox" name="editHabit" value="Lector"> Lector</label>
+                        <label><input type="checkbox" name="editHabit" value="Viajero"> Viajero</label>
+                        <label><input type="checkbox" name="editHabit" value="Cocinero"> Cocinero</label>
+                        <label><input type="checkbox" name="editHabit" value="Músico"> Músico</label>
+                        <label><input type="checkbox" name="editHabit" value="Gamer"> Gamer</label>
+                    </div>
+                    
+                    <label>
+                        Gustos e intereses
+                        <textarea id="editProfileInterests" rows="4"></textarea>
+                    </label>
+                    
+                    <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // Backdrop para cerrar el modal al hacer click fuera
+    const backdrop = document.createElement('div');
+    backdrop.className = 'profile-modal-backdrop';
+    backdrop.onclick = hideProfileModal;
+    
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+    
+    // Event listeners para las pestañas
+    const tabs = modal.querySelectorAll('.profile-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabType = tab.dataset.tab;
+            switchProfileTab(tabType);
+        });
+    });
+    
+    // Event listener para la foto de perfil
+    const photoInput = document.getElementById('newProfilePhoto');
+    if (photoInput) {
+        photoInput.addEventListener('change', handleProfilePhotoChange);
+    }
+}
+
+function showProfileModal() {
+    const modal = document.getElementById('profileModal');
+    const backdrop = document.querySelector('.profile-modal-backdrop');
+    if (modal && backdrop) {
+        modal.style.display = 'block';
+        backdrop.style.display = 'block';
+    }
+}
+
+function hideProfileModal() {
+    const modal = document.getElementById('profileModal');
+    const backdrop = document.querySelector('.profile-modal-backdrop');
+    if (modal && backdrop) {
+        modal.style.display = 'none';
+        backdrop.style.display = 'none';
+    }
+}
+
+function switchProfileTab(tabType) {
+    const tabs = document.querySelectorAll('.profile-tab');
+    const viewContent = document.getElementById('viewProfileContent');
+    const editContent = document.getElementById('editProfileContent');
+    
+    tabs.forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabType}"]`).classList.add('active');
+    
+    if (tabType === 'view') {
+        viewContent.style.display = 'block';
+        editContent.style.display = 'none';
+    } else {
+        viewContent.style.display = 'none';
+        editContent.style.display = 'block';
+        populateEditForm();
+    }
+}
+
+async function loadProfileData() {
     try {
         const doc = await db.collection('users').doc(currentUserId).get();
-        if (!doc.exists) { alert('Perfil no encontrado.'); return; }
-        const data = doc.data() || {};
-        // Mostrar información mínima en un alert; se puede mejorar con modal
-        alert('Usuario: ' + (data.userName || currentUserId) + '\nEmail: ' + (data.email || '—'));
+        if (!doc.exists) {
+            alert('Perfil no encontrado');
+            return;
+        }
+        
+        const data = doc.data();
+        
+        // Actualizar vista del perfil
+        document.getElementById('profileNameView').textContent = data.userName || 'Sin nombre';
+        document.getElementById('profileInterestsView').textContent = data.interests || 'No especificado';
+        
+        // Actualizar hábitos
+        const habitsContainer = document.getElementById('profileHabitsView');
+        habitsContainer.innerHTML = '';
+        if (data.habits && data.habits.length > 0) {
+            data.habits.forEach(habit => {
+                const tag = document.createElement('span');
+                tag.className = 'habit-tag';
+                tag.textContent = habit;
+                habitsContainer.appendChild(tag);
+            });
+        } else {
+            habitsContainer.innerHTML = '<p>No hay hábitos registrados</p>';
+        }
+        
+        // Actualizar foto
+        const photoContainer = document.getElementById('profilePhotoView');
+        if (data.photoURL) {
+            photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+        } else {
+            photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        }
+        
     } catch (err) {
-        console.error('viewProfile error', err);
-        alert('Error al cargar perfil');
+        console.error('Error cargando perfil:', err);
+        alert('Error al cargar el perfil');
+    }
+}
+
+async function populateEditForm() {
+    try {
+        const doc = await db.collection('users').doc(currentUserId).get();
+        if (!doc.exists) return;
+        
+        const data = doc.data();
+        
+        // Rellenar campos
+        document.getElementById('editProfileName').value = data.userName || '';
+        document.getElementById('editProfileInterests').value = data.interests || '';
+        
+        // Marcar hábitos
+        const checkboxes = document.querySelectorAll('input[name="editHabit"]');
+        checkboxes.forEach(cb => {
+            cb.checked = data.habits ? data.habits.includes(cb.value) : false;
+        });
+        
+        // Mostrar foto actual
+        const photoContainer = document.getElementById('profilePhotoEdit');
+        if (data.photoURL) {
+            photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+        } else {
+            photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        }
+        
+    } catch (err) {
+        console.error('Error poblando formulario:', err);
+        alert('Error al cargar datos para edición');
+    }
+}
+
+async function handleProfilePhotoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    try {
+        // Validar tamaño y tipo de archivo
+        if (file.size > 5 * 1024 * 1024) { // 5MB máximo
+            alert('La imagen es demasiado grande. Máximo 5MB.');
+            event.target.value = ''; // Limpiar input
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor selecciona una imagen válida.');
+            event.target.value = '';
+            return;
+        }
+        
+        // Mostrar preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const photoContainer = document.getElementById('profilePhotoEdit');
+            if (photoContainer) {
+                photoContainer.innerHTML = `<img src="${e.target.result}" alt="Nueva foto">`;
+            }
+        };
+        reader.readAsDataURL(file);
+        
+    } catch (err) {
+        console.error('Error con la foto:', err);
+        alert('Error al procesar la imagen: ' + err.message);
+    }
+}
+
+async function saveProfileChanges() {
+    try {
+        console.log('Iniciando guardado de cambios...');
+        
+        // 1. Recoger datos del formulario
+        const newName = document.getElementById('editProfileName').value.trim();
+        const newInterests = document.getElementById('editProfileInterests').value.trim();
+        const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
+            .map(cb => cb.value);
+        
+        // Validación básica
+        if (!newName) {
+            alert('El nombre es obligatorio');
+            return;
+        }
+
+        // 2. Obtener datos actuales del usuario
+        console.log('Obteniendo datos actuales...');
+        const userDoc = await db.collection('users').doc(currentUserId).get();
+        if (!userDoc.exists) {
+            alert('Error: Perfil no encontrado');
+            return;
+        }
+        const currentData = userDoc.data();
+        
+        // 3. Procesar foto si hay nueva
+        console.log('Procesando foto...');
+        const photoInput = document.getElementById('newProfilePhoto');
+        let photoURL = currentData.photoURL || ''; // Mantener la URL actual o vacío si no hay
+        
+        if (photoInput && photoInput.files && photoInput.files.length > 0) {
+            const file = photoInput.files[0];
+            console.log('Subiendo nueva foto...');
+            try {
+                const storageRef = storage.ref(`profile-photos/${currentUserId}`);
+                const uploadTask = await storageRef.put(file);
+                photoURL = await uploadTask.ref.getDownloadURL();
+                console.log('Foto subida exitosamente:', photoURL);
+            } catch (photoErr) {
+                console.error('Error subiendo foto:', photoErr);
+                alert('Error al subir la foto. Los demás cambios se guardarán.');
+                // Continuamos con la URL anterior
+            }
+        }
+        
+        // 4. Preparar datos para actualizar
+        console.log('Preparando datos para actualizar...');
+        const updateData = {
+            userId: currentUserId,
+            userName: newName,
+            interests: newInterests || '', // Asegurar que no sea null/undefined
+            habits: selectedHabits || [], // Asegurar que no sea null/undefined
+            photoURL: photoURL,
+            age: currentData.age || 18,
+            createdAt: currentData.createdAt || firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // 5. Guardar en Firestore
+        console.log('Guardando cambios en Firestore...');
+        await db.collection('users').doc(currentUserId).set(updateData, { merge: true });
+        
+        // 6. Actualizar UI
+        console.log('Actualizando UI...');
+        await loadProfileData();
+        updateProfileButton();
+        document.getElementById('user-info').textContent = 'Conectado como: ' + newName;
+        
+        // 7. Limpiar formulario de foto
+        if (photoInput) photoInput.value = '';
+        
+        // 8. Mostrar confirmación y cambiar a vista
+        console.log('¡Cambios guardados exitosamente!');
+        alert('Perfil actualizado correctamente');
+        switchProfileTab('view');
+        
+        // Recargar datos y mostrar vista
+        await loadProfileData();
+        switchProfileTab('view');
+        
+        // Actualizar otros elementos de la UI que muestran info del usuario
+        document.getElementById('user-info').textContent = 'Conectado como: ' + newName;
+        updateProfileButton();
+        
+        alert('Perfil actualizado correctamente');
+        
+    } catch (err) {
+        console.error('Error guardando cambios:', err);
+        alert('Error al guardar los cambios');
     }
 }
 
