@@ -134,6 +134,25 @@
         panel.appendChild(list);
 
         document.body.appendChild(panel);
+
+        // Cerrar el panel si el usuario hace click fuera de él (y fuera del botón)
+        // Manejador global: seguro porque comprueba si el panel está abierto y
+        // evita cerrarlo cuando el click proviene del propio panel o del botón.
+        document.addEventListener('click', (ev) => {
+            try {
+                const panelEl = document.getElementById('users-panel');
+                const btnEl = document.getElementById('openUsersBtn');
+                if (!panelEl) return;
+                const target = ev.target;
+                const isPanelOpen = panelEl.style.display === 'block';
+                if (isPanelOpen && !panelEl.contains(target) && !(btnEl && btnEl.contains(target))) {
+                    panelEl.style.display = 'none';
+                }
+            } catch (e) {
+                // No queremos que un error aquí rompa otros scripts
+                console.warn('[listausuarios] Error en click fuera:', e);
+            }
+        });
     }
 
     // Recupera los usuarios desde Firestore y los renderiza en el panel
