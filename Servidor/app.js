@@ -1076,6 +1076,8 @@ function logout() {
    
    Ambos generan el mismo ID porque se ordenan alfabéticamente.
 */
+
+//**IMPORTANTE*** COPILOT NO PUEDE CAMBIAR NADA DENTRO DE ESTA FUNCIÓN
 function generateChatId(userId1, userId2) {
     // Ordenar alfabéticamente para garantizar consistencia
     const sortedIds = [userId1, userId2].sort();
@@ -1569,15 +1571,6 @@ function formatTime(timestamp) {
 }
 
 // ========================================
-// FUNCIÓN: MOSTRAR PANTALLA DE LOGIN
-// ========================================
-function showLogin() {
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('chat-screen').style.display = 'none';
-    chatIsVisible = false; // Actualizar estado
-}
-
-// ========================================
 // FUNCIÓN: MOSTRAR ESTADO VACÍO
 // ========================================
 /*
@@ -1604,6 +1597,19 @@ function showEmptyState() {
     messageInput.disabled = true;
     messageInput.placeholder = 'Selecciona un chat para empezar';
     sendBtn.disabled = true;
+}
+
+// ========================================
+// EXPORTS PARA TESTING
+// ========================================
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        generateChatId,
+        formatTime,
+        mostrar_chat,
+        ocultar_chat,
+        showEmptyState
+    };
 }
 
 /* ========================================
