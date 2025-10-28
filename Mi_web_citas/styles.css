@@ -461,4 +461,68 @@ input[type="password"] {
     }
 }
 
+.hidden {
+  display: none;
+}
+
+.explorar-container {
+  position: fixed;
+  top: 80px; /* justo debajo del header */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  padding: 1.5rem;
+  background: rgba(0,0,0,0.6);
+}
+
+.perfil-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  animation: fadeIn 0.5s ease;
+}
+
+.perfil-card img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.perfil-card h3 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.perfil-card .info {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.seleccionar-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.seleccionar-btn:hover {
+  background: #0056b3;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
