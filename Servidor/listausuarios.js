@@ -44,6 +44,7 @@
         btn.style.fontSize = '14px';
         btn.style.borderRadius = '20px';
         btn.style.zIndex = '1001';
+        btn.style.display = 'none'; // Oculto por defecto hasta iniciar sesión
 
         // Click toggles panel
         btn.addEventListener('click', async () => {
@@ -166,10 +167,22 @@
 
             const users = [];
             snapshot.forEach(doc => {
+                // Si hay un usuario logueado, excluirlo de la lista para que
+                // no aparezca a sí mismo en "Lista de usuarios".
+                if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
+
                 const data = doc.data() || {};
-                const display = data.displayName || data.name || data.username || data.email || doc.id;
+                // Priorizar el campo `userName` (usado en app.js). Si no existe,
+                // intentamos `username`, luego otros campos comunes y finalmente el id.
+                const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
                 users.push({ id: doc.id, display, raw: data });
             });
+
+            // Si tras filtrar sólo quedaba el usuario actual, indicarlo
+            if (users.length === 0) {
+                info.textContent = 'No hay otros usuarios registrados.';
+                return;
+            }
 
             // Ordenar alfabéticamente por display
             users.sort((a,b) => a.display.toString().localeCompare(b.display.toString(), 'es'));
@@ -207,7 +220,8 @@
 
                 // Botón de acción opcional (ej: iniciar chat). Por ahora solo copia el id
                 const action = document.createElement('button');
-                action.textContent = 'Copiar ID';
+                // Copiamos el valor mostrado (username preferente) en lugar del uid
+                action.textContent = 'Copiar usuario';
                 Object.assign(action.style, {
                     background: '#0084ff',
                     color: 'white',
@@ -217,9 +231,15 @@
                     cursor: 'pointer'
                 });
                 action.addEventListener('click', () => {
-                    copyToClipboard(u.id);
+                    // Preferir copiar el valor mostrado (display). Si display es igual al id,
+                    // intentar prefijar los campos userName o username en el documento.
+                    const prefer = u.raw && (u.raw.userName || u.raw.username);
+                    const toCopy = (u.display && u.display !== u.id)
+                        ? u.display
+                        : (prefer ? (u.raw.userName || u.raw.username) : u.id);
+                    copyToClipboard(toCopy);
                     action.textContent = 'Copiado';
-                    setTimeout(() => action.textContent = 'Copiar ID', 1200);
+                    setTimeout(() => action.textContent = 'Copiar usuario', 1200);
                 });
 
                 row.appendChild(left);
