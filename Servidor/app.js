@@ -839,13 +839,23 @@ async function completeRegistration() {
         currentUserId = userId;
         currentUserName = name.trim();
         
-        // Subir foto de perfil si existe
+        // Subir foto de perfil si existe (mejor manejo: ruta única + obtener URL del uploadTask)
         let photoURL = '';
         if (photoFile) {
             errorElement.textContent = 'Subiendo foto de perfil...';
-            const storageRef = storage.ref(`profile-photos/${userId}`);
-            await storageRef.put(photoFile);
-            photoURL = await storageRef.getDownloadURL();
+            try {
+                // Crear una ruta única para evitar sobreescrituras y problemas de caché
+                const filePath = `profile-photos/${userId}/${Date.now()}_${photoFile.name}`;
+                const storageRef = storage.ref(filePath);
+                const uploadSnapshot = await storageRef.put(photoFile);
+                // Obtener URL desde el snapshot
+                photoURL = await uploadSnapshot.ref.getDownloadURL();
+            } catch (upErr) {
+                console.error('Error subiendo foto durante registro:', upErr);
+                // No abortar el registro por una foto fallida; avisamos al usuario
+                errorElement.textContent = 'Error subiendo la foto. El perfil se creará sin foto.';
+                photoURL = '';
+            }
         }
         
         // Guardar perfil completo en Firestore usando el ID formateado
