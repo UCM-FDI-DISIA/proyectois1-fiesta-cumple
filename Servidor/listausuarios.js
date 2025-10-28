@@ -167,12 +167,22 @@
 
             const users = [];
             snapshot.forEach(doc => {
+                // Si hay un usuario logueado, excluirlo de la lista para que
+                // no aparezca a sí mismo en "Lista de usuarios".
+                if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
+
                 const data = doc.data() || {};
                 // Priorizar el campo `userName` (usado en app.js). Si no existe,
                 // intentamos `username`, luego otros campos comunes y finalmente el id.
                 const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
                 users.push({ id: doc.id, display, raw: data });
             });
+
+            // Si tras filtrar sólo quedaba el usuario actual, indicarlo
+            if (users.length === 0) {
+                info.textContent = 'No hay otros usuarios registrados.';
+                return;
+            }
 
             // Ordenar alfabéticamente por display
             users.sort((a,b) => a.display.toString().localeCompare(b.display.toString(), 'es'));
