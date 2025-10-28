@@ -1,8 +1,10 @@
 ﻿/*
-Para cuando queramos introducir el inicio de sesión: 
-1. Descomenta las secciones marcadas como "VERSIÓN CON AUTENTICACIÓN (COMENTADA)".
-2. Comenta o elimina las secciones marcadas como "VERSIÓN ACTUAL".
-3. En el html, descomentar la línea <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+Sistema de chat SIMPLIFICADO para pruebas.
+Versión sin contraseñas - solo requiere nombre de usuario.
+Incluye: registro simple, encuesta de perfil, foto de perfil, y chat en tiempo real.
+
+NOTA: Para versión con autenticación completa (email/contraseña),
+descomenta las secciones marcadas como "VERSIÓN CON AUTENTICACIÓN".
 */ 
 
 // ========================================
@@ -21,19 +23,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // ========================================
-// VERSIÓN ACTUAL: SIN AUTENTICACIÓN
+// SERVICIOS DE FIREBASE
 // ========================================
+// VERSIÓN CON AUTENTICACIÓN (COMENTADA)
+// const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
+// let currentUser = null;
+let currentUserId = '';
 let currentUserName = '';
-let currentUserId = ''; // ID normalizado del usuario actual
-
-/* ========================================
-   VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-   Para activar: elimina este bloque de comentarios
-   ======================================== 
-const auth = firebase.auth();
-let currentUser = null;
-*/
 
 // ========================================
 // VARIABLES GLOBALES PARA EL CHAT
@@ -59,9 +57,10 @@ let chatIsVisible = false; // Estado actual del chat (visible/oculto)
 let currentChatId = null;        // ID del chat actualmente abierto
 let currentChatPartner = null;   // Nombre del usuario con quien se está chateando
 let activeChatListener = null;   // Listener activo de mensajes (para poder desuscribirse)
+let chatsListener = null;        // Listener de la lista de chats (para evitar duplicados)
 
 // ========================================
-// VERSIÓN ACTUAL: INICIALIZACIÓN SIN LOGIN
+// VERSIÓN ACTUAL: INICIALIZACIÓN CON AUTENTICACIÓN
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
     // ===== INICIALIZACIÓN DEL SISTEMA DE CHAT =====
@@ -86,29 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
     chatIsVisible = false;
     
     // ===== CONFIGURAR EVENTO DEL BOTÓN FLOTANTE =====
-    /*
-       El botón flotante funciona como un toggle (interruptor):
-       - Si el chat está oculto, lo muestra
-       - Si el chat está visible, lo oculta
-       
-       Esto permite usar un único botón para ambas acciones,
-       mejorando la experiencia de usuario.
-    */
     openChatBtn.addEventListener('click', function() {
         if (chatIsVisible) {
-            // El chat está visible -> ocultarlo
             ocultar_chat();
         } else {
-            // El chat está oculto -> mostrarlo
             mostrar_chat();
         }
     });
     
     console.log('[OK] Sistema de botón de chat configurado correctamente');
-    
-    // ===== SOLICITAR NOMBRE DE USUARIO =====
-    // Pedir el nombre antes de mostrar el chat por primera vez
-    askForUsername();
     
     // ===== CONFIGURAR TECLA ENTER EN EL INPUT =====
     const input = document.getElementById('message-input');
@@ -125,70 +110,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addChatBtn) {
         addChatBtn.addEventListener('click', addNewChat);
     }
-});
 
-/* ========================================
-   VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-   Reemplaza el bloque DOMContentLoaded de arriba con este:
-   ========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // ===== INICIALIZACIÓN DEL SISTEMA DE CHAT =====
-    console.log('Inicializando sistema de chat...');
-    
-    chatScreen = document.getElementById('chat-screen');
-    openChatBtn = document.getElementById('openChatBtn');
-    
-    if (!chatScreen) {
-        console.error('ERROR: No se encontró el elemento #chat-screen');
-        return;
-    }
-    if (!openChatBtn) {
-        console.error('ERROR: No se encontró el elemento #openChatBtn');
-        return;
-    }
-    
-    chatScreen.style.display = 'none';
-    chatIsVisible = false;
-    
-    openChatBtn.addEventListener('click', function() {
-        if (chatIsVisible) {
-            ocultar_chat();
-        } else {
-            mostrar_chat();
-        }
-    });
-    
-    console.log('[OK] Sistema de botón de chat configurado correctamente');
-    
-    // Configurar tecla Enter
-    const input = document.getElementById('message-input');
-    if (input) {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !input.disabled) {
-                sendMessage();
-            }
-        });
-    }
-    
-    // Configurar botón añadir chat
-    const addChatBtn = document.getElementById('add-chat-btn');
-    if (addChatBtn) {
-        addChatBtn.addEventListener('click', addNewChat);
+    // ===== PREVIEW DE FOTO DE PERFIL =====
+    const profilePhotoInput = document.getElementById('profile-photo');
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', previewProfilePhoto);
     }
 });
 
-// DETECTAR SI HAY USUARIO LOGUEADO
+// ========================================
+// VERSIÓN SIMPLIFICADA: INICIAR DIRECTAMENTE EN REGISTRO
+// ========================================
+// VERSIÓN CON AUTENTICACIÓN (COMENTADA)
+/*
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
         currentUserId = user.uid;
-        // NO mostramos automáticamente, el usuario debe hacer clic en el botón
+        loadUserProfile();
         loadUserChats();
+        showChatInterface();
     } else {
         showLogin();
     }
 });
 */
+
+// Para versión de prueba, mostramos directamente el formulario de registro
+// El usuario se "auto-autentica" al crear su perfil
 
 // ========================================
 // FUNCIÓN: MOSTRAR CHAT
@@ -247,171 +196,370 @@ function ocultar_chat() {
 }
 
 // ========================================
-// FUNCIÓN: NORMALIZAR NOMBRE DE USUARIO
+// FUNCIONES DE AUTENTICACIÓN Y REGISTRO
 // ========================================
-/*
-   normalizeUsername(name)
-   
-   Convierte un nombre de usuario a su forma normalizada
-   para usarlo como ID único en Firebase.
-   
-   Transformaciones aplicadas:
-   1. Convierte a minúsculas
-   2. Elimina espacios al inicio y final
-   3. Reemplaza espacios internos por guiones bajos
-   
-   Ejemplos:
-   - "Maria" -> "maria"
-   - "JUAN" -> "juan"
-   - "Ana Garcia" -> "ana_garcia"
-   - "  Pedro  " -> "pedro"
-*/
-function normalizeUsername(name) {
-    return name.trim().toLowerCase().replace(/\s+/g, '_');
+
+// Mostrar pantalla de login
+function showLogin() {
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('register-screen').style.display = 'none';
+    document.getElementById('chat-screen').style.display = 'none';
+    document.getElementById('openChatBtn').style.display = 'none';
 }
 
-// ========================================
-// VERSIÓN ACTUAL: PEDIR NOMBRE SIN LOGIN
-// ========================================
-/*
-   askForUsername()
-   
-   Solicita el nombre de usuario y lo registra/carga en Firebase.
-   
-   Flujo:
-   1. Pide el nombre con prompt
-   2. Normaliza el nombre para usarlo como ID
-   3. Verifica si el usuario existe en Firebase
-   4. Si NO existe: crea un nuevo registro
-   5. Si SÍ existe: carga sus datos
-   6. Carga la lista de chats del usuario
-*/
-async function askForUsername() {
-    let userName = prompt('¿Cuál es tu nombre?', 'Usuario Anónimo');
+// Mostrar formulario de registro
+function showRegisterForm() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('register-screen').style.display = 'block';
+}
+
+// Volver al login
+function showLoginForm() {
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('register-screen').style.display = 'none';
+    // Limpiar errores
+    document.getElementById('register-error').textContent = '';
+}
+
+// Mostrar interfaz de chat
+function showChatInterface() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('register-screen').style.display = 'none';
+    document.getElementById('chat-screen').style.display = 'none';
+    document.getElementById('openChatBtn').style.display = 'block';
+}
+
+// Iniciar sesión solo con nombre de usuario
+async function login() {
+    const username = document.getElementById('login-username').value;
+    const errorElement = document.getElementById('login-error');
     
-    if (!userName || userName.trim() === '') {
-        userName = 'Usuario Anónimo';
+    if (!username || username.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa tu nombre de usuario';
+        return;
     }
     
-    currentUserName = userName.trim();
-    currentUserId = normalizeUsername(currentUserName);
-    
-    console.log('Usuario: ' + currentUserName);
-    console.log('ID normalizado: ' + currentUserId);
-    
-    // ===== VERIFICAR/CREAR USUARIO EN FIREBASE =====
     try {
-        const userRef = db.collection('users').doc(currentUserId);
-        const userDoc = await userRef.get();
+        errorElement.textContent = 'Buscando usuario...';
         
-        if (!userDoc.exists) {
-            // Usuario nuevo: crear registro
-            await userRef.set({
-                userId: currentUserId,
-                userName: currentUserName,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            console.log('[OK] Nuevo usuario creado en Firebase');
-        } else {
-            console.log('[OK] Usuario existente cargado desde Firebase');
+        // Buscar usuario por nombre exacto
+        const usersSnapshot = await db.collection('users')
+            .where('userName', '==', username.trim())
+            .get();
+        
+        if (usersSnapshot.empty) {
+            errorElement.textContent = 'Usuario no encontrado. ¿Quieres crear una cuenta nueva?';
+            return;
         }
         
+        // Si hay múltiples usuarios con el mismo nombre, tomar el primero
+        const userDoc = usersSnapshot.docs[0];
+        const userData = userDoc.data();
+        
+        // Establecer usuario actual
+        currentUserId = userDoc.id;
+        currentUserName = userData.userName;
+        
+        errorElement.style.color = 'green';
+        errorElement.textContent = '¡Bienvenido de nuevo, ' + currentUserName + '!';
+        
         // Actualizar UI
-        document.getElementById('login-screen').style.display = 'none';
         document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
         
-        // Cargar chats del usuario
+        // Cargar chats y mostrar interfaz
         loadUserChats();
         
-        console.log('Para ver el chat, haz clic en el botón flotante "Chat"');
+        // Mostrar botones flotantes después de iniciar sesión
+        document.getElementById('openChatBtn').style.display = 'block';
+        const usersBtn = document.getElementById('openUsersBtn');
+        if (usersBtn) {
+            usersBtn.style.display = 'block';
+        }
+        
+        setTimeout(() => {
+            showChatInterface();
+            errorElement.textContent = '';
+            errorElement.style.color = 'red';
+        }, 1000);
         
     } catch (error) {
-        console.error('Error al verificar/crear usuario:', error);
-        alert('Error al conectar con Firebase: ' + error.message);
+        errorElement.textContent = 'Error al iniciar sesión: ' + error.message;
+        console.error('Error al iniciar sesión:', error);
     }
 }
 
-/* ========================================
-   VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-   ========================================
-function register() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorElement = document.getElementById('login-error');
+// Preview de foto de perfil
+function previewProfilePhoto(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('photo-preview');
     
-    if (!email || !password) {
-        errorElement.textContent = 'Por favor completa todos los campos';
-        return;
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
     }
-    
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-            alert('¡Cuenta creada con éxito! Ya puedes chatear.');
-            errorElement.textContent = '';
-        })
-        .catch(error => {
-            if (error.code === 'auth/email-already-in-use') {
-                errorElement.textContent = 'Este email ya está registrado. Usa "Iniciar Sesión"';
-            } else if (error.code === 'auth/weak-password') {
-                errorElement.textContent = 'La contraseña debe tener mínimo 6 caracteres';
-            } else if (error.code === 'auth/invalid-email') {
-                errorElement.textContent = 'El email no es válido';
-            } else {
-                errorElement.textContent = 'Error: ' + error.message;
-            }
-        });
 }
 
-function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorElement = document.getElementById('login-error');
+// Completar registro con encuesta
+async function completeRegistration() {
+    const name = document.getElementById('register-name').value;
+    const photoFile = document.getElementById('profile-photo').files[0];
+    const interests = document.getElementById('interests').value;
+    const age = document.getElementById('age').value;
+    const errorElement = document.getElementById('register-error');
     
-    if (!email || !password) {
-        errorElement.textContent = 'Por favor completa todos los campos';
+    // Obtener hábitos seleccionados
+    const habitsCheckboxes = document.querySelectorAll('input[name="habit"]:checked');
+    const habits = Array.from(habitsCheckboxes).map(cb => cb.value);
+    
+    // Validaciones
+    if (!name || name.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa tu nombre de usuario';
         return;
     }
     
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            errorElement.textContent = '';
-        })
-        .catch(error => {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                errorElement.textContent = 'Email o contraseña incorrectos';
-            } else if (error.code === 'auth/invalid-email') {
-                errorElement.textContent = 'El email no es válido';
-            } else {
-                errorElement.textContent = 'Error: ' + error.message;
-            }
+    if (!age || age < 18) {
+        errorElement.textContent = 'Debes ser mayor de 18 años';
+        return;
+    }
+    
+    try {
+        errorElement.textContent = 'Verificando disponibilidad del nombre...';
+        
+        // Verificar si el nombre de usuario ya existe
+        const existingUsers = await db.collection('users')
+            .where('userName', '==', name.trim())
+            .get();
+        
+        if (!existingUsers.empty) {
+            errorElement.textContent = 'Este nombre de usuario ya está en uso. Por favor elige otro.';
+            return;
+        }
+        
+        errorElement.textContent = 'Creando perfil...';
+        
+        // Generar ID único basado en timestamp
+        const userId = 'user_' + Date.now();
+        currentUserId = userId;
+        currentUserName = name.trim();
+        
+        // Subir foto de perfil si existe
+        let photoURL = '';
+        if (photoFile) {
+            errorElement.textContent = 'Subiendo foto de perfil...';
+            const storageRef = storage.ref(`profile-photos/${userId}`);
+            await storageRef.put(photoFile);
+            photoURL = await storageRef.getDownloadURL();
+        }
+        
+        // Guardar perfil completo en Firestore
+        errorElement.textContent = 'Guardando perfil...';
+        await db.collection('users').doc(userId).set({
+            userId: userId,
+            userName: name.trim(),
+            photoURL: photoURL,
+            habits: habits,
+            interests: interests,
+            age: parseInt(age),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        
+        errorElement.style.color = 'green';
+        errorElement.textContent = '¡Perfil creado con éxito! Redirigiendo...';
+        
+        // Actualizar UI
+        document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
+        
+        // Cargar chats y mostrar interfaz
+        loadUserChats();
+        
+        // Mostrar botones flotantes después de crear cuenta
+        document.getElementById('openChatBtn').style.display = 'block';
+        const usersBtn = document.getElementById('openUsersBtn');
+        if (usersBtn) {
+            usersBtn.style.display = 'block';
+        }
+        
+        setTimeout(() => {
+            showChatInterface();
+            // Limpiar formulario
+            document.getElementById('register-name').value = '';
+            document.getElementById('profile-photo').value = '';
+            document.getElementById('photo-preview').innerHTML = '';
+            document.getElementById('interests').value = '';
+            document.getElementById('age').value = '';
+            document.querySelectorAll('input[name="habit"]:checked').forEach(cb => cb.checked = false);
+            errorElement.textContent = '';
+            errorElement.style.color = 'red';
+        }, 1000);
+        
+    } catch (error) {
+        errorElement.style.color = 'red';
+        errorElement.textContent = 'Error: ' + error.message;
+        console.error('Error al crear perfil:', error);
+    }
+}
+
+/* VERSIÓN CON AUTENTICACIÓN (COMENTADA)
+async function completeRegistration() {
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const photoFile = document.getElementById('profile-photo').files[0];
+    const interests = document.getElementById('interests').value;
+    const age = document.getElementById('age').value;
+    const errorElement = document.getElementById('register-error');
+    
+    // Obtener hábitos seleccionados
+    const habitsCheckboxes = document.querySelectorAll('input[name="habit"]:checked');
+    const habits = Array.from(habitsCheckboxes).map(cb => cb.value);
+    
+    // Validaciones
+    if (!name || !email || !password) {
+        errorElement.textContent = 'Por favor completa los campos obligatorios (nombre, email, contraseña)';
+        return;
+    }
+    
+    if (password.length < 6) {
+        errorElement.textContent = 'La contraseña debe tener mínimo 6 caracteres';
+        return;
+    }
+    
+    if (!age || age < 18) {
+        errorElement.textContent = 'Debes ser mayor de 18 años';
+        return;
+    }
+    
+    try {
+        errorElement.textContent = 'Creando cuenta...';
+        
+        // 1. Crear usuario en Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // 2. Subir foto de perfil si existe
+        let photoURL = '';
+        if (photoFile) {
+            errorElement.textContent = 'Subiendo foto de perfil...';
+            const storageRef = storage.ref(`profile-photos/${user.uid}`);
+            await storageRef.put(photoFile);
+            photoURL = await storageRef.getDownloadURL();
+        }
+        
+        // 3. Guardar perfil completo en Firestore
+        errorElement.textContent = 'Guardando perfil...';
+        await db.collection('users').doc(user.uid).set({
+            userId: user.uid,
+            userName: name,
+            email: email,
+            photoURL: photoURL,
+            habits: habits,
+            interests: interests,
+            age: parseInt(age),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        errorElement.style.color = 'green';
+        errorElement.textContent = '¡Cuenta creada con éxito! Redirigiendo...';
+        
+        // El auth.onAuthStateChanged se encargará de cargar el perfil automáticamente
+        
+    } catch (error) {
+        errorElement.style.color = 'red';
+        if (error.code === 'auth/email-already-in-use') {
+            errorElement.textContent = 'Este email ya está registrado. Usa "Iniciar Sesión"';
+        } else if (error.code === 'auth/weak-password') {
+            errorElement.textContent = 'La contraseña debe tener mínimo 6 caracteres';
+        } else if (error.code === 'auth/invalid-email') {
+            errorElement.textContent = 'El email no es válido';
+        } else {
+            errorElement.textContent = 'Error: ' + error.message;
+        }
+    }
 }
 */
 
+// Cargar perfil de usuario
+async function loadUserProfile() {
+    try {
+        const userDoc = await db.collection('users').doc(currentUserId).get();
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            currentUserName = userData.userName;
+            document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
+            console.log('[OK] Perfil de usuario cargado');
+        } else {
+            console.error('No se encontró el perfil del usuario');
+        }
+    } catch (error) {
+        console.error('Error al cargar perfil:', error);
+    }
+}
+
 // ========================================
-// FUNCIÓN: CERRAR SESIÓN / CAMBIAR NOMBRE
+// FUNCIÓN: CERRAR SESIÓN
 // ========================================
 function logout() {
-    // VERSIÓN ACTUAL: Cambiar nombre
+    // Cerrar chat activo si lo hay
+    if (currentChatId) {
+        closeCurrentChat();
+    }
     
+    // Desuscribir listener de chats
+    if (chatsListener) {
+        chatsListener();
+        chatsListener = null;
+    }
+
+    // Limpiar la ventana de chat
+    showEmptyState();
+    
+    // Limpiar variables
+    currentUserId = '';
+    currentUserName = '';
+    
+    // Volver a la pantalla de login
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('register-screen').style.display = 'none';
+    document.getElementById('chat-screen').style.display = 'none';
+    document.getElementById('openChatBtn').style.display = 'none';
+    
+    // Ocultar botón de lista de usuarios
+    const usersBtn = document.getElementById('openUsersBtn');
+    if (usersBtn) {
+        usersBtn.style.display = 'none';
+    }
+    
+    // Limpiar campo de login
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-error').textContent = '';
+    
+    console.log('Sesión cerrada correctamente');
+}
+
+/* VERSIÓN CON AUTENTICACIÓN (COMENTADA)
+function logout() {
     // Cerrar chat activo si lo hay
     if (currentChatId) {
         closeCurrentChat();
     }
 
-    //Al cambiar el usuario se limpia la ventana de chat
+    // Limpiar la ventana de chat
     showEmptyState();
     
-    // Pedir nuevo nombre
-    askForUsername();
-    
-    /* VERSIÓN CON AUTENTICACIÓN (comentada):
+    // Cerrar sesión en Firebase Auth
     auth.signOut()
         .then(() => {
-            alert('Sesión cerrada. ¡Hasta pronto!');
+            console.log('Sesión cerrada correctamente');
+        })
+        .catch((error) => {
+            console.error('Error al cerrar sesión:', error);
         });
-    */
 }
+*/
 
 // ========================================
 // FUNCIÓN: GENERAR ID DE CHAT
@@ -459,25 +607,52 @@ function loadUserChats() {
     const chatList = document.getElementById('chat-list');
     const noChatsMessage = document.getElementById('no-chats-message');
     
+    // Si ya hay un listener activo, NO crear otro
+    if (chatsListener) {
+        console.log('Ya existe un listener de chats activo');
+        return;
+    }
+    
+    console.log('Creando listener de chats...');
+    
     // Escuchar cambios en tiempo real
-    db.collection('chats')
+    // Usamos un handler async para evitar condiciones de carrera al crear
+    // elementos DOM desde llamadas async (p.ej. obtener nombre del otro usuario).
+    chatsListener = db.collection('chats')
         .where('participants', 'array-contains', currentUserId)
         .orderBy('lastMessageTime', 'desc')
-        .onSnapshot(snapshot => {
-            // Limpiar lista actual
-            chatList.innerHTML = '';
-            
-            if (snapshot.empty) {
-                // No hay chats: mostrar mensaje
-                chatList.appendChild(noChatsMessage);
-                console.log('No hay chats para este usuario');
-            } else {
-                // Hay chats: renderizar cada uno
-                snapshot.forEach(doc => {
+        .onSnapshot(async snapshot => {
+            console.log('Snapshot de chats recibido:', snapshot.size, 'chats');
+
+            try {
+                if (snapshot.empty) {
+                    // No hay chats: limpiar y mostrar mensaje
+                    chatList.innerHTML = '';
+                    chatList.appendChild(noChatsMessage);
+                    console.log('No hay chats para este usuario');
+                    return;
+                }
+
+                // Transformar cada doc en una promesa que resuelve al elemento DOM
+                const itemPromises = snapshot.docs.map(async doc => {
                     const chatData = doc.data();
-                    renderChatItem(doc.id, chatData);
+                    return await renderChatItem(doc.id, chatData);
                 });
-                console.log(`Cargados ${snapshot.size} chats`);
+
+                // Esperar a que todos los elementos estén listos
+                const chatItems = await Promise.all(itemPromises);
+
+                // Reemplazar contenido de forma atómica para evitar duplicados
+                chatList.innerHTML = '';
+                const frag = document.createDocumentFragment();
+                chatItems.forEach(item => {
+                    if (item) frag.appendChild(item);
+                });
+                chatList.appendChild(frag);
+
+                console.log(`Renderizados ${chatItems.length} chats`);
+            } catch (err) {
+                console.error('Error procesando snapshot de chats:', err);
             }
         }, error => {
             console.error('Error al cargar chats:', error);
@@ -492,46 +667,50 @@ function loadUserChats() {
    
    Crea y añade un elemento visual en la barra lateral
    representando un chat específico.
-   
-   Parámetros:
-   - chatId: ID del chat en Firebase
-   - chatData: Datos del chat (participants, lastMessage, etc.)
-   
-   El elemento creado:
-   - Muestra el nombre del otro usuario
-   - Es clickeable para abrir el chat
-   - Se marca como "activo" si es el chat actual
 */
-function renderChatItem(chatId, chatData) {
-    const chatList = document.getElementById('chat-list');
-    
-    // Determinar el nombre del otro usuario
+/**
+ * renderChatItem(chatId, chatData)
+ * Devuelve el elemento DOM correspondiente al chat. NO lo añade directamente
+ * al DOM: quien llama se encarga de insertarlo en el orden correcto. Esto
+ * evita duplicados y condiciones de carrera cuando hay operaciones async.
+ */
+async function renderChatItem(chatId, chatData) {
+    // Determinar el ID del otro usuario
     const otherUserId = chatData.participants.find(id => id !== currentUserId);
-    
+
+    // Obtener el nombre real del otro usuario
+    let otherUserName = otherUserId;
+    try {
+        const otherUserDoc = await db.collection('users').doc(otherUserId).get();
+        if (otherUserDoc.exists) {
+            otherUserName = otherUserDoc.data().userName;
+        }
+    } catch (error) {
+        console.error('Error al obtener nombre de usuario:', error);
+    }
+
     // Crear elemento del chat
     const chatItem = document.createElement('div');
     chatItem.className = 'chat-item';
     chatItem.dataset.chatId = chatId;
     chatItem.dataset.partnerId = otherUserId;
-    
+
     // Marcar como activo si es el chat actual
     if (chatId === currentChatId) {
         chatItem.classList.add('active');
     }
-    
+
     // Contenido: nombre del otro usuario
-    // NOTA: Por ahora solo mostramos el ID. En el futuro se puede
-    // hacer una consulta adicional para obtener el nombre real.
     chatItem.innerHTML = `
-        <div class="chat-item-name">${otherUserId}</div>
+        <div class="chat-item-name">${otherUserName}</div>
     `;
-    
+
     // Evento: abrir chat al hacer clic
     chatItem.addEventListener('click', () => {
-        openChat(chatId, otherUserId);
+        openChat(chatId, otherUserId, otherUserName);
     });
-    
-    chatList.appendChild(chatItem);
+
+    return chatItem;
 }
 
 // ========================================
@@ -540,84 +719,113 @@ function renderChatItem(chatId, chatData) {
 /*
    addNewChat()
    
-   Permite al usuario iniciar una nueva conversación.
-   
-   Flujo:
-   1. Pide el nombre del otro usuario con prompt
-   2. Normaliza el nombre a ID
-   3. Verifica que el usuario existe en Firebase
-   4. Si existe: abre la ventana de chat (sin crear el chat aún)
-   5. Si no existe: muestra error
-   6. El chat se creará en Firebase cuando se envíe el primer mensaje
+   Permite al usuario iniciar una nueva conversación buscando
+   usuarios registrados por nombre.
 */
 async function addNewChat() {
-    const partnerName = prompt('Introduce el nombre del usuario con el que quieres chatear:');
+    const searchTerm = prompt('Introduce el nombre del usuario con el que quieres chatear:');
     
-    if (!partnerName || partnerName.trim() === '') {
+    if (!searchTerm || searchTerm.trim() === '') {
         return; // Usuario canceló
     }
     
-    const partnerId = normalizeUsername(partnerName.trim());
-    
-    // No permitir chatear consigo mismo
-    if (partnerId === currentUserId) {
-        alert('No puedes chatear contigo mismo.');
-        return;
-    }
-    
     try {
-        // Verificar que el usuario existe
-        const partnerRef = db.collection('users').doc(partnerId);
-        const partnerDoc = await partnerRef.get();
+        // Buscar usuario por nombre
+        const usersSnapshot = await db.collection('users')
+            .where('userName', '==', searchTerm.trim())
+            .get();
         
-        if (!partnerDoc.exists) {
-            alert(`El usuario "${partnerName}" no existe.`);
+        if (usersSnapshot.empty) {
+            alert('No se encontró ningún usuario con ese nombre.');
             return;
         }
         
-        console.log(`Usuario "${partnerId}" encontrado`);
+        const partnerDoc = usersSnapshot.docs[0];
+        const partnerId = partnerDoc.id;
+        const partnerData = partnerDoc.data();
+        
+        // No permitir chatear consigo mismo
+        if (partnerId === currentUserId) {
+            alert('No puedes chatear contigo mismo.');
+            return;
+        }
         
         // Generar ID del chat
         const chatId = generateChatId(currentUserId, partnerId);
         
-        // Verificar si el chat ya existe
-        const chatRef = db.collection('chats').doc(chatId);
-        const chatDoc = await chatRef.get();
-        
-        if (chatDoc.exists) {
-            // El chat ya existe: abrirlo directamente
-            console.log('Chat existente encontrado');
-            openChat(chatId, partnerId);
-        } else {
-            // El chat NO existe: abrir ventana vacía
-            // El chat se creará cuando se envíe el primer mensaje
-            console.log('Preparando nuevo chat (se creará al enviar el primer mensaje)');
-            openChat(chatId, partnerId);
-        }
+        // Abrir el chat (se creará en Firebase al enviar el primer mensaje si no existe)
+        openChat(chatId, partnerId, partnerData.userName);
         
     } catch (error) {
-        console.error('Error al añadir chat:', error);
-        alert('Error al buscar el usuario: ' + error.message);
+        console.error('Error al buscar usuario:', error);
+        alert('Error al buscar usuario: ' + error.message);
     }
 }
+
+/* VERSIÓN CON BÚSQUEDA POR EMAIL (COMENTADA)
+async function addNewChat() {
+    const searchTerm = prompt('Introduce el nombre o email del usuario con el que quieres chatear:');
+    
+    if (!searchTerm || searchTerm.trim() === '') {
+        return; // Usuario canceló
+    }
+    
+    try {
+        // Buscar usuario por nombre
+        const usersSnapshot = await db.collection('users')
+            .where('userName', '==', searchTerm.trim())
+            .get();
+        
+        // Si no se encuentra por nombre, buscar por email
+        let partnerDoc = null;
+        if (usersSnapshot.empty) {
+            const emailSnapshot = await db.collection('users')
+                .where('email', '==', searchTerm.trim().toLowerCase())
+                .get();
+            
+            if (!emailSnapshot.empty) {
+                partnerDoc = emailSnapshot.docs[0];
+            }
+        } else {
+            partnerDoc = usersSnapshot.docs[0];
+        }
+        
+        if (!partnerDoc) {
+            alert('No se encontró ningún usuario con ese nombre o email.');
+            return;
+        }
+        
+        const partnerId = partnerDoc.id;
+        const partnerData = partnerDoc.data();
+        
+        // No permitir chatear consigo mismo
+        if (partnerId === currentUserId) {
+            alert('No puedes chatear contigo mismo.');
+            return;
+        }
+        
+        // Generar ID del chat
+        const chatId = generateChatId(currentUserId, partnerId);
+        
+        // Abrir el chat (se creará en Firebase al enviar el primer mensaje si no existe)
+        openChat(chatId, partnerId, partnerData.userName);
+        
+    } catch (error) {
+        console.error('Error al buscar usuario:', error);
+        alert('Error al buscar usuario: ' + error.message);
+    }
+}
+*/
 
 // ========================================
 // FUNCIÓN: ABRIR CHAT
 // ========================================
 /*
-   openChat(chatId, partnerId)
+   openChat(chatId, partnerId, partnerName)
    
    Abre una conversación específica en la ventana de mensajes.
-   
-   ¿Qué hace?
-   1. Cierra el chat anterior si lo hay
-   2. Actualiza las variables globales
-   3. Actualiza el header con el nombre del otro usuario
-   4. Habilita el input y el botón de enviar
-   5. Carga los mensajes del chat
-   6. Marca el chat como activo en la barra lateral
 */
-function openChat(chatId, partnerId) {
+function openChat(chatId, partnerId, partnerName) {
     console.log(`Abriendo chat: ${chatId} con usuario: ${partnerId}`);
     
     // Cerrar chat anterior si lo hay
@@ -629,9 +837,9 @@ function openChat(chatId, partnerId) {
     currentChatId = chatId;
     currentChatPartner = partnerId;
     
-    // Actualizar header
+    // Actualizar header con el nombre real del usuario
     const chatTitle = document.getElementById('chat-title');
-    chatTitle.textContent = partnerId;
+    chatTitle.textContent = partnerName || partnerId;
     
     // Habilitar input y botón
     const messageInput = document.getElementById('message-input');
@@ -906,45 +1114,60 @@ function showEmptyState() {
 
 /*
  * MEJORAS IMPLEMENTADAS:
+ * ✅ Sistema de autenticación completa con Firebase Auth
+ * ✅ Registro de usuarios con encuesta de perfil
+ * ✅ Foto de perfil subida a Firebase Storage
+ * ✅ Almacenamiento de hábitos y gustos
+ * ✅ Validación de edad (18+)
  * ✅ Sistema de chats privados entre usuarios
- * ✅ Identificación única basada en nombres normalizados
  * ✅ Mensajes en tiempo real con Firebase
  * ✅ Barra lateral con lista de chats
- * ✅ Creación de chats bajo demanda (al enviar primer mensaje)
- * ✅ Validación de usuarios existentes
+ * ✅ Búsqueda de usuarios por nombre o email
+ * ✅ Mostrar nombres reales en lista de chats
  * 
  * MEJORAS FUTURAS SUGERIDAS:
  * 
- * 1. MOSTRAR NOMBRE REAL EN LISTA DE CHATS:
- *    - Hacer consulta adicional a 'users' para obtener userName
- *    - Cachear nombres para mejorar rendimiento
+ * 1. PERFILES DE USUARIO:
+ *    - Ver perfil completo de otros usuarios (foto, hábitos, gustos)
+ *    - Editar propio perfil
+ *    - Cambiar foto de perfil
  * 
- * 2. INFORMACIÓN ADICIONAL EN CHATS:
+ * 2. MATCHING/COMPATIBILIDAD:
+ *    - Algoritmo de compatibilidad basado en hábitos y gustos
+ *    - Sugerencias de usuarios compatibles
+ *    - Sistema de "me gusta" mutuo
+ * 
+ * 3. INFORMACIÓN ADICIONAL EN CHATS:
  *    - Mostrar último mensaje enviado
  *    - Mostrar hora del último mensaje
  *    - Contador de mensajes no leídos
+ *    - Foto de perfil en lista de chats
  * 
- * 3. NOTIFICACIONES:
+ * 4. NOTIFICACIONES:
  *    - Badge con número de mensajes nuevos
  *    - Sonido al recibir mensaje
  *    - Notificaciones del navegador
  * 
- * 4. BÚSQUEDA Y FILTROS:
+ * 5. BÚSQUEDA Y FILTROS:
  *    - Buscar chats por nombre
  *    - Filtrar chats activos/archivados
+ *    - Búsqueda avanzada de usuarios (por edad, hábitos, etc.)
  * 
- * 5. GESTIÓN DE CHATS:
+ * 6. GESTIÓN DE CHATS:
  *    - Botón para eliminar/archivar chat
  *    - Marcar como no leído
  *    - Silenciar notificaciones
  * 
- * 6. MEJORAS DE UX:
+ * 7. MEJORAS DE UX:
  *    - Animaciones al abrir/cerrar
  *    - Indicador de "escribiendo..."
  *    - Confirmación de lectura (doble check)
+ *    - Envío de imágenes en el chat
+ *    - Emojis y reacciones
  * 
- * 7. MIGRACIÓN A AUTENTICACIÓN:
- *    - Cuando se active Firebase Auth, currentUserId será user.uid
- *    - Solo hay que descomentar las secciones marcadas
- *    - La estructura de Firebase ya está preparada
+ * 8. SEGURIDAD Y PRIVACIDAD:
+ *    - Bloquear usuarios
+ *    - Reportar usuarios
+ *    - Configuración de privacidad
+ *    - Recuperación de contraseña
  */

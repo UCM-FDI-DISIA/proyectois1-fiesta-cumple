@@ -262,7 +262,14 @@ function mostrarSessionPanel(username) {
     const inicial = nombreGuardado 
         ? nombreGuardado.charAt(0).toUpperCase() 
         : username.charAt(0).toUpperCase();
+    const users = leerUsuarios();
+const foto = users[username]?.fields?.foto;
+
+if (foto) {
+    userButtonContent.innerHTML = `<img src="${foto}" alt="perfil" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+} else {
     userButtonContent.textContent = inicial;
+}
 }
 
 /* Ocultar panel de sesión (y restablecer icono) */
@@ -459,6 +466,8 @@ formSurvey.addEventListener('submit', (ev) => {
 
     const nombreCompleto = surveyName.value.trim();
     const username = formSurvey.getAttribute('data-username');
+    const fotoInput = document.getElementById('surveyPhoto');
+    const file = fotoInput.files[0];
 
     if (!nombreCompleto) {
         surveyMessage.textContent = 'Por favor, introduce tu nombre';
@@ -470,20 +479,37 @@ formSurvey.addEventListener('submit', (ev) => {
         return;
     }
 
-    // Guardar el nombre en el perfil del usuario
-    const exito = guardarNombreUsuario(username, nombreCompleto);
-    
-    if (exito) {
-        // Cerrar modal de encuesta
-        cerrarModal(surveyModal);
-        formSurvey.removeAttribute('data-username');
-        
-        // Mostrar mensaje de éxito
-        alert(`¡Perfecto, ${nombreCompleto}! Tu perfil se ha completado correctamente. Ahora puedes iniciar sesión.`);
+    // Si el usuario sube una imagen, la convertimos a base64 y guardamos
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            guardarDatosEncuesta(username, nombreCompleto, e.target.result);
+            finalizarEncuesta(nombreCompleto);
+        };
+        reader.readAsDataURL(file);
     } else {
-        surveyMessage.textContent = 'Error al guardar tu información';
+        // Si no sube foto, guardamos sin ella
+        guardarDatosEncuesta(username, nombreCompleto, null);
+        finalizarEncuesta(nombreCompleto);
     }
 });
+
+function guardarDatosEncuesta(username, nombreCompleto, fotoBase64) {
+    const users = leerUsuarios();
+    if (users[username]) {
+        users[username].fields = users[username].fields || {};
+        users[username].fields.nombre = nombreCompleto;
+        users[username].fields.foto = fotoBase64; // guardamos la imagen base64
+        users[username].fields.encuestaCompletada = true;
+        guardarUsuarios(users);
+    }
+}
+
+function finalizarEncuesta(nombreCompleto) {
+    cerrarModal(surveyModal);
+    formSurvey.removeAttribute('data-username');
+    alert(`¡Perfecto, ${nombreCompleto}! Tu perfil se ha completado correctamente. Ahora puedes iniciar sesión.`);
+}
 
 // Cerrar modal de encuesta
 closeSurveyModal.addEventListener('click', () => {

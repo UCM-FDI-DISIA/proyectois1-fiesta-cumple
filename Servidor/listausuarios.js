@@ -44,6 +44,7 @@
         btn.style.fontSize = '14px';
         btn.style.borderRadius = '20px';
         btn.style.zIndex = '1001';
+        btn.style.display = 'none'; // Oculto por defecto hasta iniciar sesión
 
         // Click toggles panel
         btn.addEventListener('click', async () => {
