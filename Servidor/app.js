@@ -340,8 +340,8 @@ async function completeRegistration() {
         
         errorElement.textContent = 'Creando perfil...';
         
-        // Generar ID único basado en timestamp
-        const userId = 'user_' + Date.now();
+        // Generar ID basado en el nombre de usuario (minúsculas y guiones bajos)
+        const userId = name.trim().toLowerCase().replace(/\s+/g, '_');
         currentUserId = userId;
         currentUserName = name.trim();
         
@@ -354,11 +354,11 @@ async function completeRegistration() {
             photoURL = await storageRef.getDownloadURL();
         }
         
-        // Guardar perfil completo en Firestore
+        // Guardar perfil completo en Firestore usando el ID formateado
         errorElement.textContent = 'Guardando perfil...';
         await db.collection('users').doc(userId).set({
             userId: userId,
-            userName: name.trim(),
+            userName: name.trim(), // Mantener el nombre original para mostrar
             photoURL: photoURL,
             habits: habits,
             interests: interests,
@@ -450,9 +450,11 @@ async function completeRegistration() {
         
         // 3. Guardar perfil completo en Firestore
         errorElement.textContent = 'Guardando perfil...';
+        // Transformar el nombre de usuario: minúsculas y guiones bajos
+        const formattedUserName = name.toLowerCase().replace(/\s+/g, '_');
         await db.collection('users').doc(user.uid).set({
             userId: user.uid,
-            userName: name,
+            userName: formattedUserName,
             email: email,
             photoURL: photoURL,
             habits: habits,
