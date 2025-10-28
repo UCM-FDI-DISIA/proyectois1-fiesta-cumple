@@ -900,6 +900,20 @@ function showEmptyState() {
     sendBtn.disabled = true;
 }
 
+// ========================================
+// EXPORTS PARA TESTING
+// ========================================
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        normalizeUsername,
+        generateChatId,
+        formatTime,
+        mostrar_chat,
+        ocultar_chat,
+        showEmptyState
+    };
+}
+
 /* ========================================
    NOTAS PARA FUTURAS EXPANSIONES
    ======================================== */
