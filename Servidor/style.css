@@ -441,3 +441,60 @@ html, body {
         width: 250px;
     }
 }
+
+
+/* ==========================
+   ESTILOS ESPECÍFICOS - LISTA DE USUARIOS
+   (Botón a la izquierda del botón Chat y panel de usuarios)
+   ========================== */
+
+/* Posicionamos el botón de lista de usuarios justo a la izquierda del botón de chat */
+#openUsersBtn {
+    right: 130px; /* por defecto el botón Chat está en right:30px */
+    bottom: 30px;
+    padding: 12px 18px;
+    font-size: 14px;
+    border-radius: 20px;
+}
+
+/* Panel que muestra la lista de usuarios. listausuarios.js añade estilos inline
+   si no se encuentran, pero definimos aquí estilos principales para mantener
+   consistencia y facilitar ajustes desde CSS. */
+#users-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    width: 320px;
+    max-height: 50vh;
+    overflow-y: auto;
+    background: white;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 1002;
+    display: none;
+}
+
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f7f9fb;
+}
+
+.user-row button {
+    background: #0084ff;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    /* En móviles colocamos el botón de usuarios junto al de chat para no tapar contenido */
+    #openUsersBtn { right: 90px; }
+    #users-panel { right: 12px; left: 12px; width: auto; }
+}
