@@ -7,18 +7,71 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- PANTALLA DE LOGIN (para cuando actives autenticación) -->
-    <div id="login-screen" style="display:none;">
-        <h1>Bienvenido al Chat</h1>
-        <p>Inicia sesión o crea una cuenta nueva</p>
+    <!-- PANTALLA DE LOGIN SIMPLIFICADA (SOLO NOMBRE) -->
+    <div id="login-screen" style="display:block;">
+        <h1>Bienvenido al Chat de Citas</h1>
+        <p id="login-subtitle">Inicia sesión con tu nombre de usuario</p>
 
-        <input type="email" id="email" placeholder="Tu email (ejemplo@gmail.com)">
-        <input type="password" id="password" placeholder="Contraseña (mínimo 6 caracteres)">
+        <input type="text" id="login-username" placeholder="Tu nombre de usuario">
 
         <button onclick="login()">Iniciar Sesión</button>
-        <button onclick="register()">Crear Cuenta Nueva</button>
+        <button onclick="showRegisterForm()">Crear Cuenta Nueva</button>
 
         <p id="login-error" style="color:red;"></p>
+    </div>
+
+    <!-- PANTALLA DE REGISTRO CON ENCUESTA -->
+    <div id="register-screen" style="display:none;">
+        <h1>Crear tu Perfil</h1>
+        <p>Completa tu perfil para empezar a chatear</p>
+
+        <div class="register-form">
+            <!-- Datos de acceso -->
+            <h3>Datos de acceso</h3>
+            <input type="text" id="register-name" placeholder="Tu nombre de usuario (debe ser único)" required>
+
+            <!-- Foto de perfil -->
+            <h3>Foto de perfil</h3>
+            <div class="photo-upload-container">
+                <input type="file" id="profile-photo" accept="image/*">
+                <div id="photo-preview" class="photo-preview"></div>
+            </div>
+
+            <!-- Hábitos -->
+            <h3>Hábitos</h3>
+            <label>
+                <input type="checkbox" name="habit" value="Deportista"> Deportista
+            </label>
+            <label>
+                <input type="checkbox" name="habit" value="Lector"> Lector
+            </label>
+            <label>
+                <input type="checkbox" name="habit" value="Viajero"> Viajero
+            </label>
+            <label>
+                <input type="checkbox" name="habit" value="Cocinero"> Cocinero
+            </label>
+            <label>
+                <input type="checkbox" name="habit" value="Músico"> Músico
+            </label>
+            <label>
+                <input type="checkbox" name="habit" value="Gamer"> Gamer
+            </label>
+
+            <!-- Gustos -->
+            <h3>Gustos e intereses</h3>
+            <textarea id="interests" placeholder="Cuéntanos sobre tus gustos, hobbies y qué buscas en una pareja..." rows="4"></textarea>
+
+            <!-- Edad -->
+            <h3>Información adicional</h3>
+            <input type="number" id="age" placeholder="Tu edad" min="18" max="100">
+
+            <!-- Botones -->
+            <button onclick="completeRegistration()" class="btn-primary">Crear Cuenta</button>
+            <button onclick="showLoginForm()" class="btn-secondary">Volver al Login</button>
+
+            <p id="register-error" style="color:red;"></p>
+        </div>
     </div>
 
     <!-- ====================================
@@ -60,8 +113,7 @@
             <div id="header">
                 <h2 id="chat-title">Chat en Vivo</h2>
                 <div id="user-info"></div>
-                <button onclick="logout()">Cambiar Nombre</button>
-                <!-- Cuando actives autenticación, el botón dirá "Cerrar Sesión" -->
+                <button onclick="logout()">Cerrar Sesión</button>
             </div>
 
             <!-- Área de mensajes -->
@@ -84,9 +136,10 @@
 
     <!-- SCRIPTS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <!-- AUTH: descomenta esta línea cuando actives autenticación -->
+    <!-- AUTH: Comentado para versión de prueba sin contraseñas -->
     <!-- <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <script src="app.js"></script>
     <script src="listausuarios.js"></script>
