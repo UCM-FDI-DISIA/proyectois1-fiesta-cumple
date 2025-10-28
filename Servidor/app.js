@@ -616,26 +616,43 @@ function loadUserChats() {
     console.log('Creando listener de chats...');
     
     // Escuchar cambios en tiempo real
+    // Usamos un handler async para evitar condiciones de carrera al crear
+    // elementos DOM desde llamadas async (p.ej. obtener nombre del otro usuario).
     chatsListener = db.collection('chats')
         .where('participants', 'array-contains', currentUserId)
         .orderBy('lastMessageTime', 'desc')
-        .onSnapshot(snapshot => {
+        .onSnapshot(async snapshot => {
             console.log('Snapshot de chats recibido:', snapshot.size, 'chats');
-            
-            // Limpiar lista actual COMPLETAMENTE
-            chatList.innerHTML = '';
-            
-            if (snapshot.empty) {
-                // No hay chats: mostrar mensaje
-                chatList.appendChild(noChatsMessage);
-                console.log('No hay chats para este usuario');
-            } else {
-                // Hay chats: renderizar cada uno
-                snapshot.forEach(doc => {
+
+            try {
+                if (snapshot.empty) {
+                    // No hay chats: limpiar y mostrar mensaje
+                    chatList.innerHTML = '';
+                    chatList.appendChild(noChatsMessage);
+                    console.log('No hay chats para este usuario');
+                    return;
+                }
+
+                // Transformar cada doc en una promesa que resuelve al elemento DOM
+                const itemPromises = snapshot.docs.map(async doc => {
                     const chatData = doc.data();
-                    renderChatItem(doc.id, chatData);
+                    return await renderChatItem(doc.id, chatData);
                 });
-                console.log(`Renderizados ${snapshot.size} chats`);
+
+                // Esperar a que todos los elementos estén listos
+                const chatItems = await Promise.all(itemPromises);
+
+                // Reemplazar contenido de forma atómica para evitar duplicados
+                chatList.innerHTML = '';
+                const frag = document.createDocumentFragment();
+                chatItems.forEach(item => {
+                    if (item) frag.appendChild(item);
+                });
+                chatList.appendChild(frag);
+
+                console.log(`Renderizados ${chatItems.length} chats`);
+            } catch (err) {
+                console.error('Error procesando snapshot de chats:', err);
             }
         }, error => {
             console.error('Error al cargar chats:', error);
@@ -651,12 +668,16 @@ function loadUserChats() {
    Crea y añade un elemento visual en la barra lateral
    representando un chat específico.
 */
+/**
+ * renderChatItem(chatId, chatData)
+ * Devuelve el elemento DOM correspondiente al chat. NO lo añade directamente
+ * al DOM: quien llama se encarga de insertarlo en el orden correcto. Esto
+ * evita duplicados y condiciones de carrera cuando hay operaciones async.
+ */
 async function renderChatItem(chatId, chatData) {
-    const chatList = document.getElementById('chat-list');
-    
     // Determinar el ID del otro usuario
     const otherUserId = chatData.participants.find(id => id !== currentUserId);
-    
+
     // Obtener el nombre real del otro usuario
     let otherUserName = otherUserId;
     try {
@@ -667,29 +688,29 @@ async function renderChatItem(chatId, chatData) {
     } catch (error) {
         console.error('Error al obtener nombre de usuario:', error);
     }
-    
+
     // Crear elemento del chat
     const chatItem = document.createElement('div');
     chatItem.className = 'chat-item';
     chatItem.dataset.chatId = chatId;
     chatItem.dataset.partnerId = otherUserId;
-    
+
     // Marcar como activo si es el chat actual
     if (chatId === currentChatId) {
         chatItem.classList.add('active');
     }
-    
+
     // Contenido: nombre del otro usuario
     chatItem.innerHTML = `
         <div class="chat-item-name">${otherUserName}</div>
     `;
-    
+
     // Evento: abrir chat al hacer clic
     chatItem.addEventListener('click', () => {
         openChat(chatId, otherUserId, otherUserName);
     });
-    
-    chatList.appendChild(chatItem);
+
+    return chatItem;
 }
 
 // ========================================
