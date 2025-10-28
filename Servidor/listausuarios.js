@@ -167,7 +167,9 @@
             const users = [];
             snapshot.forEach(doc => {
                 const data = doc.data() || {};
-                const display = data.displayName || data.name || data.username || data.email || doc.id;
+                // Priorizar el campo `username` (si existe) para mostrarlo en la lista.
+                // Si no existe, intentamos otros campos comunes y finalmente el id.
+                const display = data.username || data.displayName || data.name || data.email || doc.id;
                 users.push({ id: doc.id, display, raw: data });
             });
 
@@ -207,7 +209,8 @@
 
                 // Botón de acción opcional (ej: iniciar chat). Por ahora solo copia el id
                 const action = document.createElement('button');
-                action.textContent = 'Copiar ID';
+                // Copiamos el valor mostrado (username preferente) en lugar del uid
+                action.textContent = 'Copiar usuario';
                 Object.assign(action.style, {
                     background: '#0084ff',
                     color: 'white',
@@ -217,9 +220,11 @@
                     cursor: 'pointer'
                 });
                 action.addEventListener('click', () => {
-                    copyToClipboard(u.id);
+                    // Si el display es igual al id y existe un username en raw, preferimos copiar username.
+                    const toCopy = (u.display && u.display !== u.id) ? u.display : (u.raw && u.raw.username) ? u.raw.username : u.id;
+                    copyToClipboard(toCopy);
                     action.textContent = 'Copiado';
-                    setTimeout(() => action.textContent = 'Copiar ID', 1200);
+                    setTimeout(() => action.textContent = 'Copiar usuario', 1200);
                 });
 
                 row.appendChild(left);
