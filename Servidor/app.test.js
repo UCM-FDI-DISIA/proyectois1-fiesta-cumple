@@ -173,3 +173,4 @@ describe('generateChatId - Generación de ID único de chat', () => {
         expect(result2).toBe(result3);
     });
 });
+
