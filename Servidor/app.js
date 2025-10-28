@@ -116,7 +116,170 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profilePhotoInput) {
         profilePhotoInput.addEventListener('change', previewProfilePhoto);
     }
+    // Actualizar el botón de perfil (muestra silueta o foto si hay sesión)
+    try { updateProfileButton(); } catch(e) { /* no crítico */ }
+    // Crear el menú de perfil (DOM) y listeners
+    try { createProfileMenu(); } catch(e) { /* no crítico */ }
+    // Cerrar el menú al hacer click fuera
+    document.addEventListener('click', (ev) => {
+        const menu = document.getElementById('profileMenu');
+        const btn = document.getElementById('profileBtn');
+        if (!menu || !btn) return;
+        const target = ev.target;
+        if (menu.style.display === 'block' && !menu.contains(target) && !btn.contains(target)) {
+            menu.style.display = 'none';
+        }
+    });
 });
+
+// Alterna la apertura del modal de login/registro cuando se pulsa el botón de perfil
+function toggleAuthMenu() {
+    // Si no hay usuario logueado, mostramos/ocultamos el login
+    if (!currentUserId) {
+        const login = document.getElementById('login-screen');
+        if (!login) return;
+        login.style.display = (login.style.display === 'block') ? 'none' : 'block';
+        // Asegurarse de ocultar el register si estaba abierto
+        const reg = document.getElementById('register-screen');
+        if (reg) reg.style.display = 'none';
+    } else {
+        // Si el usuario está logueado, mostrar/ocultar el menú de perfil
+        toggleProfileMenu();
+    }
+}
+
+// Crea el DOM del menú de perfil si no existe
+function createProfileMenu() {
+    if (document.getElementById('profileMenu')) return;
+    const menu = document.createElement('div');
+    menu.id = 'profileMenu';
+    menu.className = 'profile-menu';
+    menu.style.display = 'none';
+    menu.innerHTML = `
+        <div class="profile-menu-header">
+            <div class="pm-photo" id="pmPhoto"></div>
+            <div class="pm-name" id="profileMenuName">Invitado</div>
+        </div>
+        <div class="profile-menu-actions">
+            <button id="viewProfileBtn">Ver perfil</button>
+            <button id="logoutMenuBtn">Cerrar sesión</button>
+        </div>
+    `;
+    document.body.appendChild(menu);
+    // Listeners
+    menu.querySelector('#viewProfileBtn').addEventListener('click', () => {
+        hideProfileMenu();
+        viewProfile();
+    });
+    menu.querySelector('#logoutMenuBtn').addEventListener('click', () => {
+        hideProfileMenu();
+        logout();
+    });
+}
+
+function toggleProfileMenu() {
+    const menu = document.getElementById('profileMenu');
+    if (!menu) return;
+    const isShown = menu.style.display === 'block';
+    if (isShown) {
+        menu.style.display = 'none';
+    } else {
+        populateProfileMenu();
+        menu.style.display = 'block';
+    }
+}
+
+function hideProfileMenu() {
+    const menu = document.getElementById('profileMenu');
+    if (menu) menu.style.display = 'none';
+}
+
+async function populateProfileMenu() {
+    const nameEl = document.getElementById('profileMenuName');
+    const photoEl = document.getElementById('pmPhoto');
+    if (!nameEl || !photoEl) return;
+    nameEl.textContent = 'Invitado';
+    photoEl.innerHTML = '';
+    if (!currentUserId) {
+        nameEl.textContent = 'Invitado';
+        photoEl.innerHTML = '';
+        return;
+    }
+    try {
+        const doc = await db.collection('users').doc(currentUserId).get();
+        if (doc.exists) {
+            const data = doc.data() || {};
+            nameEl.textContent = data.userName || data.username || currentUserId;
+            if (data.photoURL) {
+                photoEl.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = data.photoURL;
+                img.alt = 'Foto';
+                photoEl.appendChild(img);
+                return;
+            }
+        }
+    } catch (err) {
+        console.warn('populateProfileMenu error', err);
+    }
+    // fallback silhouette
+    photoEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+}
+
+async function viewProfile() {
+    if (!currentUserId) { alert('No hay usuario conectado.'); return; }
+    try {
+        const doc = await db.collection('users').doc(currentUserId).get();
+        if (!doc.exists) { alert('Perfil no encontrado.'); return; }
+        const data = doc.data() || {};
+        // Mostrar información mínima en un alert; se puede mejorar con modal
+        alert('Usuario: ' + (data.userName || currentUserId) + '\nEmail: ' + (data.email || '—'));
+    } catch (err) {
+        console.error('viewProfile error', err);
+        alert('Error al cargar perfil');
+    }
+}
+
+// Actualiza el botón de perfil: si hay foto la muestra, si no muestra la silueta
+async function updateProfileButton() {
+    const btn = document.getElementById('profileBtn');
+    if (!btn) return;
+
+    // Si no hay usuario, mostrar SVG por defecto
+    if (!currentUserId) {
+        // Asegurarse de que el SVG esté presente
+        const svg = document.getElementById('profileSvg');
+        if (!svg) {
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        }
+        btn.title = 'Iniciar sesión / Crear cuenta';
+        return;
+    }
+
+    // Si hay usuario, intentar cargar foto desde Firestore
+    try {
+        const doc = await db.collection('users').doc(currentUserId).get();
+        if (doc.exists) {
+            const data = doc.data() || {};
+            const photoURL = data.photoURL;
+            if (photoURL) {
+                btn.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = photoURL;
+                img.alt = 'Foto de perfil';
+                btn.appendChild(img);
+                btn.title = data.userName ? (data.userName + '') : 'Mi perfil';
+                return;
+            }
+        }
+    } catch (err) {
+        console.warn('No se pudo cargar la foto de perfil:', err);
+    }
+
+    // Fallback: silueta
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+    btn.title = 'Mi perfil';
+}
 
 // ========================================
 // VERSIÓN SIMPLIFICADA: INICIAR DIRECTAMENTE EN REGISTRO
@@ -268,6 +431,8 @@ async function login() {
         
         // Cargar chats y mostrar interfaz
         loadUserChats();
+    // Actualizar el botón de perfil para mostrar foto/usuario
+    try { updateProfileButton(); } catch(e) { /* no crítico */ }
         
         // Mostrar botones flotantes después de iniciar sesión
         document.getElementById('openChatBtn').style.display = 'block';
@@ -540,6 +705,8 @@ function logout() {
     document.getElementById('login-error').textContent = '';
     
     console.log('Sesión cerrada correctamente');
+    // Actualizar botón de perfil a estado por defecto
+    try { updateProfileButton(); } catch(e) { }
 }
 
 /* VERSIÓN CON AUTENTICACIÓN (COMENTADA)
