@@ -16,11 +16,55 @@ html, body {
 }
 
 /* ========================================
+   BARRA DE NAVEGACIÓN
+======================================== */
+.nav-bar {
+    width: 100%;
+    background-color: #0084ff;
+    padding: 15px 0;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.nav-title {
+    color: white;
+    margin: 0;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.nav-button {
+    background-color: white;
+    color: #0084ff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+    background-color: #f0f2f5;
+    transform: translateY(-2px);
+}
+
+/* ========================================
    PANTALLA DE LOGIN
 ======================================== */
 #login-screen, #register-screen {
     max-width: 500px;
-    margin: 50px auto;
+    margin: 120px auto 50px;
     padding: 30px;
     background: white;
     border-radius: 10px;
@@ -181,12 +225,12 @@ html, body {
 */
 #chat-screen {
     position: fixed;
-    top: 20px;
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 1000px; /* Aumentado para dar espacio a ambas secciones */
-    height: calc(100vh - 40px);
+    height: calc(100vh - 120px);
     display: flex; /* Cambio clave: ahora usa flex para dos columnas */
     flex-direction: row; /* Horizontal: barra lateral + ventana */
     background: white;
@@ -504,7 +548,8 @@ html, body {
 
 /* Botón circular de perfil (arriba derecha) */
 .profile-button {
-    top: 20px;
+    position: fixed;
+    top: 10px;
     right: 20px;
     bottom: auto;
     width: 48px;
@@ -514,6 +559,7 @@ html, body {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    z-index: 1001;  /* Mayor que el z-index de la barra de navegación */
 }
 
 .profile-button svg {

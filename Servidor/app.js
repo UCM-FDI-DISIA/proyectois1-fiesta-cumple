@@ -368,6 +368,7 @@ function showLogin() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
     document.getElementById('openChatBtn').style.display = 'none';
+    document.getElementById('nav-bar').style.display = 'none';
 }
 
 // Mostrar formulario de registro
@@ -390,6 +391,7 @@ function showChatInterface() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
     document.getElementById('openChatBtn').style.display = 'block';
+    document.getElementById('nav-bar').style.display = 'block';
 }
 
 // Iniciar sesión solo con nombre de usuario
@@ -693,6 +695,7 @@ function logout() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
     document.getElementById('openChatBtn').style.display = 'none';
+    document.getElementById('nav-bar').style.display = 'none';
     
     // Ocultar botón de lista de usuarios
     const usersBtn = document.getElementById('openUsersBtn');
