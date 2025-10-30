@@ -62,8 +62,8 @@
 }
 
 .profile-tab.active {
-    color: #0084ff;
-    border-bottom-color: #0084ff;
+    color: #FF9F7A;
+    border-bottom-color: #FF9F7A;
 }
 
 .profile-content {
@@ -118,8 +118,8 @@
 }
 
 .habit-tag {
-    background: #e8f4ff;
-    color: #0084ff;
+    background: #fff0ea;
+    color: #FF9F7A;
     padding: 4px 12px;
     border-radius: 15px;
     font-size: 14px;
@@ -155,7 +155,7 @@
 }
 
 .edit-profile-form button {
-    background: #0084ff;
+    background: #FF9F7A;
     color: white;
     border: none;
     padding: 12px;
@@ -166,5 +166,5 @@
 }
 
 .edit-profile-form button:hover {
-    background: #0073e6;
+    background: #ff8f5f;
 }
