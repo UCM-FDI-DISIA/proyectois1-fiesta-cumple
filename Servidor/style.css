@@ -9,29 +9,33 @@
 
 html, body {
     font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
+     /* Fondo radial: naranja claro en el centro que difumina a blanco en los bordes.
+         Aumentamos la zona naranja para que no pase a blanco tan pronto. */
+    background: radial-gradient(circle at center, #ffd8a8 0%, #ffe6cc 60%, #fff5eb 85%, #ffffff 100%);
     overflow: hidden;
     height: 100%;
     width: 100%;
+    color: #000; /* Texto en negro por defecto */
 }
+
 
 /* ========================================
    BARRA DE NAVEGACIÓN
 ======================================== */
 .nav-bar {
     width: 100%;
-    background-color: #0084ff;
+    background-color: #ffffff; /* barras en blanco */
     padding: 15px 0;
     text-align: center;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
 .nav-title {
-    color: white;
+    color: #000;
     margin: 0;
     font-size: 24px;
     margin-bottom: 10px;
@@ -44,8 +48,8 @@ html, body {
 }
 
 .nav-button {
-    background-color: white;
-    color: #0084ff;
+    background-color: #FF9F7A; /* botones color rosado (ajustado) */
+    color: #fff; /* texto en blanco para mejor contraste */
     border: none;
     padding: 8px 20px;
     border-radius: 5px;
@@ -55,7 +59,7 @@ html, body {
 }
 
 .nav-button:hover {
-    background-color: #f0f2f5;
+    filter: brightness(0.95);
     transform: translateY(-2px);
 }
 
@@ -109,12 +113,12 @@ html, body {
     }
 
         #login-screen button:first-of-type {
-            background-color: #0084ff;
-            color: white;
+            background-color: #FF9F7A;
+            color: #fff;
         }
 
             #login-screen button:first-of-type:hover {
-                background-color: #0073e6;
+                filter: brightness(0.95);
             }
 
         #login-screen button:last-of-type {
@@ -129,12 +133,12 @@ html, body {
 /* ========================================
    PANTALLA DE REGISTRO
 ======================================== */
-.register-form h3 {
+    .register-form h3 {
     margin-top: 20px;
     margin-bottom: 10px;
     color: #333;
     font-size: 16px;
-    border-bottom: 2px solid #0084ff;
+    border-bottom: 2px solid #FF9F7A;
     padding-bottom: 5px;
 }
 
@@ -198,12 +202,12 @@ html, body {
 }
 
 .btn-primary {
-    background-color: #0084ff;
-    color: white;
+    background-color: #FF9F7A;
+    color: #fff;
 }
 
     .btn-primary:hover {
-        background-color: #0073e6;
+        filter: brightness(0.95);
     }
 
 .btn-secondary {
@@ -259,8 +263,8 @@ html, body {
 
 /* Header de la barra lateral */
 .sidebar-header {
-    background-color: #0084ff;
-    color: white;
+    background-color: #ffffff; /* barra lateral blanca */
+    color: #000;
     padding: 15px;
     text-align: center;
     flex-shrink: 0;
@@ -301,13 +305,13 @@ html, body {
 }
 
     .chat-item:hover {
-        background-color: #e8f4ff;
+        background-color: #fff5f2;
     }
 
     /* Chat seleccionado actualmente */
     .chat-item.active {
-        background-color: #d0e8ff;
-        border-left: 3px solid #0084ff;
+        background-color: #fff0ec; /* ligero rosa cuando está activo */
+        border-left: 3px solid #FF9F7A;
     }
 
 /* Nombre del usuario en la lista de chats */
@@ -329,8 +333,8 @@ html, body {
 .add-chat-btn {
     width: 100%;
     padding: 12px;
-    background-color: #42b72a;
-    color: white;
+    background-color: #FF9F7A;
+    color: #fff;
     border: none;
     border-radius: 5px;
     font-size: 15px;
@@ -340,7 +344,7 @@ html, body {
 }
 
     .add-chat-btn:hover {
-        background-color: #36a420;
+        filter: brightness(0.95);
     }
 
     .add-chat-btn:active {
@@ -364,8 +368,8 @@ html, body {
 
 /* Header del chat - SIEMPRE VISIBLE */
 #header {
-    background-color: #0084ff;
-    color: white;
+    background-color: #ffffff; /* header en blanco */
+    color: #000;
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -383,8 +387,8 @@ html, body {
 }
 
 #header button {
-    background-color: white;
-    color: #0084ff;
+    background-color: #FF9F7A; /* botón rosado en header */
+    color: #fff;
     border: none;
     padding: 8px 15px;
     border-radius: 5px;
@@ -393,7 +397,7 @@ html, body {
 }
 
     #header button:hover {
-        background-color: #f0f2f5;
+        filter: brightness(0.95);
     }
 
 /* ========================================
@@ -435,7 +439,7 @@ html, body {
 }
 
     .message.my-message {
-        background-color: #0084ff;
+        background-color: #FF9F7A;
         color: white;
         float: right;
         margin-left: auto;
@@ -490,7 +494,7 @@ html, body {
 }
 
     #message-input:focus:not(:disabled) {
-        border-color: #0084ff;
+        border-color: #FF9F7A;
     }
 
     /* Estilo cuando el input está deshabilitado */
@@ -503,8 +507,8 @@ html, body {
 #input-area button {
     margin-left: 10px;
     padding: 12px 25px;
-    background-color: #0084ff;
-    color: white;
+    background-color: #FF9F7A;
+    color: #fff;
     border: none;
     border-radius: 20px;
     cursor: pointer;
@@ -514,7 +518,7 @@ html, body {
 }
 
     #input-area button:hover:not(:disabled) {
-        background-color: #0073e6;
+        filter: brightness(0.95);
     }
 
     /* Estilo cuando el botón está deshabilitado */
@@ -531,14 +535,14 @@ html, body {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #0084ff;
-    color: white;
+    background-color: #FF9F7A;
+    color: #fff;
     padding: 15px 25px;
     border-radius: 25px;
     cursor: pointer;
     font-weight: bold;
     font-size: 16px;
-    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(255,159,122,0.28);
     z-index: 999;
     transition: all 0.3s ease;
     user-select: none;
@@ -600,7 +604,7 @@ html, body {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #0084ff;
+    background: #FF9F7A; /* fondo del avatar por defecto (ajustado) */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -617,9 +621,9 @@ html, body {
 .profile-menu-actions button#logoutMenuBtn { background:#ff4d4f; color:white; }
 
     .chat-open-button:hover {
-        background-color: #0073e6;
+        filter: brightness(0.95);
         transform: scale(1.05);
-        box-shadow: 0 6px 16px rgba(0, 132, 255, 0.5);
+        box-shadow: 0 6px 16px rgba(255,159,122,0.35);
     }
 
     .chat-open-button:active {
@@ -693,8 +697,8 @@ html, body {
 }
 
 .user-row button {
-    background: #0084ff;
-    color: white;
+    background: #FF9F7A;
+    color: #fff;
     border: none;
     padding: 6px 10px;
     border-radius: 6px;

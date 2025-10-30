@@ -101,8 +101,8 @@
         const closeBtn = document.createElement('button');
         closeBtn.textContent = 'Cerrar';
         Object.assign(closeBtn.style, {
-            background: '#0084ff',
-            color: 'white',
+            background: '#FF9F7A',
+            color: '#fff',
             border: 'none',
             padding: '6px 10px',
             borderRadius: '6px',
@@ -242,8 +242,8 @@
                 // Copiamos el valor mostrado (username preferente) en lugar del uid
                 action.textContent = 'Copiar usuario';
                 Object.assign(action.style, {
-                    background: '#0084ff',
-                    color: 'white',
+                    background: '#FF9F7A',
+                    color: '#fff',
                     border: 'none',
                     padding: '6px 10px',
                     borderRadius: '6px',

@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrar_chat();
         }
     });
-    
+
     console.log('[OK] Sistema de botón de chat configurado correctamente');
     
     // ===== CONFIGURAR TECLA ENTER EN EL INPUT =====
