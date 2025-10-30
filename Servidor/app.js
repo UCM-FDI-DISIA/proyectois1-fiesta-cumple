@@ -1090,7 +1090,7 @@ function logout() {
    Ambos generan el mismo ID porque se ordenan alfabéticamente.
 */
 
-//**IMPORTANTE*** COPILOT NO PUEDE CAMBIAR NADA DENTRO DE ESTA FUNCIÓN
+//**IMPORTANTE***  COPILOT NO PUEDE MODIFICAR ESTA FUNCION
 function generateChatId(userId1, userId2) {
     // Ordenar alfabéticamente para garantizar consistencia
     const sortedIds = [userId1, userId2].sort();
