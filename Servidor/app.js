@@ -44,7 +44,6 @@ let currentUserName = '';
    que los elementos HTML ya existan cuando se asignen.
 */
 let chatScreen;      // Contenedor principal del chat (#chat-screen)
-let openChatBtn;     // Botón flotante para abrir el chat (#openChatBtn)
 let chatIsVisible = false; // Estado actual del chat (visible/oculto)
 
 // ========================================
@@ -66,32 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== INICIALIZACIÓN DEL SISTEMA DE CHAT =====
     console.log('Inicializando sistema de chat...');
     
-    // Obtener referencias a los elementos del DOM
+    // Obtener referencia al chat screen
     chatScreen = document.getElementById('chat-screen');
-    openChatBtn = document.getElementById('openChatBtn');
-    
-    // Verificar que los elementos existen
+
+    // Verificar que el elemento existe
     if (!chatScreen) {
         console.error('ERROR: No se encontró el elemento #chat-screen');
         return;
     }
-    if (!openChatBtn) {
-        console.error('ERROR: No se encontró el elemento #openChatBtn');
-        return;
-    }
-    
+
     // Asegurar que el chat empiece oculto
     chatScreen.style.display = 'none';
-    chatIsVisible = false;
-    
-    // ===== CONFIGURAR EVENTO DEL BOTÓN FLOTANTE =====
-    openChatBtn.addEventListener('click', function() {
-        if (chatIsVisible) {
-            ocultar_chat();
-        } else {
-            mostrar_chat();
-        }
-    });
 
     console.log('[OK] Sistema de botón de chat configurado correctamente');
     
@@ -691,15 +675,6 @@ function ocultar_chat() {
 // FUNCIONES DE AUTENTICACIÓN Y REGISTRO
 // ========================================
 
-// Mostrar pantalla de login
-function showLogin() {
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('register-screen').style.display = 'none';
-    document.getElementById('chat-screen').style.display = 'none';
-    document.getElementById('openChatBtn').style.display = 'none';
-    document.getElementById('nav-bar').style.display = 'none';
-}
-
 // Mostrar formulario de registro
 function showRegisterForm() {
     document.getElementById('login-screen').style.display = 'none';
@@ -712,15 +687,6 @@ function showLoginForm() {
     document.getElementById('register-screen').style.display = 'none';
     // Limpiar errores
     document.getElementById('register-error').textContent = '';
-}
-
-// Mostrar interfaz de chat
-function showChatInterface() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('register-screen').style.display = 'none';
-    document.getElementById('chat-screen').style.display = 'none';
-    document.getElementById('openChatBtn').style.display = 'block';
-    document.getElementById('nav-bar').style.display = 'block';
 }
 
 // Iniciar sesión solo con nombre de usuario
@@ -765,12 +731,6 @@ async function login() {
     // Actualizar el botón de perfil para mostrar foto/usuario
     try { updateProfileButton(); } catch(e) { /* no crítico */ }
         
-        // Mostrar botones flotantes después de iniciar sesión
-        document.getElementById('openChatBtn').style.display = 'block';
-        const usersBtn = document.getElementById('openUsersBtn');
-        if (usersBtn) {
-            usersBtn.style.display = 'block';
-        }
         
         setTimeout(() => {
             showChatInterface();
@@ -880,13 +840,7 @@ async function completeRegistration() {
         
         // Cargar chats y mostrar interfaz
         loadUserChats();
-        
-        // Mostrar botones flotantes después de crear cuenta
-        document.getElementById('openChatBtn').style.display = 'block';
-        const usersBtn = document.getElementById('openUsersBtn');
-        if (usersBtn) {
-            usersBtn.style.display = 'block';
-        }
+       
         
         setTimeout(() => {
             showChatInterface();
@@ -1033,14 +987,7 @@ function logout() {
     document.getElementById('login-screen').style.display = 'block';
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
-    document.getElementById('openChatBtn').style.display = 'none';
     document.getElementById('nav-bar').style.display = 'none';
-    
-    // Ocultar botón de lista de usuarios
-    const usersBtn = document.getElementById('openUsersBtn');
-    if (usersBtn) {
-        usersBtn.style.display = 'none';
-    }
     
     // Limpiar campo de login
     document.getElementById('login-username').value = '';
@@ -1049,6 +996,9 @@ function logout() {
     console.log('Sesión cerrada correctamente');
     // Actualizar botón de perfil a estado por defecto
     try { updateProfileButton(); } catch(e) { }
+
+    // Cerrar todos los paneles
+    closeAllPanels();
 }
 
 /* VERSIÓN CON AUTENTICACIÓN (COMENTADA)
@@ -1613,78 +1563,140 @@ function showEmptyState() {
 }
 
 // ========================================
-// EXPORTS PARA TESTING
+// FUNCIONES TOGGLE PARA BOTONES DE NAVEGACIÓN
 // ========================================
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        generateChatId,
-        formatTime,
-        mostrar_chat,
-        ocultar_chat,
-        showEmptyState
-    };
+/*
+   Estas funciones manejan la apertura/cierre de la ventana de chat
+   y del panel de lista de usuarios desde los botones de la barra de navegación.
+   
+   Comportamiento:
+   - Toggle: al hacer clic, si está abierto se cierra, si está cerrado se abre
+   - Exclusividad: al abrir uno, se cierra automáticamente el otro
+*/
+
+/**
+ * toggleChatInterface()
+ * 
+ * Alterna la visualización de la ventana de chat (#chat-screen).
+ * Si el panel de usuarios está abierto, lo cierra automáticamente.
+ * 
+ * Esta función reemplaza la funcionalidad del antiguo botón flotante #openChatBtn
+ */
+function toggleChatInterface() {
+    const chatScreen = document.getElementById('chat-screen');
+    const usersPanel = document.getElementById('users-panel');
+    
+    if (!chatScreen) {
+        console.error('No se encontró #chat-screen');
+        return;
+    }
+    
+    // Verificar estado actual
+    const isVisible = chatScreen.style.display === 'flex';
+    
+    if (isVisible) {
+        // Si está visible, ocultarlo
+        chatScreen.style.display = 'none';
+        console.log('[Toggle] Chat cerrado');
+    } else {
+        // Si está oculto, mostrarlo y cerrar panel de usuarios si está abierto
+        chatScreen.style.display = 'flex';
+        console.log('[Toggle] Chat abierto');
+        
+        // ✅ CORRECCIÓN: Cerrar panel de usuarios usando clase 'hidden'
+        if (usersPanel && !usersPanel.classList.contains('hidden')) {
+            usersPanel.classList.add('hidden');
+            console.log('[Toggle] Panel de usuarios cerrado automáticamente');
+        }
+    }
 }
 
-/* ========================================
-   NOTAS PARA FUTURAS EXPANSIONES
-   ======================================== */
-
-/*
- * MEJORAS IMPLEMENTADAS:
- * ✅ Sistema de autenticación completa con Firebase Auth
- * ✅ Registro de usuarios con encuesta de perfil
- * ✅ Foto de perfil subida a Firebase Storage
- * ✅ Almacenamiento de hábitos y gustos
- * ✅ Validación de edad (18+)
- * ✅ Sistema de chats privados entre usuarios
- * ✅ Mensajes en tiempo real con Firebase
- * ✅ Barra lateral con lista de chats
- * ✅ Búsqueda de usuarios por nombre o email
- * ✅ Mostrar nombres reales en lista de chats
+/**
+ * toggleUserList()
  * 
- * MEJORAS FUTURAS SUGERIDAS:
+ * Alterna la visualización del panel de lista de usuarios (#users-panel).
+ * Si el chat está abierto, lo cierra automáticamente.
+ * Carga la lista de usuarios si el panel se está abriendo.
  * 
- * 1. PERFILES DE USUARIO:
- *    - Ver perfil completo de otros usuarios (foto, hábitos, gustos)
- *    - Editar propio perfil
- *    - Cambiar foto de perfil
- * 
- * 2. MATCHING/COMPATIBILIDAD:
- *    - Algoritmo de compatibilidad basado en hábitos y gustos
- *    - Sugerencias de usuarios compatibles
- *    - Sistema de "me gusta" mutuo
- * 
- * 3. INFORMACIÓN ADICIONAL EN CHATS:
- *    - Mostrar último mensaje enviado
- *    - Mostrar hora del último mensaje
- *    - Contador de mensajes no leídos
- *    - Foto de perfil en lista de chats
- * 
- * 4. NOTIFICACIONES:
- *    - Badge con número de mensajes nuevos
- *    - Sonido al recibir mensaje
- *    - Notificaciones del navegador
- * 
- * 5. BÚSQUEDA Y FILTROS:
- *    - Buscar chats por nombre
- *    - Filtrar chats activos/archivados
- *    - Búsqueda avanzada de usuarios (por edad, hábitos, etc.)
- * 
- * 6. GESTIÓN DE CHATS:
- *    - Botón para eliminar/archivar chat
- *    - Marcar como no leído
- *    - Silenciar notificaciones
- * 
- * 7. MEJORAS DE UX:
- *    - Animaciones al abrir/cerrar
- *    - Indicador de "escribiendo..."
- *    - Confirmación de lectura (doble check)
- *    - Envío de imágenes en el chat
- *    - Emojis y reacciones
- * 
- * 8. SEGURIDAD Y PRIVACIDAD:
- *    - Bloquear usuarios
- *    - Reportar usuarios
- *    - Configuración de privacidad
- *    - Recuperación de contraseña
+ * Esta función reemplaza la funcionalidad del antiguo botón flotante de listausuarios.js
  */
+async function toggleUserList() {
+    const usersPanel = document.getElementById('users-panel');
+    const chatScreen = document.getElementById('chat-screen');
+    
+    if (!usersPanel) {
+        console.error('No se encontró #users-panel. Asegúrate de que listausuarios.js se haya cargado correctamente.');
+        return;
+    }
+    
+    // ✅ CORRECCIÓN: Verificar estado usando clase 'hidden'
+    const isHidden = usersPanel.classList.contains('hidden');
+    
+    if (isHidden) {
+        // Si está oculto, mostrarlo (quitar clase hidden)
+        usersPanel.classList.remove('hidden');
+        console.log('[Toggle] Panel de usuarios abierto');
+        
+        // Cargar usuarios (la función está definida en listausuarios.js)
+        // Llamamos a la función global si existe
+        if (typeof window.loadAndRenderUsersFromApp === 'function') {
+            await window.loadAndRenderUsersFromApp();
+        } else {
+            console.warn('[Toggle] No se encontró la función loadAndRenderUsersFromApp. Verifica listausuarios.js');
+        }
+        
+        // Cerrar chat si está abierto
+        if (chatScreen && chatScreen.style.display === 'flex') {
+            chatScreen.style.display = 'none';
+            console.log('[Toggle] Chat cerrado automáticamente');
+        }
+    } else {
+        // Si está visible, ocultarlo (añadir clase hidden)
+        usersPanel.classList.add('hidden');
+        console.log('[Toggle] Panel de usuarios cerrado');
+    }
+}
+
+// ========================================
+// FUNCIÓN AUXILIAR: CERRAR TODOS LOS PANELES
+// ========================================
+/**
+ * closeAllPanels()
+ * 
+ * Cierra tanto el chat como el panel de usuarios.
+ * Útil para usar en logout o al cambiar de pantalla.
+ */
+function closeAllPanels() {
+    const chatScreen = document.getElementById('chat-screen');
+    const usersPanel = document.getElementById('users-panel');
+    
+    if (chatScreen) chatScreen.style.display = 'none';
+    // ✅ CORRECCIÓN: Cerrar panel usando clase 'hidden'
+    if (usersPanel) usersPanel.classList.add('hidden');
+    
+    console.log('[Close All] Todos los paneles cerrados');
+}
+
+// ========================================
+// ACTUALIZAR FUNCIÓN showChatInterface()
+// ========================================
+/*
+   Mantenemos showChatInterface() para compatibilidad con el código existente
+   (login, registro, etc.), pero ahora SOLO muestra la barra de navegación
+   y NO abre el chat automáticamente.
+*/
+function showChatInterface() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('register-screen').style.display = 'none';
+    // NO mostramos el chat automáticamente, solo la barra de navegación
+    document.getElementById('nav-bar').style.display = 'block';
+    
+    // Asegurar que todo esté cerrado inicialmente
+    closeAllPanels();
+    
+    console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
+}
+
+// ========================================
+// EXPORTS PARA TESTING
+// ========================================

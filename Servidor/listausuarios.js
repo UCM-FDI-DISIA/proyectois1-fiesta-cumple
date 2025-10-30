@@ -1,7 +1,7 @@
 /* listausuarios.js
-   - Crea un botón "Lista de usuarios" junto al botón de chat
-   - Al pulsarlo, abre un panel que muestra los usuarios guardados en Firestore
-   - No modifica app.js, Index.html ni style.css
+   - Crea un panel que muestra los usuarios guardados en Firestore
+   - El panel se controla desde el botón "Lista de Usuarios" de la barra de navegación
+   - No crea botón flotante (se eliminó esa funcionalidad)
 
    Notas:
    - Este archivo debe ser incluido en el HTML *DESPUÉS* de app.js para poder
@@ -9,61 +9,18 @@
    - Si `db` no está disponible, se mostrará un error en la consola.
 */
 
-(function(){
+(function () {
     'use strict';
 
     // Esperamos a que el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
         try {
-            createUsersButton();
+            // Ya NO creamos el botón flotante, solo el panel
             createUsersPanel();
         } catch (err) {
             console.error('[listausuarios] Error inicializando:', err);
         }
     });
-
-    // Crea y posiciona el botón "Lista de usuarios" junto al botón de chat
-    function createUsersButton() {
-        // Evitar duplicados
-        if (document.getElementById('openUsersBtn')) return;
-
-        const openChatBtn = document.getElementById('openChatBtn');
-
-        // Creamos el nuevo botón
-        const btn = document.createElement('div');
-        btn.id = 'openUsersBtn';
-        btn.textContent = 'Lista de usuarios';
-        // Reutilizamos la clase para que herede estilos similares
-        btn.className = 'chat-open-button';
-
-        // Aplicamos estilos inline adicionales para separarlo del botón de chat
-        // (No editamos style.css, solo estilos locales en el elemento.)
-        btn.style.right = '130px'; // sitúa a la izquierda del botón de chat
-        btn.style.bottom = '30px';
-        btn.style.padding = '12px 18px';
-        btn.style.fontSize = '14px';
-        btn.style.borderRadius = '20px';
-        btn.style.zIndex = '1001';
-        btn.style.display = 'none'; // Oculto por defecto hasta iniciar sesión
-
-        // Click toggles panel
-        btn.addEventListener('click', async () => {
-            const panel = document.getElementById('users-panel');
-            if (!panel) return;
-            const isHidden = panel.style.display === 'none' || !panel.style.display;
-            if (isHidden) {
-                panel.style.display = 'block';
-                await loadAndRenderUsers();
-            } else {
-                panel.style.display = 'none';
-            }
-        });
-
-        // Si existe openChatBtn, insertamos el nuestro junto a él en el body
-        // para preservar posicionamiento fixed. Si no existe, lo añadimos al body.
-        const parent = document.body;
-        parent.appendChild(btn);
-    }
 
     // Crea el panel/modal que mostrará la lista de usuarios
     function createUsersPanel() {
@@ -71,63 +28,34 @@
 
         const panel = document.createElement('div');
         panel.id = 'users-panel';
-
-        // Estilos básicos del panel (inline para no tocar style.css)
-        Object.assign(panel.style, {
-            position: 'fixed',
-            bottom: '90px',
-            right: '30px',
-            width: '320px',
-            maxHeight: '50vh',
-            overflowY: 'auto',
-            background: 'white',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
-            borderRadius: '10px',
-            padding: '10px',
-            zIndex: '1002',
-            display: 'none'
-        });
+        panel.classList.add('hidden'); // ✅ AÑADIR CLASE HIDDEN por defecto
+        
+        // ✅ SIN ESTILOS INLINE - Todo se maneja desde style.css
+        // Los estilos ahora están definidos en la hoja de estilos
 
         // Header
         const header = document.createElement('div');
-        header.style.display = 'flex';
-        header.style.justifyContent = 'space-between';
-        header.style.alignItems = 'center';
-        header.style.marginBottom = '8px';
 
         const title = document.createElement('strong');
         title.textContent = 'Usuarios registrados';
 
         const closeBtn = document.createElement('button');
         closeBtn.textContent = 'Cerrar';
-        Object.assign(closeBtn.style, {
-            background: '#FF9F7A',
-            color: '#fff',
-            border: 'none',
-            padding: '6px 10px',
-            borderRadius: '6px',
-            cursor: 'pointer'
-        });
         closeBtn.addEventListener('click', () => {
-            panel.style.display = 'none';
+            panel.classList.add('hidden'); // ✅ Usar clase en lugar de style.display
         });
 
         header.appendChild(title);
         header.appendChild(closeBtn);
 
-        // Contenedor de la lista
-        const list = document.createElement('div');
-        list.id = 'users-list';
-        list.style.display = 'flex';
-        list.style.flexDirection = 'column';
-        list.style.gap = '6px';
-
         // Mensaje de carga / vacío
         const info = document.createElement('div');
         info.id = 'users-info';
-        info.textContent = 'Pulse "Lista de usuarios" para cargar.';
-        info.style.color = '#666';
-        info.style.padding = '8px 4px';
+        info.textContent = 'Cargando usuarios...';
+
+        // Contenedor de la lista
+        const list = document.createElement('div');
+        list.id = 'users-list';
 
         panel.appendChild(header);
         panel.appendChild(info);
@@ -135,21 +63,18 @@
 
         document.body.appendChild(panel);
 
-        // Cerrar el panel si el usuario hace click fuera de él (y fuera del botón)
-        // Manejador global: seguro porque comprueba si el panel está abierto y
-        // evita cerrarlo cuando el click proviene del propio panel o del botón.
+        // Cerrar el panel si el usuario hace click fuera de él
         document.addEventListener('click', (ev) => {
             try {
                 const panelEl = document.getElementById('users-panel');
-                const btnEl = document.getElementById('openUsersBtn');
+                const navBtn = document.querySelector('.nav-button');
                 if (!panelEl) return;
                 const target = ev.target;
-                const isPanelOpen = panelEl.style.display === 'block';
-                if (isPanelOpen && !panelEl.contains(target) && !(btnEl && btnEl.contains(target))) {
-                    panelEl.style.display = 'none';
+                const isPanelOpen = !panelEl.classList.contains('hidden'); // ✅ Verificar con clase
+                if (isPanelOpen && !panelEl.contains(target) && !target.closest('.nav-button')) {
+                    panelEl.classList.add('hidden'); // ✅ Usar clase en lugar de style.display
                 }
             } catch (e) {
-                // No queremos que un error aquí rompa otros scripts
                 console.warn('[listausuarios] Error en click fuera:', e);
             }
         });
@@ -169,13 +94,12 @@
 
         // Verificamos que la variable global `db` exista
         if (typeof db === 'undefined' || !db) {
-            console.error('[listausuarios] La variable `db` (Firestore) no está disponible. Asegúrate de incluir listausuarios.js DESPUÉS de app.js en el HTML.');
+            console.error('[listausuarios] La variable `db` (Firestore) no está disponible.');
             info.textContent = 'Error: Firestore no disponible.';
             return;
         }
 
         try {
-            // Intentamos leer la colección 'users'. Si tu proyecto usa otro nombre, ajusta aquí.
             const snapshot = await db.collection('users').get();
             if (snapshot.empty) {
                 info.textContent = 'No hay usuarios registrados.';
@@ -186,72 +110,43 @@
 
             const users = [];
             snapshot.forEach(doc => {
-                // Si hay un usuario logueado, excluirlo de la lista para que
-                // no aparezca a sí mismo en "Lista de usuarios".
                 if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
 
                 const data = doc.data() || {};
-                // Priorizar el campo `userName` (usado en app.js). Si no existe,
-                // intentamos `username`, luego otros campos comunes y finalmente el id.
                 const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
                 users.push({ id: doc.id, display, raw: data });
             });
 
-            // Si tras filtrar sólo quedaba el usuario actual, indicarlo
             if (users.length === 0) {
                 info.textContent = 'No hay otros usuarios registrados.';
                 return;
             }
 
-            // Ordenar alfabéticamente por display
-            users.sort((a,b) => a.display.toString().localeCompare(b.display.toString(), 'es'));
+            users.sort((a, b) => a.display.toString().localeCompare(b.display.toString(), 'es'));
 
-            // Render
+            // Render con clases CSS específicas
             users.forEach(u => {
                 const row = document.createElement('div');
                 row.className = 'user-row';
-                Object.assign(row.style, {
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    background: '#f7f9fb'
-                });
 
                 const left = document.createElement('div');
-                left.style.display = 'flex';
-                left.style.flexDirection = 'column';
+                left.className = 'user-info'; // ✅ Clase para el contenedor
 
                 const nameEl = document.createElement('div');
+                nameEl.className = 'user-name'; // ✅ Clase para el nombre
                 nameEl.textContent = u.display;
-                nameEl.style.fontWeight = '600';
-                nameEl.style.color = '#333';
 
                 const metaEl = document.createElement('div');
-                metaEl.style.fontSize = '12px';
-                metaEl.style.color = '#666';
-                // mostramos email si existe
+                metaEl.className = 'user-meta'; // ✅ Clase para el email
                 metaEl.textContent = u.raw && u.raw.email ? u.raw.email : '';
 
                 left.appendChild(nameEl);
                 if (metaEl.textContent) left.appendChild(metaEl);
 
-                // Botón de acción opcional (ej: iniciar chat). Por ahora solo copia el id
                 const action = document.createElement('button');
-                // Copiamos el valor mostrado (username preferente) en lugar del uid
+                action.className = 'user-action-btn'; // ✅ Clase para el botón
                 action.textContent = 'Copiar usuario';
-                Object.assign(action.style, {
-                    background: '#FF9F7A',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                });
                 action.addEventListener('click', () => {
-                    // Preferir copiar el valor mostrado (display). Si display es igual al id,
-                    // intentar prefijar los campos userName o username en el documento.
                     const prefer = u.raw && (u.raw.userName || u.raw.username);
                     const toCopy = (u.display && u.display !== u.id)
                         ? u.display
@@ -273,14 +168,14 @@
     }
 
     // Utilidad para copiar texto al portapapeles
-    function copyToClipboard(text){
+    function copyToClipboard(text) {
         if (!navigator.clipboard) {
             // Fallback
             const ta = document.createElement('textarea');
             ta.value = text;
             document.body.appendChild(ta);
             ta.select();
-            try { document.execCommand('copy'); } catch(e){}
+            try { document.execCommand('copy'); } catch (e) { }
             document.body.removeChild(ta);
             return;
         }
@@ -288,5 +183,14 @@
             console.warn('No se pudo copiar al portapapeles', err);
         });
     }
+
+    // ===========================================================================
+    // EXPONER FUNCIÓN PARA SER LLAMADA DESDE APP.JS (toggleUserList)
+    // ===========================================================================
+    /**
+     * Esta función se llama desde app.js cuando el usuario hace clic
+     * en el botón "Lista de Usuarios" de la barra de navegación.
+     */
+    window.loadAndRenderUsersFromApp = loadAndRenderUsers;
 
 })();
