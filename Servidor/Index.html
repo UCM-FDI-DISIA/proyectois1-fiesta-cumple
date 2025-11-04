@@ -6,6 +6,7 @@
     <title>App de Citas - Chat</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="profile-styles.css">
+    <link rel="stylesheet" href="cuatroEnRaya.css">
 </head>
 <body>
     <!-- BARRA DE NAVEGACIÓN -->
@@ -14,6 +15,7 @@
         <div class="nav-buttons">
             <button onclick="toggleUserList()" class="nav-button">Lista de Usuarios</button>
             <button onclick="toggleChatInterface()" class="nav-button">Chat</button>
+
         </div>
     </div>
 
@@ -145,6 +147,33 @@
         </svg>
     </div>
 
+    <!-- CONTENEDOR DEL JUEGO CUATRO EN RAYA -->
+    <div id="game-panel" class="game-panel hidden">
+        <div class="game-header">
+            <h2>🎮 Cuatro en Raya</h2>
+            <div class="game-controls">
+                <button id="restart-game-btn" class="game-btn restart-btn">🔄 Reiniciar</button>
+                <button id="close-game-btn" class="game-btn close-btn">✖ Cerrar</button>
+            </div>
+        </div>
+
+        <div class="game-status">
+            <div id="current-player" class="player-indicator">
+                Turno: <span class="player-chip red-chip"></span> <strong>Rojas</strong>
+            </div>
+            <div id="game-message" class="game-message"></div>
+        </div>
+
+        <div id="game-board" class="game-board">
+            <!-- El tablero se genera dinámicamente con JavaScript -->
+        </div>
+    </div>
+
+    <!-- Botón flotante para abrir el juego (abajo derecha) -->
+    <button id="open-game-btn" class="game-open-button" style="display:none;" title="Jugar Cuatro en Raya">
+        🎮
+    </button>
+
     <!-- SCRIPTS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <!-- AUTH: Comentado para versión de prueba sin contraseñas -->
@@ -154,5 +183,6 @@
 
     <script src="app.js"></script>
     <script src="listausuarios.js"></script>
+    <script src="cuatroEnRayaScript.js"></script>
 </body>
 </html>

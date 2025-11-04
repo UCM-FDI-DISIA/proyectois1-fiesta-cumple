@@ -742,6 +742,8 @@ async function login() {
         errorElement.textContent = 'Error al iniciar sesión: ' + error.message;
         console.error('Error al iniciar sesión:', error);
     }
+
+    if (typeof window.showGameButton === 'function') window.showGameButton();
 }
 
 // Preview de foto de perfil
@@ -840,8 +842,9 @@ async function completeRegistration() {
         
         // Cargar chats y mostrar interfaz
         loadUserChats();
+
+        if (typeof window.showGameButton === 'function') window.showGameButton();
        
-        
         setTimeout(() => {
             showChatInterface();
             // Limpiar formulario
@@ -995,7 +998,9 @@ function logout() {
     
     console.log('Sesión cerrada correctamente');
     // Actualizar botón de perfil a estado por defecto
-    try { updateProfileButton(); } catch(e) { }
+    try { updateProfileButton(); } catch (e) { }
+
+    if (typeof window.hideGameButton === 'function') window.hideGameButton();
 
     // Cerrar todos los paneles
     closeAllPanels();
