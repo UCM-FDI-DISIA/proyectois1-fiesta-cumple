@@ -1,0 +1,289 @@
+﻿/* ========================================
+   CUATRO EN RAYA - ESTILOS
+   ======================================== */
+
+/* ===== BOTÓN FLOTANTE ===== */
+.game-open-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #FF9F7A;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255, 159, 122, 0.4);
+    z-index: 998;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .game-open-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(255, 159, 122, 0.6);
+    }
+
+    .game-open-button:active {
+        transform: scale(0.95);
+    }
+
+/* ===== PANEL DEL JUEGO ===== */
+.game-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    height: auto;
+    max-height: 90vh;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+    .game-panel.hidden {
+        display: none;
+    }
+
+/* ===== HEADER DEL JUEGO ===== */
+.game-header {
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+    .game-header h2 {
+        margin: 0;
+        color: #333;
+        font-size: 24px;
+    }
+
+.game-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.game-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.restart-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+    .restart-btn:hover {
+        background-color: #45a049;
+    }
+
+.close-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+    .close-btn:hover {
+        background-color: #da190b;
+    }
+
+/* ===== INDICADOR DE TURNO ===== */
+.game-status {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.player-indicator {
+    font-size: 18px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.player-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.red-chip {
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #c92a2a);
+}
+
+.yellow-chip {
+    background: radial-gradient(circle at 30% 30%, #ffd93d, #f0a500);
+}
+
+/* ===== MENSAJE DE JUEGO ===== */
+.game-message {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 30px;
+    color: #FF9F7A;
+}
+
+    .game-message.winner {
+        color: #4CAF50;
+        animation: pulse 0.5s ease-in-out;
+    }
+
+    .game-message.tie {
+        color: #ff9800;
+    }
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ===== TABLERO ===== */
+.game-board {
+    /* ✅ CORRECCIÓN 1 y 2: Aumentar padding para evitar cortes */
+    padding: 15px;
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* ✅ CORRECCIÓN 1: Usar gap uniforme */
+    gap: 8px;
+    border-radius: 10px;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 20px auto;
+    max-width: 560px;
+    /* ✅ CORRECCIÓN 2: Asegurar que el contenedor ajuste al contenido */
+    width: fit-content;
+}
+
+/* ===== CELDAS ===== */
+.cell {
+    /* ✅ CORRECCIÓN 1: Tamaño fijo para celdas */
+    width: 65px;
+    height: 65px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+    .cell:hover:not(.filled) {
+        background-color: rgba(255, 255, 255, 0.4);
+        transform: scale(1.05);
+    }
+
+    .cell.filled {
+        cursor: not-allowed;
+    }
+
+/* ===== FICHAS ===== */
+.chip {
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    /* ✅ CORRECCIÓN 3: Eliminar animación global */
+    /* animation: dropChip 0.3s ease-out; */
+}
+
+    .chip.red {
+        background: radial-gradient(circle at 30% 30%, #ff6b6b, #c92a2a);
+    }
+
+    .chip.yellow {
+        background: radial-gradient(circle at 30% 30%, #ffd93d, #f0a500);
+    }
+
+    /* ✅ CORRECCIÓN 3: Clase separada para animación */
+    .chip.drop-animation {
+        animation: dropChip 0.3s ease-out;
+    }
+
+@keyframes dropChip {
+    from {
+        transform: translateY(-500px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .game-panel {
+        width: 95%;
+        max-width: none;
+    }
+
+    .game-board {
+        gap: 6px;
+        padding: 12px;
+    }
+
+    .cell {
+        width: 42px;
+        height: 42px;
+    }
+
+    .game-header h2 {
+        font-size: 20px;
+    }
+
+    .game-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .game-open-button {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cell {
+        width: 36px;
+        height: 36px;
+    }
+
+    .game-board {
+        gap: 5px;
+        padding: 10px;
+    }
+}
