@@ -128,11 +128,17 @@
                 <button onclick="logout()">Cerrar Sesión</button>
             </div>
 
+            
+
             <!-- Área de mensajes -->
             <div id="messages"></div>
 
             <!-- Área de entrada de mensajes -->
             <div id="input-area">
+                <!-- Botón flotante para abrir el juego (abajo derecha) -->
+                <button id="open-game-btn" class="game-open-button" style="display:none;" title="Jugar Cuatro en Raya">
+                    🎮
+                </button>
                 <input type="text" id="message-input" placeholder="Selecciona un chat para empezar" disabled>
                 <button id="send-btn" onclick="sendMessage()" disabled>Enviar</button>
             </div>
@@ -168,11 +174,6 @@
             <!-- El tablero se genera dinámicamente con JavaScript -->
         </div>
     </div>
-
-    <!-- Botón flotante para abrir el juego (abajo derecha) -->
-    <button id="open-game-btn" class="game-open-button" style="display:none;" title="Jugar Cuatro en Raya">
-        🎮
-    </button>
 
     <!-- SCRIPTS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>

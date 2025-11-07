@@ -3,12 +3,9 @@
    ======================================== */
 
 /* ===== BOTÓN FLOTANTE ===== */
-.game-open-button {
-    position: fixed;
+#input-area #open-game-btn {
     bottom: 30px;
     right: 30px;
-    width: 60px;
-    height: 60px;
     background-color: #FF9F7A;
     color: white;
     border: none;
@@ -21,6 +18,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-bottom: 20px;
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
 }
 
     .game-open-button:hover {
