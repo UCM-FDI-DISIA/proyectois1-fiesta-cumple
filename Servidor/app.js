@@ -1002,6 +1002,10 @@ function logout() {
 
     if (typeof window.hideGameButton === 'function') window.hideGameButton();
 
+    if (typeof window.cleanupGameListeners === 'function') {
+        window.cleanupGameListeners();
+    }
+
     // Cerrar todos los paneles
     closeAllPanels();
 }
@@ -1326,6 +1330,10 @@ function openChat(chatId, partnerId, partnerName) {
     
     // Actualizar UI de la barra lateral
     updateChatListSelection(chatId);
+
+    if (typeof window.loadGameForChat === 'function') {
+        window.loadGameForChat(chatId);
+    }
 }
 
 // ========================================
@@ -1676,8 +1684,22 @@ function closeAllPanels() {
     const usersPanel = document.getElementById('users-panel');
     
     if (chatScreen) chatScreen.style.display = 'none';
-    // ✅ CORRECCIÓN: Cerrar panel usando clase 'hidden'
     if (usersPanel) usersPanel.classList.add('hidden');
+
+    // Ocultar tablero de juego si está visible
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        gameContainer.style.display = 'none';
+        // Mostrar mensajes
+        const messagesDiv = document.getElementById('messages');
+        if (messagesDiv) {
+            Array.from(messagesDiv.children).forEach(child => {
+                if (child.id !== 'game-container') {
+                    child.style.display = '';
+                }
+            });
+        }
+    }
     
     console.log('[Close All] Todos los paneles cerrados');
 }

@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿.html
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -15,20 +16,16 @@
         <div class="nav-buttons">
             <button onclick="toggleUserList()" class="nav-button">Lista de Usuarios</button>
             <button onclick="toggleChatInterface()" class="nav-button">Chat</button>
-
         </div>
     </div>
 
-    <!-- PANTALLA DE LOGIN SIMPLIFICADA (SOLO NOMBRE) -->
-    <div id="login-screen" style="display:none;">
+    <!-- PANTALLA DE LOGIN SIMPLIFICADA -->
+    <div id="login-screen" style="display:block;">
         <h1>Bienvenido al Chat de Citas</h1>
         <p id="login-subtitle">Inicia sesión con tu nombre de usuario</p>
-
         <input type="text" id="login-username" placeholder="Tu nombre de usuario">
-
         <button onclick="login()">Iniciar Sesión</button>
         <button onclick="showRegisterForm()">Crear Cuenta Nueva</button>
-
         <p id="login-error" style="color:red;"></p>
     </div>
 
@@ -36,149 +33,98 @@
     <div id="register-screen" style="display:none;">
         <h1>Crear tu Perfil</h1>
         <p>Completa tu perfil para empezar a chatear</p>
-
         <div class="register-form">
-            <!-- Datos de acceso -->
             <h3>Datos de acceso</h3>
             <input type="text" id="register-name" placeholder="Tu nombre de usuario (debe ser único)" required>
-
-            <!-- Foto de perfil -->
+            
             <h3>Foto de perfil</h3>
             <div class="photo-upload-container">
                 <input type="file" id="profile-photo" accept="image/*">
                 <div id="photo-preview" class="photo-preview"></div>
             </div>
-
-            <!-- Hábitos -->
+            
             <h3>Hábitos</h3>
-            <label>
-                <input type="checkbox" name="habit" value="Deportista"> Deportista
-            </label>
-            <label>
-                <input type="checkbox" name="habit" value="Lector"> Lector
-            </label>
-            <label>
-                <input type="checkbox" name="habit" value="Viajero"> Viajero
-            </label>
-            <label>
-                <input type="checkbox" name="habit" value="Cocinero"> Cocinero
-            </label>
-            <label>
-                <input type="checkbox" name="habit" value="Músico"> Músico
-            </label>
-            <label>
-                <input type="checkbox" name="habit" value="Gamer"> Gamer
-            </label>
-
-            <!-- Gustos -->
+            <label><input type="checkbox" name="habit" value="Deportista"> Deportista</label>
+            <label><input type="checkbox" name="habit" value="Lector"> Lector</label>
+            <label><input type="checkbox" name="habit" value="Viajero"> Viajero</label>
+            <label><input type="checkbox" name="habit" value="Cocinero"> Cocinero</label>
+            <label><input type="checkbox" name="habit" value="Músico"> Músico</label>
+            <label><input type="checkbox" name="habit" value="Gamer"> Gamer</label>
+            
             <h3>Gustos e intereses</h3>
             <textarea id="interests" placeholder="Cuéntanos sobre tus gustos, hobbies y qué buscas en una pareja..." rows="4"></textarea>
-
-            <!-- Edad -->
+            
             <h3>Información adicional</h3>
             <input type="number" id="age" placeholder="Tu edad" min="18" max="100">
-
-            <!-- Botones -->
+            
             <button onclick="completeRegistration()" class="btn-primary">Crear Cuenta</button>
             <button onclick="showLoginForm()" class="btn-secondary">Volver al Login</button>
-
             <p id="register-error" style="color:red;"></p>
         </div>
     </div>
 
-    <!-- ====================================
-         CONTENEDOR PRINCIPAL DEL CHAT
-         Incluye barra lateral + ventana de mensajes
-         ==================================== -->
+    <!-- CONTENEDOR PRINCIPAL DEL CHAT -->
     <div id="chat-screen" style="display:none;">
-
-        <!-- ===== BARRA LATERAL DE CHATS ===== -->
-        <!--
-            Contiene la lista de conversaciones del usuario
-            y el botón para añadir nuevos chats
-        -->
+        <!-- BARRA LATERAL DE CHATS -->
         <div id="chat-sidebar" class="chat-sidebar">
-            <!-- Título de la barra lateral -->
             <div class="sidebar-header">
                 <h3>Mis Chats</h3>
             </div>
-
-            <!-- Lista de chats del usuario -->
-            <!-- Se llenará dinámicamente con JavaScript -->
             <div id="chat-list" class="chat-list">
-                <!-- Mensaje cuando no hay chats -->
                 <div id="no-chats-message" class="no-chats-message">
                     No hay chats registrados
                 </div>
             </div>
-
-            <!-- Botón para añadir nuevo chat -->
             <div class="sidebar-footer">
                 <button id="add-chat-btn" class="add-chat-btn">+ Añadir chat</button>
             </div>
         </div>
 
-        <!-- ===== VENTANA DE MENSAJES ===== -->
+        <!-- VENTANA DE MENSAJES -->
         <div id="chat-window" class="chat-window">
-
-            <!-- Header del chat -->
             <div id="header">
                 <h2 id="chat-title">Chat en Vivo</h2>
                 <div id="user-info"></div>
                 <button onclick="logout()">Cerrar Sesión</button>
             </div>
 
-            
+            <!-- ÁREA DE MENSAJES -->
+            <div id="messages" class="messages-container">
+                <div>Elije a alguien para hablar</div>
+            </div>
 
-            <!-- Área de mensajes -->
-            <div id="messages"></div>
+            <!-- CONTENEDOR DEL JUEGO (SE MUESTRA/OCULTA DINÁMICAMENTE) -->
+            <div id="game-container" style="display:none;">
+                <div id="game-board-wrapper">
+                    <div class="game-status">
+                        <div id="current-player-game">Esperando...</div>
+                        <div id="game-message-container"></div>
+                    </div>
+                    <div id="game-board-online"></div>
+                    <div class="game-controls-footer">
+                        <button id="close-game-online-btn" class="game-btn-inline close-btn">✖ Cerrar juego</button>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Área de entrada de mensajes -->
+            <!-- ÁREA DE ENTRADA DE MENSAJES -->
             <div id="input-area">
-                <!-- Botón flotante para abrir el juego (abajo derecha) -->
-                <button id="open-game-btn" class="game-open-button" style="display:none;" title="Jugar Cuatro en Raya">
-                    🎮
-                </button>
                 <input type="text" id="message-input" placeholder="Selecciona un chat para empezar" disabled>
+                <button id="open-game-btn" style="display:none;" title="Jugar Cuatro en Raya">🎮</button>
                 <button id="send-btn" onclick="sendMessage()" disabled>Enviar</button>
             </div>
         </div>
     </div>
 
-    <!-- Botón circular de perfil (arriba a la derecha) -->
+    <!-- BOTÓN CIRCULAR DE PERFIL -->
     <div id="profileBtn" class="chat-open-button profile-button" onclick="toggleAuthMenu()" title="Cuenta">
-        <!-- Icono de silueta por defecto (se sustituirá por la foto si existe) -->
         <svg id="profileSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white">
-            <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z" />
+            <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/>
         </svg>
-    </div>
-
-    <!-- CONTENEDOR DEL JUEGO CUATRO EN RAYA -->
-    <div id="game-panel" class="game-panel hidden">
-        <div class="game-header">
-            <h2>🎮 Cuatro en Raya</h2>
-            <div class="game-controls">
-                <button id="restart-game-btn" class="game-btn restart-btn">🔄 Reiniciar</button>
-                <button id="close-game-btn" class="game-btn close-btn">✖ Cerrar</button>
-            </div>
-        </div>
-
-        <div class="game-status">
-            <div id="current-player" class="player-indicator">
-                Turno: <span class="player-chip red-chip"></span> <strong>Rojas</strong>
-            </div>
-            <div id="game-message" class="game-message"></div>
-        </div>
-
-        <div id="game-board" class="game-board">
-            <!-- El tablero se genera dinámicamente con JavaScript -->
-        </div>
     </div>
 
     <!-- SCRIPTS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <!-- AUTH: Comentado para versión de prueba sin contraseñas -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
