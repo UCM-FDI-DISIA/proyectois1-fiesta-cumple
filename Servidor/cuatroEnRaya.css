@@ -2,6 +2,36 @@
    CUATRO EN RAYA ONLINE - ESTILOS
    ======================================== */
 
+/* ===== POSICIONAMIENTO DEL JUEGO ===== */
+#chat-window {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+}
+
+#game-container {
+    position: absolute;
+    top: 60px; /* Altura del header */
+    left: 0;
+    right: 0;
+    bottom: 60px; /* Altura del input-area */
+    width: 100%;
+    height: calc(100% - 120px);
+    z-index: 10;
+    background-color: #f8f9fa;
+}
+
+#game-board-wrapper {
+    max-width: 600px;
+    width: 100%;
+}
+
 /* ===== CONTENEDOR DEL JUEGO DENTRO DEL CHAT ===== */
 #game-container {
     width: 100%;
@@ -14,11 +44,6 @@
     padding: 20px;
     box-sizing: border-box;
     overflow-y: auto;
-}
-
-#game-board-wrapper {
-    max-width: 600px;
-    width: 100%;
 }
 
 /* ===== ESTADO DEL JUEGO ===== */
@@ -160,19 +185,35 @@
     background-color: #da190b;
 }
 
-/* ===== INVITACIÓN DE JUEGO (MENSAJE ESPECIAL) ===== */
+/* ===== MENSAJES DE INVITACIÓN EN EL CHAT ===== */
 .game-invitation-message {
     background-color: #e3f2fd !important;
     border-left: 4px solid #2196f3 !important;
     padding: 15px !important;
     margin: 10px 0 !important;
     border-radius: 8px !important;
+    max-width: 400px;
+    clear: both; /* ✅ Importante para el float */
+}
+
+/* ✅ NUEVO: Mensaje del invitador (a la derecha) */
+.game-invitation-message.my-message {
+    float: right !important;
+    margin-left: auto !important;
+    text-align: right;
+}
+
+/* ✅ NUEVO: Mensaje del invitado (a la izquierda) */
+.game-invitation-message:not(.my-message) {
+    float: left !important;
+    margin-right: auto !important;
+    text-align: left;
 }
 
 .game-invitation-text {
     font-weight: bold;
     color: #1976d2;
-    margin-bottom: 10px;
+    margin: 10px 0;
 }
 
 .invitation-buttons {
@@ -240,4 +281,18 @@
         gap: 5px;
         padding: 10px;
     }
+}
+
+.message.game-system-message {
+    float: none !important;
+    clear: both;
+    margin: 15px auto !important;
+    text-align: center !important;
+    background-color: #f5f5f5 !important;
+    padding: 10px 15px !important;
+    border-radius: 8px !important;
+    max-width: 80% !important;
+    font-style: italic;
+    color: #666 !important;
+    border: none !important;
 }

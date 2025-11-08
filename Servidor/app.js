@@ -1458,21 +1458,6 @@ async function sendMessage() {
 // ========================================
 // FUNCIÓN: CARGAR MENSAJES EN TIEMPO REAL
 // ========================================
-/*
-   loadMessages(chatId)
-   
-   Carga y muestra los mensajes de un chat específico.
-   
-   ¿Cómo funciona?
-   1. Consulta la subcolección 'messages' del chat
-   2. Ordena por timestamp ascendente (más antiguos primero)
-   3. Escucha cambios en tiempo real
-   4. Renderiza cada mensaje
-   5. Hace scroll automático al final
-   
-   Importante: Guarda el listener para poder desuscribirse
-   cuando se cierre el chat.
-*/
 function loadMessages(chatId) {
     const messagesDiv = document.getElementById('messages');
     
@@ -1491,40 +1476,53 @@ function loadMessages(chatId) {
             
             snapshot.forEach(doc => {
                 const msg = doc.data();
+                const messageDocId = doc.id; // ✅ AÑADIDO: Obtener ID del documento
+                
+                // Verificar si es mensaje de sistema con visibilidad específica
+                if (msg.messageType === 'game-system' && msg.visibleTo && msg.visibleTo !== currentUserId) {
+                    return;
+                }
                 
                 const messageElement = document.createElement('div');
                 messageElement.className = 'message';
                 
-                // VERSIÓN ACTUAL: Comparar por ID de usuario
-                if (msg.senderId === currentUserId) {
-                    messageElement.classList.add('my-message');
+                if (msg.messageType === 'game-invitation') {
+                    messageElement.classList.add('game-invitation-message');
+                    
+                    if (msg.senderId === currentUserId) {
+                        messageElement.classList.add('my-message');
+                    }
+                    
+                    // ✅ CORREGIDO: Pasar messageDocId como tercer parámetro
+                    if (typeof window.renderGameInvitationFromMessage === 'function') {
+                        window.renderGameInvitationFromMessage(messageElement, msg, messageDocId);
+                    }
+                    
+                } else if (msg.messageType === 'game-system') {
+                    messageElement.classList.add('game-system-message');
+                    messageElement.textContent = msg.text;
+                    
+                } else {
+                    if (msg.senderId === currentUserId) {
+                        messageElement.classList.add('my-message');
+                    }
+                    
+                    messageElement.innerHTML = `
+                        <div class="message-header">
+                            <strong>${msg.senderName}</strong>
+                            <span class="timestamp">${formatTime(msg.timestamp)}</span>
+                        </div>
+                        <div class="message-text">${msg.text}</div>
+                    `;
                 }
-                
-                /* VERSIÓN CON AUTENTICACIÓN (comentada):
-                Reemplaza la línea de arriba con:
-                
-                if (msg.senderId === currentUser.uid) {
-                    messageElement.classList.add('my-message');
-                }
-                */
-                
-                messageElement.innerHTML = `
-                    <div class="message-header">
-                        <strong>${msg.senderName}</strong>
-                        <span class="timestamp">${formatTime(msg.timestamp)}</span>
-                    </div>
-                    <div class="message-text">${msg.text}</div>
-                `;
                 
                 messagesDiv.appendChild(messageElement);
             });
             
-            // CLEARFIX para float
             const clearDiv = document.createElement('div');
             clearDiv.style.clear = 'both';
             messagesDiv.appendChild(clearDiv);
             
-            // Scroll automático al final
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
             console.log(`Cargados ${snapshot.size} mensajes`);
