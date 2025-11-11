@@ -1316,9 +1316,11 @@ function openChat(chatId, partnerId, partnerName) {
     // Habilitar input y botón
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
+    const playBtn = document.getElementById('open-game-btn');
     messageInput.disabled = false;
     messageInput.placeholder = 'Escribe tu mensaje aquí...';
     sendBtn.disabled = false;
+    playBtn.disabled = false;
     
     // Remover estado vacío del área de mensajes
     const messagesDiv = document.getElementById('messages');
@@ -1571,6 +1573,9 @@ function showEmptyState() {
     messageInput.disabled = true;
     messageInput.placeholder = 'Selecciona un chat para empezar';
     sendBtn.disabled = true;
+
+    const playBtn = document.getElementById('open-game-btn');
+    playBtn.disabled = true;
 }
 
 // ========================================
@@ -1722,6 +1727,9 @@ function showChatInterface() {
     console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
 }
 
-// ========================================
-// EXPORTS PARA TESTING
-// ========================================
+//Exportar funciones para pruebas unitarias
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        generateChatId
+    };
+}

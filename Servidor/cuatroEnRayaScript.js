@@ -616,7 +616,7 @@
                 return;
             }
 
-            // ✅ Si el juego está en curso, confirmar abandono
+            // Si el juego está en curso, confirmar abandono
             const confirmClose = confirm('¿Estás seguro de que quieres cerrar el juego? Esto contará como abandono y el otro jugador ganará.');
             if (!confirmClose) return;
 
@@ -690,7 +690,6 @@
         }
     };
 
-    // ✅ CAMBIO 1: Función para renderizar mensajes de invitación desde app.js
     window.renderGameInvitationFromMessage = function (messageElement, messageData, messageDocId) {
         const isInviter = messageData.senderId === currentUserId;
 
@@ -746,5 +745,15 @@
             }
         }
     };
+
+    //Exportar funciones para pruebas unitarias
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            flatTo2D,
+            board2DToFlat,
+            checkWin,
+            checkTie
+        };
+    }
 
 })();

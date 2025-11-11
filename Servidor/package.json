@@ -2,7 +2,7 @@
   "name": "proyectois1-fiesta-cumple",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },

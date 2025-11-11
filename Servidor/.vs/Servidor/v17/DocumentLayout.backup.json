@@ -3,32 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRaya.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cuatroEnRaya.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\Index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRayaScript.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cuatroEnRayaScript.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.test.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:app.test.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\listausuarios.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:listausuarios.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:style.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRaya.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cuatroEnRaya.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRayaScript.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cuatroEnRayaScript.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\listausuarios.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:listausuarios.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\jest.setup.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,32 +54,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "cuatroEnRayaScript.js",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRayaScript.js",
               "RelativeDocumentMoniker": "cuatroEnRayaScript.js",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRayaScript.js",
               "RelativeToolTip": "cuatroEnRayaScript.js",
-              "ViewState": "AgIAAPMAAAAAAAAAAAAIwBYBAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAD4BAAAAAAAAAAAnwFICAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-04T08:27:01.437Z"
+              "WhenOpened": "2025-11-04T08:27:01.437Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "cuatroEnRaya.css",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRaya.css",
               "RelativeDocumentMoniker": "cuatroEnRaya.css",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\cuatroEnRaya.css",
               "RelativeToolTip": "cuatroEnRaya.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAMsAAAAAAAAAAADgv9oAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2025-11-04T08:27:00.849Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "listausuarios.js",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\listausuarios.js",
               "RelativeDocumentMoniker": "listausuarios.js",
@@ -97,22 +98,23 @@
               "RelativeDocumentMoniker": "Index.html",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\Index.html",
               "RelativeToolTip": "Index.html",
-              "ViewState": "AgIAAHUAAAAAAAAAAADgv4wAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAtwG4AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2025-10-30T21:09:41.8Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "app.test.js",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.test.js",
               "RelativeDocumentMoniker": "app.test.js",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.test.js",
               "RelativeToolTip": "app.test.js",
-              "ViewState": "AgIAAJIAAAAAAAAAAAAAAJwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJ4AAAAAAAAAAAAAAC8AAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-28T09:30:21.966Z"
+              "WhenOpened": "2025-10-28T09:30:21.966Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -140,27 +142,29 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "app.js",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js",
               "RelativeDocumentMoniker": "app.js",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\app.js",
               "RelativeToolTip": "app.js",
-              "ViewState": "AgIAAMsEAAAAAAAAAAAnwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABgFAAAAAAAAAAArwCoFAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-28T09:12:59.697Z"
+              "WhenOpened": "2025-10-28T09:12:59.697Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
               "Title": "style.css",
               "DocumentMoniker": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css",
               "RelativeDocumentMoniker": "style.css",
               "ToolTip": "C:\\Users\\Tijer\u00EDn\\Desktop\\proyectois1-fiesta-cumple\\Servidor\\style.css",
               "RelativeToolTip": "style.css",
-              "ViewState": "AgIAAI4CAAAAAAAAAAAawKcCAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAPcBAAAAAAAAAADwvwwCAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-24T16:01:06.878Z"
+              "WhenOpened": "2025-10-24T16:01:06.878Z",
+              "EditorCaption": ""
             }
           ]
         }
