@@ -465,13 +465,13 @@ async function handleProfilePhotoChange(event) {
 async function saveProfileChanges() {
     try {
         console.log('Iniciando guardado de cambios...');
-        
+
         // 1. Recoger datos del formulario
         const newName = document.getElementById('editProfileName').value.trim();
         const newInterests = document.getElementById('editProfileInterests').value.trim();
         const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
             .map(cb => cb.value);
-        
+
         // Validación básica
         if (!newName) {
             alert('El nombre es obligatorio');
@@ -486,70 +486,96 @@ async function saveProfileChanges() {
             return;
         }
         const currentData = userDoc.data();
-        
+
         // 3. Procesar foto si hay nueva
         console.log('Procesando foto...');
         const photoInput = document.getElementById('newProfilePhoto');
-        let photoURL = currentData.photoURL || ''; // Mantener la URL actual o vacío si no hay
-        
+        let photoURL = currentData.photoURL || ''; // Mantener la URL actual por defecto
+
+        // ✅ NUEVA LÓGICA: Subir a ImgBB en vez de Firebase Storage
         if (photoInput && photoInput.files && photoInput.files.length > 0) {
             const file = photoInput.files[0];
-            console.log('Subiendo nueva foto...');
+            console.log('Subiendo nueva foto a ImgBB...');
+
             try {
-                const storageRef = storage.ref(`profile-photos/${currentUserId}`);
-                const uploadTask = await storageRef.put(file);
-                photoURL = await uploadTask.ref.getDownloadURL();
-                console.log('Foto subida exitosamente:', photoURL);
+                // Validar tamaño (ImgBB permite hasta 32MB, pero limitamos a 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('La imagen es demasiado grande. Máximo 5MB.');
+                    photoURL = currentData.photoURL || '';
+                } else {
+                    // ✅ Crear FormData para enviar la imagen
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    // ✅ IMPORTANTE: Reemplaza 'TU_API_KEY' con tu clave real de ImgBB
+                    const API_KEY = 'c44651d43039727932eaf6daf0918e74'; // ← CAMBIAR ESTO
+
+                    // ✅ Subir imagen a ImgBB
+                    const response = await fetch(
+                        `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        photoURL = data.data.url; // URL pública de la imagen
+                        console.log('✅ Foto subida exitosamente a ImgBB:', photoURL);
+                    } else {
+                        throw new Error('ImgBB devolvió error');
+                    }
+                }
+
             } catch (photoErr) {
-                console.error('Error subiendo foto:', photoErr);
-                alert('Error al subir la foto. Los demás cambios se guardarán.');
-                // Continuamos con la URL anterior
+                console.error('❌ Error subiendo foto:', photoErr);
+                alert(`Error al subir la foto: ${photoErr.message}`);
+
+                // Mantener la foto actual si falla
+                photoURL = currentData.photoURL || '';
+                console.log('Se mantendrá la foto actual debido al error');
             }
         }
-        
+
         // 4. Preparar datos para actualizar
         console.log('Preparando datos para actualizar...');
         const updateData = {
             userId: currentUserId,
             userName: newName,
-            interests: newInterests || '', // Asegurar que no sea null/undefined
-            habits: selectedHabits || [], // Asegurar que no sea null/undefined
+            interests: newInterests || '',
+            habits: selectedHabits || [],
             photoURL: photoURL,
             age: currentData.age || 18,
             createdAt: currentData.createdAt || firebase.firestore.FieldValue.serverTimestamp()
         };
-        
+
         // 5. Guardar en Firestore
         console.log('Guardando cambios en Firestore...');
         await db.collection('users').doc(currentUserId).set(updateData, { merge: true });
-        
+
         // 6. Actualizar UI
         console.log('Actualizando UI...');
         await loadProfileData();
         updateProfileButton();
         document.getElementById('user-info').textContent = 'Conectado como: ' + newName;
-        
+
         // 7. Limpiar formulario de foto
         if (photoInput) photoInput.value = '';
-        
+
         // 8. Mostrar confirmación y cambiar a vista
-        console.log('¡Cambios guardados exitosamente!');
+        console.log('✅ ¡Cambios guardados exitosamente!');
         alert('Perfil actualizado correctamente');
         switchProfileTab('view');
-        
-        // Recargar datos y mostrar vista
-        await loadProfileData();
-        switchProfileTab('view');
-        
-        // Actualizar otros elementos de la UI que muestran info del usuario
-        document.getElementById('user-info').textContent = 'Conectado como: ' + newName;
-        updateProfileButton();
-        
-        alert('Perfil actualizado correctamente');
-        
+
     } catch (err) {
-        console.error('Error guardando cambios:', err);
-        alert('Error al guardar los cambios');
+        console.error('❌ Error guardando cambios:', err);
+        alert('Error al guardar los cambios: ' + err.message);
     }
 }
 
@@ -767,84 +793,111 @@ async function completeRegistration() {
     const interests = document.getElementById('interests').value;
     const age = document.getElementById('age').value;
     const errorElement = document.getElementById('register-error');
-    
+
     // Obtener hábitos seleccionados
     const habitsCheckboxes = document.querySelectorAll('input[name="habit"]:checked');
     const habits = Array.from(habitsCheckboxes).map(cb => cb.value);
-    
+
     // Validaciones
     if (!name || name.trim() === '') {
         errorElement.textContent = 'Por favor ingresa tu nombre de usuario';
         return;
     }
-    
+
     if (!age || age < 18) {
         errorElement.textContent = 'Debes ser mayor de 18 años';
         return;
     }
-    
+
     try {
         errorElement.textContent = 'Verificando disponibilidad del nombre...';
-        
+
         // Verificar si el nombre de usuario ya existe
         const existingUsers = await db.collection('users')
             .where('userName', '==', name.trim())
             .get();
-        
+
         if (!existingUsers.empty) {
             errorElement.textContent = 'Este nombre de usuario ya está en uso. Por favor elige otro.';
             return;
         }
-        
+
         errorElement.textContent = 'Creando perfil...';
-        
+
         // Generar ID basado en el nombre de usuario (minúsculas y guiones bajos)
         const userId = name.trim().toLowerCase().replace(/\s+/g, '_');
         currentUserId = userId;
         currentUserName = name.trim();
-        
-        // Subir foto de perfil si existe (mejor manejo: ruta única + obtener URL del uploadTask)
+
+        // ✅ NUEVA LÓGICA: Subir foto a ImgBB en vez de Firebase Storage
         let photoURL = '';
         if (photoFile) {
             errorElement.textContent = 'Subiendo foto de perfil...';
             try {
-                // Crear una ruta única para evitar sobreescrituras y problemas de caché
-                const filePath = `profile-photos/${userId}/${Date.now()}_${photoFile.name}`;
-                const storageRef = storage.ref(filePath);
-                const uploadSnapshot = await storageRef.put(photoFile);
-                // Obtener URL desde el snapshot
-                photoURL = await uploadSnapshot.ref.getDownloadURL();
+                // Validar tamaño
+                if (photoFile.size > 5 * 1024 * 1024) {
+                    errorElement.textContent = 'La imagen es demasiado grande. El perfil se creará sin foto.';
+                    photoURL = '';
+                } else {
+                    // ✅ Crear FormData
+                    const formData = new FormData();
+                    formData.append('image', photoFile);
+
+                    // ✅ IMPORTANTE: Reemplaza 'TU_API_KEY' con tu clave real
+                    const API_KEY = 'c44651d43039727932eaf6daf0918e74'; // ← CAMBIAR ESTO
+
+                    // ✅ Subir a ImgBB
+                    const response = await fetch(
+                        `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        photoURL = data.data.url;
+                        console.log('✅ Foto subida a ImgBB:', photoURL);
+                    } else {
+                        throw new Error('ImgBB devolvió error');
+                    }
+                }
             } catch (upErr) {
                 console.error('Error subiendo foto durante registro:', upErr);
-                // No abortar el registro por una foto fallida; avisamos al usuario
                 errorElement.textContent = 'Error subiendo la foto. El perfil se creará sin foto.';
                 photoURL = '';
             }
         }
-        
+
         // Guardar perfil completo en Firestore usando el ID formateado
         errorElement.textContent = 'Guardando perfil...';
         await db.collection('users').doc(userId).set({
             userId: userId,
-            userName: name.trim(), // Mantener el nombre original para mostrar
+            userName: name.trim(),
             photoURL: photoURL,
             habits: habits,
             interests: interests,
             age: parseInt(age),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        
+
         errorElement.style.color = 'green';
         errorElement.textContent = '¡Perfil creado con éxito! Redirigiendo...';
-        
+
         // Actualizar UI
         document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
-        
+
         // Cargar chats y mostrar interfaz
         loadUserChats();
 
         if (typeof window.showGameButton === 'function') window.showGameButton();
-       
+
         setTimeout(() => {
             showChatInterface();
             // Limpiar formulario
@@ -857,7 +910,7 @@ async function completeRegistration() {
             errorElement.textContent = '';
             errorElement.style.color = 'red';
         }, 1000);
-        
+
     } catch (error) {
         errorElement.style.color = 'red';
         errorElement.textContent = 'Error: ' + error.message;
