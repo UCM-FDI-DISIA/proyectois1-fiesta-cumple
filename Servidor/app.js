@@ -213,6 +213,22 @@ async function populateProfileMenu() {
 async function viewProfile() {
     if (!currentUserId) { alert('No hay usuario conectado.'); return; }
     createProfileModal();
+    // Si previamente se ocultó la pestaña de edición (al ver otros perfiles), la restauramos
+    const modal = document.getElementById('profileModal');
+    if (modal) {
+        const editTab = modal.querySelector('.profile-tab[data-tab="edit"]');
+        if (editTab) editTab.style.display = '';
+        const editSection = document.getElementById('editProfileContent');
+        if (editSection) editSection.style.display = 'none';
+        const photoInput = document.getElementById('newProfilePhoto');
+        // Mantener el input de archivo oculto (el botón sigue presente y lanza el click)
+        if (photoInput) photoInput.style.display = 'none';
+        // Si había un botón de cambiar foto dentro de la sección de edición, restaurarlo
+        if (editSection) {
+            const changeBtn = editSection.querySelector('button');
+            if (changeBtn) changeBtn.style.display = '';
+        }
+    }
     showProfileModal();
     await loadProfileData();
 }
@@ -396,6 +412,91 @@ async function loadProfileData() {
         alert('Error al cargar el perfil');
     }
 }
+
+/**
+ * Mostrar el perfil de un usuario cualquiera en el modal.
+ * Si se pasa `userData` se usa directamente, si no se intenta leer desde Firestore.
+ * Expuesto globalmente para que otros módulos (p. ej. listausuarios.js) puedan llamarlo.
+ */
+window.showUserProfile = async function(userId, userData) {
+    try {
+        createProfileModal();
+        // Si se está viendo otro usuario, ocultamos la pestaña de edición
+        const modal = document.getElementById('profileModal');
+        const tabs = modal ? modal.querySelectorAll('.profile-tab') : null;
+        if (tabs && tabs.length > 0) {
+            tabs.forEach(t => t.style.display = ''); // reset
+            // Si es otro usuario (no el actual), ocultamos la pestaña 'edit'
+            if (typeof currentUserId !== 'undefined' && userId && userId !== currentUserId) {
+                const editTab = modal.querySelector('.profile-tab[data-tab="edit"]');
+                if (editTab) editTab.style.display = 'none';
+            }
+        }
+        // forzamos la pestaña de vista
+        switchProfileTab('view');
+
+        let data = userData || null;
+        if (!data && userId && typeof db !== 'undefined' && db) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc && doc.exists) data = doc.data();
+            } catch (e) {
+                console.warn('showUserProfile: no se pudo leer Firestore', e);
+            }
+        }
+
+        // Rellenar campos con los datos (si no hay datos, usamos valores por defecto)
+        const nameEl = document.getElementById('profileNameView');
+        const interestsEl = document.getElementById('profileInterestsView');
+        const habitsContainer = document.getElementById('profileHabitsView');
+        const photoContainer = document.getElementById('profilePhotoView');
+
+        if (nameEl) nameEl.textContent = (data && (data.userName || data.username)) || userId || 'Sin nombre';
+        if (interestsEl) interestsEl.textContent = (data && data.interests) || 'No especificado';
+
+        if (habitsContainer) {
+            habitsContainer.innerHTML = '';
+            if (data && data.habits && data.habits.length > 0) {
+                data.habits.forEach(habit => {
+                    const tag = document.createElement('span');
+                    tag.className = 'habit-tag';
+                    tag.textContent = habit;
+                    habitsContainer.appendChild(tag);
+                });
+            } else {
+                habitsContainer.innerHTML = '<p>No hay hábitos registrados</p>';
+            }
+        }
+
+        if (photoContainer) {
+            if (data && data.photoURL) {
+                photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+            } else if (data && data.photo) {
+                photoContainer.innerHTML = `<img src="${data.photo}" alt="Foto de perfil">`;
+            } else {
+                photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+            }
+        }
+
+        // Si no es el propio usuario, ocultar controles de edición
+        if (typeof currentUserId !== 'undefined' && userId && userId !== currentUserId) {
+            const editSection = document.getElementById('editProfileContent');
+            if (editSection) editSection.style.display = 'none';
+            const editTab = document.querySelector('.profile-tab[data-tab="edit"]');
+            if (editTab) editTab.style.display = 'none';
+            // ocultar input de foto y botón de cambiar foto si existen
+            const photoInput = document.getElementById('newProfilePhoto');
+            if (photoInput) photoInput.style.display = 'none';
+            const changeBtn = editSection ? editSection.querySelector('button') : null;
+            if (changeBtn) changeBtn.style.display = 'none';
+        }
+
+        showProfileModal();
+    } catch (err) {
+        console.error('showUserProfile error', err);
+        alert('No se pudo mostrar el perfil.');
+    }
+};
 
 async function populateEditForm() {
     try {
@@ -1214,6 +1315,26 @@ async function renderChatItem(chatId, chatData) {
         console.error('Error al obtener nombre de usuario:', error);
     }
 
+    // Contar mensajes no leídos
+    let unreadCount = 0;
+    try {
+        const messagesSnapshot = await db.collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .where('senderId', '!=', currentUserId)
+            .get();
+        
+        messagesSnapshot.forEach(doc => {
+            const msg = doc.data();
+            // Contar si no tiene campo readBy o si currentUserId no está en readBy
+            if (!msg.readBy || !msg.readBy.includes(currentUserId)) {
+                unreadCount++;
+            }
+        });
+    } catch (error) {
+        console.error('Error al contar mensajes no leídos:', error);
+    }
+
     // Crear elemento del chat
     const chatItem = document.createElement('div');
     chatItem.className = 'chat-item';
@@ -1225,9 +1346,11 @@ async function renderChatItem(chatId, chatData) {
         chatItem.classList.add('active');
     }
 
-    // Contenido: nombre del otro usuario
+    // Contenido: nombre del otro usuario y contador de mensajes sin leer
+    const unreadBadge = unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : '';
     chatItem.innerHTML = `
         <div class="chat-item-name">${otherUserName}</div>
+        ${unreadBadge}
     `;
 
     // Evento: abrir chat al hacer clic
@@ -1366,6 +1489,9 @@ function openChat(chatId, partnerId, partnerName) {
     const chatTitle = document.getElementById('chat-title');
     chatTitle.textContent = partnerName || partnerId;
     
+    // Actualizar avatar del usuario en el chat
+    updateChatAvatar(partnerId);
+    
     // Habilitar input y botón
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
@@ -1388,6 +1514,41 @@ function openChat(chatId, partnerId, partnerName) {
 
     if (typeof window.loadGameForChat === 'function') {
         window.loadGameForChat(chatId);
+    }
+}
+
+/**
+ * Actualiza el avatar del usuario en el header del chat
+ */
+async function updateChatAvatar(userId) {
+    const avatarContainer = document.getElementById('chat-avatar');
+    if (!avatarContainer) return;
+    
+    // Limpiar contenido previo
+    avatarContainer.innerHTML = '';
+    
+    // SVG por defecto mientras carga
+    const defaultSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+    avatarContainer.innerHTML = defaultSvg;
+    
+    // Intentar cargar la foto del usuario desde Firestore
+    try {
+        if (userId && typeof db !== 'undefined' && db) {
+            const doc = await db.collection('users').doc(userId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.photoURL || data.photo) {
+                    const img = document.createElement('img');
+                    img.src = data.photoURL || data.photo;
+                    img.alt = 'Avatar';
+                    img.loading = 'lazy';
+                    avatarContainer.innerHTML = '';
+                    avatarContainer.appendChild(img);
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('No se pudo cargar el avatar del chat:', err);
     }
 }
 
@@ -1532,6 +1693,22 @@ function loadMessages(chatId) {
             snapshot.forEach(doc => {
                 const msg = doc.data();
                 const messageDocId = doc.id; // ✅ AÑADIDO: Obtener ID del documento
+                
+                // Marcar mensaje como leído si no es del usuario actual
+                if (msg.senderId !== currentUserId) {
+                    const readBy = msg.readBy || [];
+                    if (!readBy.includes(currentUserId)) {
+                        // Actualizar el mensaje para añadir currentUserId a readBy
+                        db.collection('chats')
+                            .doc(chatId)
+                            .collection('messages')
+                            .doc(messageDocId)
+                            .update({
+                                readBy: firebase.firestore.FieldValue.arrayUnion(currentUserId)
+                            })
+                            .catch(err => console.warn('Error marcando mensaje como leído:', err));
+                    }
+                }
                 
                 // Verificar si es mensaje de sistema con visibilidad específica
                 if (msg.messageType === 'game-system' && msg.visibleTo && msg.visibleTo !== currentUserId) {

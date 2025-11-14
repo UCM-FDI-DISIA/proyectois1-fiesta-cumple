@@ -134,7 +134,8 @@
                 text: '',
                 messageType: 'game-invitation', // ✅ Tipo especial
                 gameId: gameId,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                readBy: [currentUserId] // El remitente ya ha "leído" su propio mensaje
             });
 
             console.log('[4 en Raya] Invitación enviada');
@@ -213,7 +214,8 @@
                 text: 'Has rechazado la invitación',
                 messageType: 'game-system',
                 visibleTo: currentUserId,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                readBy: [currentUserId]
             });
 
             await chatRef.collection('messages').add({
@@ -222,7 +224,8 @@
                 text: `${currentUserName} ha rechazado la invitación`,
                 messageType: 'game-system',
                 visibleTo: gameData.invitedBy,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                readBy: []
             });
 
             await gameRef.delete();
@@ -455,7 +458,8 @@
                     senderName: 'Sistema',
                     text: `🎉 ¡Ganó ${winnerName}!`,
                     messageType: 'game-system',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    readBy: []
                 });
             } else if (isTie) {
                 await chatRef.collection('messages').add({
@@ -463,7 +467,8 @@
                     senderName: 'Sistema',
                     text: '🤝 ¡Empate!',
                     messageType: 'game-system',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    readBy: []
                 });
             }
 

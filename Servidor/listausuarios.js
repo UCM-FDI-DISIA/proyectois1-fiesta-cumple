@@ -129,6 +129,22 @@
                 const row = document.createElement('div');
                 row.className = 'user-row';
 
+                // Avatar a la izquierda
+                const avatarWrap = document.createElement('div');
+                avatarWrap.className = 'user-avatar';
+
+                // Si el usuario tiene photoURL (almacenada como photoURL), la usamos
+                if (u.raw && (u.raw.photoURL || u.raw.photo)) {
+                    const img = document.createElement('img');
+                    img.src = u.raw.photoURL || u.raw.photo;
+                    img.alt = (u.display || 'Usuario') + ' - foto';
+                    img.loading = 'lazy';
+                    avatarWrap.appendChild(img);
+                } else {
+                    // Fallback: pequeño SVG inline (estilo avatar neutro)
+                    avatarWrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#ccc"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                }
+
                 const left = document.createElement('div');
                 left.className = 'user-info'; // ✅ Clase para el contenedor
 
@@ -156,8 +172,27 @@
                     setTimeout(() => action.textContent = 'Copiar usuario', 1200);
                 });
 
+                const viewBtn = document.createElement('button');
+                viewBtn.className = 'user-action-btn user-view-btn';
+                viewBtn.textContent = 'Ver';
+                viewBtn.addEventListener('click', () => {
+                    // Si la función global showUserProfile existe, la usamos
+                    if (window.showUserProfile && typeof window.showUserProfile === 'function') {
+                        window.showUserProfile(u.id, u.raw);
+                    } else {
+                        // Fallback: intentar abrir modal propio mínimo
+                        alert('Funcionalidad de ver perfil no disponible.');
+                    }
+                });
+
+                // Orden: avatar, info, acciones (Ver y Copiar)
+                row.appendChild(avatarWrap);
                 row.appendChild(left);
-                row.appendChild(action);
+                const actionsWrap = document.createElement('div');
+                actionsWrap.className = 'actions';
+                actionsWrap.appendChild(viewBtn);
+                actionsWrap.appendChild(action);
+                row.appendChild(actionsWrap);
                 list.appendChild(row);
             });
 
