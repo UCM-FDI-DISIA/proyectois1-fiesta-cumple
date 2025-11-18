@@ -109,8 +109,33 @@
             info.textContent = '';
 
             const users = [];
+
+            // Obtener IDs de usuarios con los que ya hay un chat abierto
+            const openChatPartners = new Set();
+            try {
+                if (typeof currentUserId !== 'undefined' && currentUserId) {
+                    const chatsSnap = await db.collection('chats')
+                        .where('participants', 'array-contains', currentUserId)
+                        .get();
+
+                    chatsSnap.forEach(docChat => {
+                        const dataChat = docChat.data() || {};
+                        const parts = Array.isArray(dataChat.participants) ? dataChat.participants : [];
+                        parts.forEach(p => {
+                            if (p && p !== currentUserId) openChatPartners.add(p);
+                        });
+                    });
+                }
+            } catch (e) {
+                console.warn('[listausuarios] No se pudieron leer los chats para filtrar:', e);
+            }
+
             snapshot.forEach(doc => {
+                // Excluir el propio perfil
                 if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
+
+                // Excluir perfiles con los que ya existe un chat
+                if (openChatPartners.has(doc.id)) return;
 
                 const data = doc.data() || {};
                 const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
