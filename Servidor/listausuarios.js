@@ -28,11 +28,8 @@
 
         const panel = document.createElement('div');
         panel.id = 'users-panel';
-        panel.classList.add('hidden'); // ✅ AÑADIR CLASE HIDDEN por defecto
+        panel.classList.add('hidden');
         
-        // ✅ SIN ESTILOS INLINE - Todo se maneja desde style.css
-        // Los estilos ahora están definidos en la hoja de estilos
-
         // Header
         const header = document.createElement('div');
 
@@ -42,7 +39,7 @@
         const closeBtn = document.createElement('button');
         closeBtn.textContent = 'Cerrar';
         closeBtn.addEventListener('click', () => {
-            panel.classList.add('hidden'); // ✅ Usar clase en lugar de style.display
+            panel.classList.add('hidden');
         });
 
         header.appendChild(title);
@@ -70,9 +67,9 @@
                 const navBtn = document.querySelector('.nav-button');
                 if (!panelEl) return;
                 const target = ev.target;
-                const isPanelOpen = !panelEl.classList.contains('hidden'); // ✅ Verificar con clase
+                const isPanelOpen = !panelEl.classList.contains('hidden');
                 if (isPanelOpen && !panelEl.contains(target) && !target.closest('.nav-button')) {
-                    panelEl.classList.add('hidden'); // ✅ Usar clase en lugar de style.display
+                    panelEl.classList.add('hidden');
                 }
             } catch (e) {
                 console.warn('[listausuarios] Error en click fuera:', e);
@@ -146,32 +143,20 @@
                 }
 
                 const left = document.createElement('div');
-                left.className = 'user-info'; // ✅ Clase para el contenedor
+                left.className = 'user-info';
 
                 const nameEl = document.createElement('div');
-                nameEl.className = 'user-name'; // ✅ Clase para el nombre
+                nameEl.className = 'user-name';
                 nameEl.textContent = u.display;
 
                 const metaEl = document.createElement('div');
-                metaEl.className = 'user-meta'; // ✅ Clase para el email
+                metaEl.className = 'user-meta';
                 metaEl.textContent = u.raw && u.raw.email ? u.raw.email : '';
 
                 left.appendChild(nameEl);
                 if (metaEl.textContent) left.appendChild(metaEl);
 
-                const action = document.createElement('button');
-                action.className = 'user-action-btn'; // ✅ Clase para el botón
-                action.textContent = 'Copiar usuario';
-                action.addEventListener('click', () => {
-                    const prefer = u.raw && (u.raw.userName || u.raw.username);
-                    const toCopy = (u.display && u.display !== u.id)
-                        ? u.display
-                        : (prefer ? (u.raw.userName || u.raw.username) : u.id);
-                    copyToClipboard(toCopy);
-                    action.textContent = 'Copiado';
-                    setTimeout(() => action.textContent = 'Copiar usuario', 1200);
-                });
-
+                // ✅ BOTÓN "VER" - MANTENIDO SIN CAMBIOS
                 const viewBtn = document.createElement('button');
                 viewBtn.className = 'user-action-btn user-view-btn';
                 viewBtn.textContent = 'Ver';
@@ -185,13 +170,46 @@
                     }
                 });
 
-                // Orden: avatar, info, acciones (Ver y Copiar)
+                // ✅ BOTÓN "CHATEAR" - REEMPLAZA A "COPIAR USUARIO"
+                const chatBtn = document.createElement('button');
+                chatBtn.className = 'user-action-btn user-chat-btn';
+                chatBtn.textContent = 'Chatear';
+                chatBtn.addEventListener('click', async () => {
+                    try {
+                        // 1. Obtener datos del usuario
+                        const partnerId = u.id;
+                        const partnerName = u.display;
+                        
+                        // 2. Generar ID del chat
+                        const chatId = generateChatId(currentUserId, partnerId);
+                        
+                        // 3. Cerrar panel de usuarios
+                        const usersPanel = document.getElementById('users-panel');
+                        if (usersPanel) {
+                            usersPanel.classList.add('hidden');
+                        }
+                        
+                        // 4. Abrir panel de chat
+                        const chatScreen = document.getElementById('chat-screen');
+                        if (chatScreen) {
+                            chatScreen.style.display = 'flex';
+                        }
+                        
+                        // 5. Abrir chat específico
+                        openChat(chatId, partnerId, partnerName);
+                        
+                    } catch (error) {
+                        console.error('[listausuarios] Error al abrir chat:', error);
+                    }
+                });
+
+                // Orden: avatar, info, acciones (Ver y Chatear)
                 row.appendChild(avatarWrap);
                 row.appendChild(left);
                 const actionsWrap = document.createElement('div');
                 actionsWrap.className = 'actions';
-                actionsWrap.appendChild(viewBtn);
-                actionsWrap.appendChild(action);
+                actionsWrap.appendChild(viewBtn);    // Primero: "Ver"
+                actionsWrap.appendChild(chatBtn);    // Segundo: "Chatear"
                 row.appendChild(actionsWrap);
                 list.appendChild(row);
             });
@@ -200,23 +218,6 @@
             console.error('[listausuarios] Error leyendo usuarios:', err);
             info.textContent = 'Error al cargar usuarios.';
         }
-    }
-
-    // Utilidad para copiar texto al portapapeles
-    function copyToClipboard(text) {
-        if (!navigator.clipboard) {
-            // Fallback
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            try { document.execCommand('copy'); } catch (e) { }
-            document.body.removeChild(ta);
-            return;
-        }
-        navigator.clipboard.writeText(text).catch(err => {
-            console.warn('No se pudo copiar al portapapeles', err);
-        });
     }
 
     // ===========================================================================
