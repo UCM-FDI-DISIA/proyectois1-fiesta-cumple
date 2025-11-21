@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "veneriswebcitas",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
