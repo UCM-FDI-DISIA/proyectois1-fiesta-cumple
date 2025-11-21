@@ -68,7 +68,17 @@
                 if (!panelEl) return;
                 const target = ev.target;
                 const isPanelOpen = !panelEl.classList.contains('hidden');
-                if (isPanelOpen && !panelEl.contains(target) && !target.closest('.nav-button')) {
+
+                const profileModal = document.getElementById('profileModal');
+                const profileBackdrop = document.querySelector('.profile-modal-backdrop');
+                const isClickInsideProfileModal = profileModal && profileModal.contains(target);
+                const isClickOnProfileBackdrop = profileBackdrop && profileBackdrop.contains(target);
+
+                if (isPanelOpen &&
+                    !panelEl.contains(target) &&
+                    !target.closest('.nav-button') &&
+                    !isClickInsideProfileModal &&  
+                    !isClickOnProfileBackdrop) {   
                     panelEl.classList.add('hidden');
                 }
             } catch (e) {
@@ -195,7 +205,7 @@
                     }
                 });
 
-                // ✅ BOTÓN "CHATEAR" - REEMPLAZA A "COPIAR USUARIO"
+                // BOTÓN "CHATEAR" - REEMPLAZA A "COPIAR USUARIO"
                 const chatBtn = document.createElement('button');
                 chatBtn.className = 'user-action-btn user-chat-btn';
                 chatBtn.textContent = 'Chatear';
