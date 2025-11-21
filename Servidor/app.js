@@ -269,6 +269,10 @@ function createProfileModal() {
                     
                     <h3>Gustos e intereses</h3>
                     <p id="profileInterestsView">Cargando...</p>
+
+                    <h3>Género</h3>
+                    <p id="profileGeneroView">Cargando...</p>
+
                 </div>
             </div>
             
@@ -307,6 +311,12 @@ function createProfileModal() {
                         <label><input type="radio" name="editPreference" value="ambos"> Ambos</label>
                     </div>
                     
+                    <label>Género</label>
+                    <div id="editGeneroOptions">
+                        <label><input type="radio" name="editGenero" value="hombre"> Hombre</label>
+                        <label><input type="radio" name="editGenero" value="mujer"> Mujer</label>
+                    </div>
+
                     <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
                 </form>
             </div>
@@ -387,7 +397,8 @@ async function loadProfileData() {
         document.getElementById('profileNameView').textContent = data.userName || 'Sin nombre';
         // Mostrar la preferencia (compatibilidad con registros antiguos que usan `interests` libre)
         document.getElementById('profileInterestsView').textContent = data.preference || data.interests || 'No especificado';
-        
+        document.getElementById('profileGeneroView').textContent = data.genero || 'No especificado';
+
         // Actualizar hábitos
         const habitsContainer = document.getElementById('profileHabitsView');
         habitsContainer.innerHTML = '';
@@ -519,6 +530,15 @@ async function populateEditForm() {
         } catch (e) {
             // si no existen los radios (por alguna razón), no hacemos nada
         }
+
+        // Rellenar el género
+        try {
+            const genero = data.genero || '';
+            const generoRadios = document.querySelectorAll('input[name="editGenero"]');
+            generoRadios.forEach(r => r.checked = (r.value === genero));
+        } catch (e) {
+            // si no existen los radios, no hacemos nada
+        }
         
         // Marcar hábitos
         const checkboxes = document.querySelectorAll('input[name="editHabit"]');
@@ -583,6 +603,9 @@ async function saveProfileChanges() {
         // Leer preferencia elegida en el formulario de edición
         const prefEl = document.querySelector('input[name="editPreference"]:checked');
         const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
+       // Leer género elegido
+        const generoEl = document.querySelector('input[name="editGenero"]:checked');
+        const newGenero = generoEl ? generoEl.value : (currentData && currentData.genero ? currentData.genero : '');
         const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
             .map(cb => cb.value);
 
@@ -665,6 +688,7 @@ async function saveProfileChanges() {
             // Guardar la preferencia explícita y mantener `interests` por compatibilidad
             preference: newPreference,
             interests: newPreference || '',
+            genero: newGenero,
             habits: selectedHabits || [],
             photoURL: photoURL,
             age: currentData.age || 18,
@@ -910,6 +934,8 @@ async function completeRegistration() {
     const prefEl = document.querySelector('input[name="preference"]:checked');
     const interests = prefEl ? prefEl.value : 'ambos';
     const age = document.getElementById('age').value;
+    const generoEl = document.querySelector('input[name="genero"]:checked');
+    const genero = generoEl ? generoEl.value : '';
     const errorElement = document.getElementById('register-error');
 
     // Obtener hábitos seleccionados
@@ -924,6 +950,11 @@ async function completeRegistration() {
 
     if (!age || age < 18) {
         errorElement.textContent = 'Debes ser mayor de 18 años';
+        return;
+    }
+
+    if(!genero) {
+        errorElement.textContent = 'Por favor selecciona tu género';
         return;
     }
 
@@ -1003,6 +1034,7 @@ async function completeRegistration() {
             // Guardar preference y mantener interests por compatibilidad
             preference: interests,
             interests: interests,
+            genero: genero,
             age: parseInt(age),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
