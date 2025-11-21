@@ -300,10 +300,12 @@ function createProfileModal() {
                         <label><input type="checkbox" name="editHabit" value="Gamer"> Gamer</label>
                     </div>
                     
-                    <label>
-                        Gustos e intereses
-                        <textarea id="editProfileInterests" rows="4"></textarea>
-                    </label>
+                    <label>Gustos e intereses</label>
+                    <div id="editPreferenceOptions">
+                        <label><input type="radio" name="editPreference" value="hombre"> Hombre</label>
+                        <label><input type="radio" name="editPreference" value="mujer"> Mujer</label>
+                        <label><input type="radio" name="editPreference" value="ambos"> Ambos</label>
+                    </div>
                     
                     <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
                 </form>
@@ -383,7 +385,8 @@ async function loadProfileData() {
         
         // Actualizar vista del perfil
         document.getElementById('profileNameView').textContent = data.userName || 'Sin nombre';
-        document.getElementById('profileInterestsView').textContent = data.interests || 'No especificado';
+        // Mostrar la preferencia (compatibilidad con registros antiguos que usan `interests` libre)
+        document.getElementById('profileInterestsView').textContent = data.preference || data.interests || 'No especificado';
         
         // Actualizar hábitos
         const habitsContainer = document.getElementById('profileHabitsView');
@@ -452,7 +455,8 @@ window.showUserProfile = async function(userId, userData) {
         const photoContainer = document.getElementById('profilePhotoView');
 
         if (nameEl) nameEl.textContent = (data && (data.userName || data.username)) || userId || 'Sin nombre';
-        if (interestsEl) interestsEl.textContent = (data && data.interests) || 'No especificado';
+        // Mostrar preferencia si existe, si no usar interests (compatibilidad)
+        if (interestsEl) interestsEl.textContent = (data && (data.preference || data.interests)) || 'No especificado';
 
         if (habitsContainer) {
             habitsContainer.innerHTML = '';
@@ -507,7 +511,14 @@ async function populateEditForm() {
         
         // Rellenar campos
         document.getElementById('editProfileName').value = data.userName || '';
-        document.getElementById('editProfileInterests').value = data.interests || '';
+        // Rellenar la preferencia (editPreference radios). Usar `preference` si existe, si no `interests`.
+        try {
+            const pref = data.preference || data.interests || 'ambos';
+            const radios = document.querySelectorAll('input[name="editPreference"]');
+            radios.forEach(r => r.checked = (r.value === pref));
+        } catch (e) {
+            // si no existen los radios (por alguna razón), no hacemos nada
+        }
         
         // Marcar hábitos
         const checkboxes = document.querySelectorAll('input[name="editHabit"]');
@@ -569,7 +580,9 @@ async function saveProfileChanges() {
 
         // 1. Recoger datos del formulario
         const newName = document.getElementById('editProfileName').value.trim();
-        const newInterests = document.getElementById('editProfileInterests').value.trim();
+        // Leer preferencia elegida en el formulario de edición
+        const prefEl = document.querySelector('input[name="editPreference"]:checked');
+        const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
         const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
             .map(cb => cb.value);
 
@@ -649,7 +662,9 @@ async function saveProfileChanges() {
         const updateData = {
             userId: currentUserId,
             userName: newName,
-            interests: newInterests || '',
+            // Guardar la preferencia explícita y mantener `interests` por compatibilidad
+            preference: newPreference,
+            interests: newPreference || '',
             habits: selectedHabits || [],
             photoURL: photoURL,
             age: currentData.age || 18,
@@ -891,7 +906,9 @@ function previewProfilePhoto(event) {
 async function completeRegistration() {
     const name = document.getElementById('register-name').value;
     const photoFile = document.getElementById('profile-photo').files[0];
-    const interests = document.getElementById('interests').value;
+    // Leer la preferencia seleccionada en el registro (radio name="preference")
+    const prefEl = document.querySelector('input[name="preference"]:checked');
+    const interests = prefEl ? prefEl.value : 'ambos';
     const age = document.getElementById('age').value;
     const errorElement = document.getElementById('register-error');
 
@@ -983,6 +1000,8 @@ async function completeRegistration() {
             userName: name.trim(),
             photoURL: photoURL,
             habits: habits,
+            // Guardar preference y mantener interests por compatibilidad
+            preference: interests,
             interests: interests,
             age: parseInt(age),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1005,7 +1024,11 @@ async function completeRegistration() {
             document.getElementById('register-name').value = '';
             document.getElementById('profile-photo').value = '';
             document.getElementById('photo-preview').innerHTML = '';
-            document.getElementById('interests').value = '';
+            // Restaurar valor por defecto de las radios (ambos)
+            try {
+                const defaultRadio = document.querySelector('input[name="preference"][value="ambos"]');
+                if (defaultRadio) defaultRadio.checked = true;
+            } catch (e) { }
             document.getElementById('age').value = '';
             document.querySelectorAll('input[name="habit"]:checked').forEach(cb => cb.checked = false);
             errorElement.textContent = '';

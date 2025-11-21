@@ -51,7 +51,11 @@
             <label><input type="checkbox" name="habit" value="Gamer"> Gamer</label>
             
             <h3>Gustos e intereses</h3>
-            <textarea id="interests" placeholder="Cuéntanos sobre tus gustos, hobbies y qué buscas en una pareja..." rows="4"></textarea>
+            <div id="preference-options" class="preference-options">
+                <label><input type="radio" name="preference" value="hombre"> Hombre</label>
+                <label><input type="radio" name="preference" value="mujer"> Mujer</label>
+                <label><input type="radio" name="preference" value="ambos" checked> Ambos</label>
+            </div>
             
             <h3>Información adicional</h3>
             <input type="number" id="age" placeholder="Tu edad" min="18" max="100">
