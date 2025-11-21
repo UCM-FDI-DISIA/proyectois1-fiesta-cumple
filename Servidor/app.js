@@ -397,7 +397,7 @@ async function loadProfileData() {
         document.getElementById('profileNameView').textContent = data.userName || 'Sin nombre';
         // Mostrar la preferencia (compatibilidad con registros antiguos que usan `interests` libre)
         document.getElementById('profileInterestsView').textContent = data.preference || data.interests || 'No especificado';
-        document.getElementById('profileGeneroView').textContent = data.genero || 'No especificado';
+        document.getElementById('profileGeneroView').textContent = data.gender || 'No especificado';
 
         // Actualizar hábitos
         const habitsContainer = document.getElementById('profileHabitsView');
@@ -464,10 +464,13 @@ window.showUserProfile = async function(userId, userData) {
         const interestsEl = document.getElementById('profileInterestsView');
         const habitsContainer = document.getElementById('profileHabitsView');
         const photoContainer = document.getElementById('profilePhotoView');
+        const generoEl = document.getElementById('profileGeneroView');
 
         if (nameEl) nameEl.textContent = (data && (data.userName || data.username)) || userId || 'Sin nombre';
         // Mostrar preferencia si existe, si no usar interests (compatibilidad)
         if (interestsEl) interestsEl.textContent = (data && (data.preference || data.interests)) || 'No especificado';
+
+        if (generoEl) generoEl.textContent = (data && data.gender) || 'No especificado';
 
         if (habitsContainer) {
             habitsContainer.innerHTML = '';
@@ -533,7 +536,7 @@ async function populateEditForm() {
 
         // Rellenar el género
         try {
-            const genero = data.genero || '';
+            const genero = data.gender || '';
             const generoRadios = document.querySelectorAll('input[name="editGenero"]');
             generoRadios.forEach(r => r.checked = (r.value === genero));
         } catch (e) {
@@ -1034,7 +1037,7 @@ async function completeRegistration() {
             // Guardar preference y mantener interests por compatibilidad
             preference: interests,
             interests: interests,
-            genero: genero,
+            gender: genero,
             age: parseInt(age),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
