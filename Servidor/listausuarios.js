@@ -270,16 +270,21 @@
                     infoSection.appendChild(habitsRow);
                 }
 
-                // Intereses (texto breve)
-                if (u.raw && u.raw.interests && u.raw.interests.trim()) {
-                    const interestsRow = document.createElement('div');
-                    interestsRow.className = 'user-card-interests';
-                    const shortInterests = u.raw.interests.length > 120 
-                        ? u.raw.interests.substring(0, 120) + '...' 
-                        : u.raw.interests;
-                    interestsRow.textContent = shortInterests;
-                    infoSection.appendChild(interestsRow);
-                }
+                // Género (mostrar capitalizado) — reemplaza la visualización de intereses
+                (function(){
+                    const rawGender = u.raw && (u.raw.gender || u.raw.genero);
+                    if (!rawGender) return;
+                    const genderStr = String(rawGender).trim();
+                    if (!genderStr) return;
+
+                    const genderRow = document.createElement('div');
+                    genderRow.className = 'user-card-gender';
+
+                    // Capitalizar la primera letra y dejar el resto en minúsculas
+                    const genderDisplay = genderStr.charAt(0).toUpperCase() + genderStr.slice(1).toLowerCase();
+                    genderRow.textContent = genderDisplay;
+                    infoSection.appendChild(genderRow);
+                })();
 
                 card.appendChild(photoSection);
                 card.appendChild(infoSection);
