@@ -34,7 +34,7 @@
         const header = document.createElement('div');
 
         const title = document.createElement('strong');
-        title.textContent = 'Usuarios registrados';
+        title.textContent = 'Especialmente para ti';
 
         const closeBtn = document.createElement('button');
         closeBtn.textContent = 'Cerrar';
@@ -226,97 +226,107 @@
 
             users.sort((a, b) => a.display.toString().localeCompare(b.display.toString(), 'es'));
 
-            // Render con clases CSS específicas
+            // Render con clases CSS específicas - Estilo app de citas
             users.forEach(u => {
-                const row = document.createElement('div');
-                row.className = 'user-row';
+                const card = document.createElement('div');
+                card.className = 'user-card';
 
-                // Avatar a la izquierda
-                const avatarWrap = document.createElement('div');
-                avatarWrap.className = 'user-avatar';
+                // Foto principal (grande)
+                const photoSection = document.createElement('div');
+                photoSection.className = 'user-card-photo';
 
-                // Si el usuario tiene photoURL (almacenada como photoURL), la usamos
                 if (u.raw && (u.raw.photoURL || u.raw.photo)) {
                     const img = document.createElement('img');
                     img.src = u.raw.photoURL || u.raw.photo;
                     img.alt = (u.display || 'Usuario') + ' - foto';
                     img.loading = 'lazy';
-                    avatarWrap.appendChild(img);
+                    photoSection.appendChild(img);
                 } else {
-                    // Fallback: pequeño SVG inline (estilo avatar neutro)
-                    avatarWrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#ccc"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                    // Fallback con gradiente
+                    photoSection.innerHTML = '<div class="user-card-photo-placeholder"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg></div>';
                 }
 
-                const left = document.createElement('div');
-                left.className = 'user-info';
+                // Información del perfil
+                const infoSection = document.createElement('div');
+                infoSection.className = 'user-card-info';
 
-                const nameEl = document.createElement('div');
-                nameEl.className = 'user-name';
-                nameEl.textContent = u.display;
+                // Nombre y edad
+                const nameAgeRow = document.createElement('div');
+                nameAgeRow.className = 'user-card-name-age';
+                const age = u.raw && u.raw.age ? `, ${u.raw.age}` : '';
+                nameAgeRow.innerHTML = `<h3>${u.display}${age}</h3>`;
+                infoSection.appendChild(nameAgeRow);
 
-                const metaEl = document.createElement('div');
-                metaEl.className = 'user-meta';
-                metaEl.textContent = u.raw && u.raw.email ? u.raw.email : '';
+                // Hábitos (chips)
+                if (u.raw && u.raw.habits && Array.isArray(u.raw.habits) && u.raw.habits.length > 0) {
+                    const habitsRow = document.createElement('div');
+                    habitsRow.className = 'user-card-habits';
+                    u.raw.habits.slice(0, 3).forEach(habit => {
+                        const chip = document.createElement('span');
+                        chip.className = 'habit-chip';
+                        chip.textContent = habit;
+                        habitsRow.appendChild(chip);
+                    });
+                    infoSection.appendChild(habitsRow);
+                }
 
-                left.appendChild(nameEl);
-                if (metaEl.textContent) left.appendChild(metaEl);
+                // Intereses (texto breve)
+                if (u.raw && u.raw.interests && u.raw.interests.trim()) {
+                    const interestsRow = document.createElement('div');
+                    interestsRow.className = 'user-card-interests';
+                    const shortInterests = u.raw.interests.length > 120 
+                        ? u.raw.interests.substring(0, 120) + '...' 
+                        : u.raw.interests;
+                    interestsRow.textContent = shortInterests;
+                    infoSection.appendChild(interestsRow);
+                }
 
-                // ✅ BOTÓN "VER" - MANTENIDO SIN CAMBIOS
+                card.appendChild(photoSection);
+                card.appendChild(infoSection);
+
+                // Botones de acción
+                const actionsSection = document.createElement('div');
+                actionsSection.className = 'user-card-actions';
+
+                // Botón Ver perfil completo
                 const viewBtn = document.createElement('button');
-                viewBtn.className = 'user-action-btn user-view-btn';
-                viewBtn.textContent = 'Ver';
+                viewBtn.className = 'user-card-btn user-card-btn-secondary';
+                viewBtn.innerHTML = '👤 Ver perfil';
                 viewBtn.addEventListener('click', () => {
-                    // Si la función global showUserProfile existe, la usamos
                     if (window.showUserProfile && typeof window.showUserProfile === 'function') {
                         window.showUserProfile(u.id, u.raw);
                     } else {
-                        // Fallback: intentar abrir modal propio mínimo
                         alert('Funcionalidad de ver perfil no disponible.');
                     }
                 });
 
-                // BOTÓN "CHATEAR" - REEMPLAZA A "COPIAR USUARIO"
+                // Botón Chatear (acción principal)
                 const chatBtn = document.createElement('button');
-                chatBtn.className = 'user-action-btn user-chat-btn';
-                chatBtn.textContent = 'Chatear';
+                chatBtn.className = 'user-card-btn user-card-btn-primary';
+                chatBtn.innerHTML = '💬 Chatear';
                 chatBtn.addEventListener('click', async () => {
                     try {
-                        // 1. Obtener datos del usuario
                         const partnerId = u.id;
                         const partnerName = u.display;
-                        
-                        // 2. Generar ID del chat
                         const chatId = generateChatId(currentUserId, partnerId);
                         
-                        // 3. Cerrar panel de usuarios
                         const usersPanel = document.getElementById('users-panel');
-                        if (usersPanel) {
-                            usersPanel.classList.add('hidden');
-                        }
+                        if (usersPanel) usersPanel.classList.add('hidden');
                         
-                        // 4. Abrir panel de chat
                         const chatScreen = document.getElementById('chat-screen');
-                        if (chatScreen) {
-                            chatScreen.style.display = 'flex';
-                        }
+                        if (chatScreen) chatScreen.style.display = 'flex';
                         
-                        // 5. Abrir chat específico
                         openChat(chatId, partnerId, partnerName);
-                        
                     } catch (error) {
                         console.error('[listausuarios] Error al abrir chat:', error);
                     }
                 });
 
-                // Orden: avatar, info, acciones (Ver y Chatear)
-                row.appendChild(avatarWrap);
-                row.appendChild(left);
-                const actionsWrap = document.createElement('div');
-                actionsWrap.className = 'actions';
-                actionsWrap.appendChild(viewBtn);    // Primero: "Ver"
-                actionsWrap.appendChild(chatBtn);    // Segundo: "Chatear"
-                row.appendChild(actionsWrap);
-                list.appendChild(row);
+                actionsSection.appendChild(viewBtn);
+                actionsSection.appendChild(chatBtn);
+                card.appendChild(actionsSection);
+
+                list.appendChild(card);
             });
 
         } catch (err) {
