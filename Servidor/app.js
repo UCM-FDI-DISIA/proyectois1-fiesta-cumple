@@ -1606,6 +1606,14 @@ function openChat(chatId, partnerId, partnerName) {
     // Actualizar UI de la barra lateral
     updateChatListSelection(chatId);
 
+    // Cargar y mostrar puntos de pareja
+    console.log('[openChat] Llamando a loadCouplePoints con chatId:', chatId);
+    try {
+        loadCouplePoints(chatId);
+    } catch (error) {
+        console.error('[openChat] Error al cargar puntos:', error);
+    }
+
     if (typeof window.loadGameForChat === 'function') {
         window.loadGameForChat(chatId);
     }
@@ -1664,6 +1672,12 @@ function closeCurrentChat() {
     if (activeChatListener) {
         activeChatListener();
         activeChatListener = null;
+    }
+    
+    // Ocultar widget de puntos
+    const widget = document.getElementById('couple-points-widget');
+    if (widget) {
+        widget.style.display = 'none';
     }
     
     // Limpiar variables globales
@@ -2050,6 +2064,100 @@ function showChatInterface() {
     
     console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
 }
+
+// ========================================
+// SISTEMA DE PUNTOS DE PAREJA
+// ========================================
+/**
+ * Carga y muestra los puntos de pareja para el chat actual
+ */
+async function loadCouplePoints(chatId) {
+    const widget = document.getElementById('couple-points-widget');
+    const pointsValue = document.getElementById('couple-points-value');
+    
+    console.log('[Puntos] Cargando puntos para chat:', chatId);
+    console.log('[Puntos] Widget encontrado:', widget);
+    console.log('[Puntos] PointsValue encontrado:', pointsValue);
+    
+    if (!widget || !pointsValue) {
+        console.error('[Puntos] No se encontraron los elementos del widget');
+        return;
+    }
+    
+    try {
+        // Obtener documento de puntos desde Firebase
+        const pointsDoc = await db.collection('couplePoints').doc(chatId).get();
+        
+        let points = 0;
+        if (pointsDoc.exists) {
+            points = pointsDoc.data().points || 0;
+            console.log('[Puntos] Puntos encontrados en Firebase:', points);
+        } else {
+            console.log('[Puntos] No hay puntos guardados aún, iniciando en 0');
+        }
+        
+        // Actualizar UI
+        pointsValue.textContent = points;
+        widget.style.display = 'flex';
+        console.log('[Puntos] Widget mostrado con', points, 'puntos');
+        
+        // Listener en tiempo real para actualizaciones
+        db.collection('couplePoints').doc(chatId).onSnapshot(doc => {
+            if (doc.exists) {
+                const newPoints = doc.data().points || 0;
+                pointsValue.textContent = newPoints;
+                console.log('[Puntos] Actualización en tiempo real:', newPoints, 'puntos');
+                
+                // Animación cuando aumentan los puntos
+                if (newPoints > points) {
+                    widget.style.animation = 'none';
+                    setTimeout(() => {
+                        widget.style.animation = 'bounce 0.5s ease';
+                    }, 10);
+                }
+                points = newPoints;
+            }
+        });
+        
+    } catch (error) {
+        console.error('[Puntos] Error al cargar puntos de pareja:', error);
+        widget.style.display = 'none';
+    }
+}
+
+/**
+ * Añade puntos a una pareja (llamar cuando se gana un juego)
+ */
+async function addCouplePoints(chatId, pointsToAdd = 10) {
+    try {
+        const pointsRef = db.collection('couplePoints').doc(chatId);
+        const pointsDoc = await pointsRef.get();
+        
+        if (pointsDoc.exists) {
+            // Incrementar puntos existentes
+            await pointsRef.update({
+                points: firebase.firestore.FieldValue.increment(pointsToAdd),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            // Crear nuevo documento de puntos
+            await pointsRef.set({
+                points: pointsToAdd,
+                chatId: chatId,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        console.log(`+${pointsToAdd} puntos añadidos a la pareja ${chatId}`);
+        
+    } catch (error) {
+        console.error('Error al añadir puntos de pareja:', error);
+    }
+}
+
+// Exponer función globalmente para que otros scripts la usen
+window.addCouplePoints = addCouplePoints;
 
 //Exportar funciones para pruebas unitarias
 if (typeof module !== 'undefined' && module.exports) {
