@@ -66,7 +66,185 @@ html, body {
 /* ========================================
    PANTALLA DE LOGIN
 ======================================== */
-#login-screen, #register-screen {
+/* ======================================== 
+   PANTALLA DE LOGIN - DISEÑO MODERNO
+======================================== */
+#login-screen {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    margin: 0;
+    max-width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.login-container {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    max-width: 1400px;
+    width: 100%;
+    gap: 100px;
+    align-items: center;
+}
+
+/* Columna izquierda: contenido principal */
+.login-content {
+    padding: 20px;
+}
+
+.login-logo {
+    margin-bottom: 40px;
+}
+
+.login-logo svg {
+    width: 80px;
+    height: 80px;
+}
+
+.login-logo img {
+    width: 120px;
+    height: auto;
+}
+
+.login-title {
+    font-size: 64px;
+    font-weight: 700;
+    color: #2C2C2C;
+    line-height: 1.15;
+    margin-bottom: 25px;
+    font-family: 'Georgia', serif;
+}
+
+.login-subtitle {
+    font-size: 42px;
+    font-weight: 400;
+    color: #2C2C2C;
+    margin-bottom: 50px;
+    font-family: 'Georgia', serif;
+}
+
+.login-cta-btn {
+    background: linear-gradient(135deg, #FF9F7A 0%, #FF7A5A 100%);
+    color: white;
+    border: none;
+    padding: 22px 50px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(255, 122, 90, 0.35);
+    margin-bottom: 35px;
+    display: inline-block;
+}
+
+.login-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 122, 90, 0.45);
+}
+
+.login-tagline {
+    color: #666;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-top: 25px;
+}
+
+/* Columna derecha: formulario */
+.login-form-section {
+    background: white;
+    padding: 60px 50px;
+    border-radius: 24px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+}
+
+.login-form-section h3 {
+    font-size: 28px;
+    color: #2C2C2C;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.login-form-section p {
+    color: #666;
+    margin-bottom: 28px;
+    font-size: 15px;
+}
+
+.login-form-section input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid #E8E8E8;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+}
+
+.login-form-section input:focus {
+    outline: none;
+    border-color: #FF9F7A;
+}
+
+.login-btn-primary {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(135deg, #FF9F7A 0%, #FF7A5A 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 122, 90, 0.3);
+}
+
+.login-btn-secondary {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: white;
+    color: #FF9F7A;
+    border: 2px solid #FF9F7A;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-btn-secondary:hover {
+    background: #FF9F7A;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .login-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .login-title {
+        font-size: 36px;
+    }
+    
+    .login-subtitle {
+        font-size: 24px;
+    }
+}
+
+#register-screen {
     max-width: 500px;
     margin: 120px auto 50px;
     padding: 30px;
@@ -77,19 +255,19 @@ html, body {
     overflow-y: auto;
 }
 
-    #login-screen h1, #register-screen h1 {
+    #register-screen h1 {
         text-align: center;
         margin-bottom: 10px;
         color: #333;
     }
 
-    #login-screen p, #register-screen p {
+    #register-screen p {
         text-align: center;
         color: #666;
         margin-bottom: 20px;
     }
 
-    #login-screen input, #register-screen input[type="email"],
+    #register-screen input[type="email"],
     #register-screen input[type="password"],
     #register-screen input[type="text"],
     #register-screen input[type="number"] {
@@ -100,35 +278,6 @@ html, body {
         border-radius: 5px;
         font-size: 14px;
     }
-
-    #login-screen button {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-        #login-screen button:first-of-type {
-            background-color: #FF9F7A;
-            color: #fff;
-        }
-
-            #login-screen button:first-of-type:hover {
-                filter: brightness(0.95);
-            }
-
-        #login-screen button:last-of-type {
-            background-color: #42b72a;
-            color: white;
-        }
-
-            #login-screen button:last-of-type:hover {
-                background-color: #36a420;
-            }
 
 /* ========================================
    PANTALLA DE REGISTRO

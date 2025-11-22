@@ -20,12 +20,28 @@
 
     <!-- PANTALLA DE LOGIN SIMPLIFICADA -->
     <div id="login-screen" style="display:block;">
-        <h1>Bienvenido al Chat de Citas</h1>
-        <p id="login-subtitle">Inicia sesión con tu nombre de usuario</p>
-        <input type="text" id="login-username" placeholder="Tu nombre de usuario">
-        <button onclick="login()">Iniciar Sesión</button>
-        <button onclick="showRegisterForm()">Crear Cuenta Nueva</button>
-        <p id="login-error" style="color:red;"></p>
+        <div class="login-container">
+            <!-- Columna izquierda: contenido -->
+            <div class="login-content">
+                <div class="login-logo">
+                    <img src="LOGOPROPUESTA.png" alt="Veneris Logo">
+                </div>
+                <h1 class="login-title">Conecta con quien vibra como tú.</h1>
+                <h2 class="login-subtitle">Amor, juego y mitología.</h2>
+                <button class="login-cta-btn" onclick="showRegisterForm()">Explorar Veneris</button>
+                <p class="login-tagline">Inspirado en Venus. Diseñado para almas que buscan algo más.</p>
+            </div>
+            
+            <!-- Columna derecha: formulario -->
+            <div class="login-form-section">
+                <h3>Iniciar sesión / Registrarse</h3>
+                <p id="login-subtitle">Inicia sesión con tu nombre de usuario</p>
+                <input type="text" id="login-username" placeholder="Tu nombre de usuario">
+                <button onclick="login()" class="login-btn-primary">Iniciar Sesión</button>
+                <button onclick="showRegisterForm()" class="login-btn-secondary">Crear Cuenta Nueva</button>
+                <p id="login-error" style="color:red;"></p>
+            </div>
+        </div>
     </div>
 
     <!-- PANTALLA DE REGISTRO CON ENCUESTA -->
