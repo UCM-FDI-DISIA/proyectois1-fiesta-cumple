@@ -119,8 +119,38 @@
 
             // Obtener IDs de usuarios con los que ya hay un chat abierto
             const openChatPartners = new Set();
+            // Obtener la preferencia de género y el género del usuario actual para filtrar resultados
+            let myPreference = '';
+            let myGender = '';
+
+            // Helpers locales para normalizar valores y detectar "no especificado"
+            const normalize = v => (v || '').toString().toLowerCase().trim();
+            const stripPunct = s => s.replace(/[\.,!\?;:\(\)\[\]\-]/g, '').trim();
+            const singular = s => {
+                if (!s) return '';
+                if (s === 'ambos') return 'ambos';
+                // convertir plurales simples ('hombres' -> 'hombre')
+                return s.endsWith('s') ? s.slice(0, -1) : s;
+            };
+            const isUnspecified = s => {
+                if (!s) return true;
+                const cleaned = stripPunct(normalize(s));
+                const tokens = ['no especificado', 'no especificada', 'sin especificar', 'n/a', 'none', 'unknown', 'unspecified', 'no definido', 'no definida'];
+                return tokens.includes(cleaned) || cleaned === '';
+            };
             try {
                 if (typeof currentUserId !== 'undefined' && currentUserId) {
+                    // Leer perfil del usuario actual para conocer su preferencia
+                    try {
+                        const meDoc = await db.collection('users').doc(currentUserId).get();
+                        if (meDoc.exists) {
+                            const meData = meDoc.data() || {};
+                            myPreference = singular(stripPunct(normalize(meData.preference || meData.interests || '')));
+                            myGender = singular(stripPunct(normalize(meData.gender || meData.genero || '')));
+                        }
+                    } catch (prefErr) {
+                        console.warn('[listausuarios] No se pudo leer la preferencia del usuario actual:', prefErr);
+                    }
                     const chatsSnap = await db.collection('chats')
                         .where('participants', 'array-contains', currentUserId)
                         .get();
@@ -137,20 +167,60 @@
                 console.warn('[listausuarios] No se pudieron leer los chats para filtrar:', e);
             }
 
-            snapshot.forEach(doc => {
-                // Excluir el propio perfil
-                if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
+            // Si el usuario actual no tiene género especificado, mostramos aviso y no listamos usuarios
+            if (!myGender) {
+                info.textContent = 'Por favor actualiza tu género en tu perfil para ver personas en Descubre gente.';
+                return;
+            }
 
-                // Excluir perfiles con los que ya existe un chat
-                if (openChatPartners.has(doc.id)) return;
+            try {
+                snapshot.forEach(doc => {
+                    try {
+                        // Excluir el propio perfil
+                        if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
 
-                const data = doc.data() || {};
-                const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
-                users.push({ id: doc.id, display, raw: data });
-            });
+                        // Excluir perfiles con los que ya existe un chat
+                        if (openChatPartners.has(doc.id)) return;
+
+                        const data = doc.data() || {};
+
+                        // Normalizar datos del otro usuario
+                        const rawOtherGender = data.gender || data.genero || '';
+                        const rawOtherPreference = data.preference || data.interests || '';
+                        const otherGenderNorm = singular(stripPunct(normalize(rawOtherGender)));
+                        const otherPreference = singular(stripPunct(normalize(rawOtherPreference)));
+
+                        // Regla: no mostramos usuarios con género no especificado (valores como "No especificado", "sin especificar", "n/a" se consideran no especificados)
+                        if (isUnspecified(rawOtherGender) || !otherGenderNorm) return;
+
+                        // Regla 2: mutual compatibility
+                        if (!myPreference) {
+                            // Mostrar solo si el otro usuario está interesado en mi género
+                            if (!(otherPreference === myGender || otherPreference === 'ambos')) return;
+                        } else {
+                            // Tengo preferencia especificada
+                            if (myPreference !== 'ambos') {
+                                if (otherGenderNorm !== myPreference) return; // el genero del otro no es el que busco
+                            }
+                            // El otro usuario debe estar interesado en mi género
+                            if (!(otherPreference === myGender || otherPreference === 'ambos')) return;
+                        }
+
+                        const display = data.userName || data.username || data.displayName || data.name || data.email || doc.id;
+                        users.push({ id: doc.id, display, raw: data });
+                    } catch (perUserErr) {
+                        console.warn('[listausuarios] Error procesando usuario', doc.id, perUserErr);
+                        // continue to next user
+                    }
+                });
+            } catch (iterErr) {
+                console.error('[listausuarios] Error iterando usuarios:', iterErr);
+                info.textContent = 'Error al cargar usuarios: ' + (iterErr && iterErr.message ? iterErr.message : String(iterErr));
+                return;
+            }
 
             if (users.length === 0) {
-                info.textContent = 'No hay otros usuarios registrados.';
+                info.textContent = 'No hay otros usuarios registrados que coincidan con tus preferencias.';
                 return;
             }
 

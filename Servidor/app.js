@@ -114,6 +114,37 @@ document.addEventListener('DOMContentLoaded', () => {
             menu.style.display = 'none';
         }
     });
+
+    // Cerrar chat únicamente cuando se haga click directamente sobre el fondo de la página
+    // (es decir, el elemento `body` o el `documentElement`). Esto evita que clicks en la
+    // barra lateral o en otros paneles cierren el chat accidentalmente.
+    document.addEventListener('click', (ev) => {
+        try {
+            const chatScreenEl = document.getElementById('chat-screen');
+            const target = ev.target;
+
+            if (chatScreenEl && chatScreenEl.style.display === 'flex') {
+                // Solo cerrar si el objetivo del click es exactamente el body o el root
+                if (target === document.body || target === document.documentElement) {
+                    chatScreenEl.style.display = 'none';
+                    console.log('[Click Outside] Chat cerrado automáticamente (fondo)');
+                }
+            }
+        } catch (e) {
+            // no crítico
+        }
+    });
+
+    // Permitir enviar Enter en el input de login para iniciar sesión
+    const loginInput = document.getElementById('login-username');
+    if (loginInput) {
+        loginInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                login();
+            }
+        });
+    }
 });
 
 // Alterna la apertura del modal de login/registro cuando se pulsa el botón de perfil
@@ -603,12 +634,10 @@ async function saveProfileChanges() {
 
         // 1. Recoger datos del formulario
         const newName = document.getElementById('editProfileName').value.trim();
-        // Leer preferencia elegida en el formulario de edición
+        // Leer preferencia y género seleccionados (pero no calcular valores por defecto
+        // hasta obtener los datos actuales del perfil)
         const prefEl = document.querySelector('input[name="editPreference"]:checked');
-        const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
-       // Leer género elegido
         const generoEl = document.querySelector('input[name="editGenero"]:checked');
-        const newGenero = generoEl ? generoEl.value : (currentData && currentData.genero ? currentData.genero : '');
         const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
             .map(cb => cb.value);
 
@@ -618,7 +647,7 @@ async function saveProfileChanges() {
             return;
         }
 
-        // 2. Obtener datos actuales del usuario
+        // 2. Obtener datos actuales del usuario (necesario para valores por defecto)
         console.log('Obteniendo datos actuales...');
         const userDoc = await db.collection('users').doc(currentUserId).get();
         if (!userDoc.exists) {
@@ -626,6 +655,11 @@ async function saveProfileChanges() {
             return;
         }
         const currentData = userDoc.data();
+
+        // Ahora que tenemos `currentData`, calcular las opciones que dependen de él
+        const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
+        // Preferir el campo moderno 'gender', si no existe usar 'genero' (compatibilidad)
+        const newGenero = generoEl ? generoEl.value : (currentData && (currentData.gender || currentData.genero) ? (currentData.gender || currentData.genero) : '');
 
         // 3. Procesar foto si hay nueva
         console.log('Procesando foto...');
@@ -691,6 +725,8 @@ async function saveProfileChanges() {
             // Guardar la preferencia explícita y mantener `interests` por compatibilidad
             preference: newPreference,
             interests: newPreference || '',
+            // Guardar tanto 'gender' (campo usado en varias funciones) como 'genero'
+            gender: newGenero,
             genero: newGenero,
             habits: selectedHabits || [],
             photoURL: photoURL,
