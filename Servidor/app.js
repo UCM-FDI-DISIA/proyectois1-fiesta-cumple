@@ -56,15 +56,7 @@ let chatIsVisible = false; // Estado actual del chat (visible/oculto)
 let currentChatId = null;        // ID del chat actualmente abierto
 let currentChatPartner = null;   // Nombre del usuario con quien se está chateando
 let activeChatListener = null;   // Listener activo de mensajes (para poder desuscribirse)
-let chatsListener = null;        // Listener de la lista de chats (para evitar duplicados)
-let puntosWidgetListener = null; // Listener para el widget de puntos de pareja
-let puntosCache = {};        
-
-function getPairKey(u1, u2) {
-    if (!u1 || !u2) return null;
-    // ✅ IMPORTANTE: Usar el MISMO formato que cuatroEnRayaScript.js
-    return (u1 < u2) ? `${u1}_vs_${u2}` : `${u2}_vs_${u1}`;
-}
+let chatsListener = null;        // Listener de la lista de chats (para evitar duplicados)       
 
 // ========================================
 // VERSIÓN ACTUAL: INICIALIZACIÓN CON AUTENTICACIÓN
@@ -1581,6 +1573,7 @@ function openChat(chatId, partnerId, partnerName) {
     console.log('   chatId:', chatId);
     console.log('   partnerId:', partnerId);
     console.log('   currentUserId:', currentUserId);
+    console.log('   currentChatId global:', currentChatId);
     console.log('═══════════════════════════════════════════\n');
     
     // Cerrar listener de mensajes si cambia de chat
@@ -1611,9 +1604,6 @@ function openChat(chatId, partnerId, partnerName) {
     
     loadMessages(chatId);
     updateChatListSelection(chatId);
-    
-    // ✅ CARGAR PUNTOS
-    loadCouplePoints(chatId);
     
     if (typeof window.loadGameForChat === 'function') {
         window.loadGameForChat(chatId);
@@ -1744,7 +1734,8 @@ async function sendMessage() {
                 participants: [currentUserId, currentChatPartner].sort(),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastMessage: message,
-                lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
+                lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+                couplePoints: 0
             });
             console.log('[OK] Chat creado');
         }
@@ -2020,17 +2011,7 @@ function closeAllPanels() {
     const chatScreen = document.getElementById('chat-screen');
     const usersPanel = document.getElementById('users-panel');
     
-    // ✅ Limpiar listener de puntos
-    if (puntosWidgetListener) {
-        console.log('🧹 Limpiando listener de puntos');
-        puntosWidgetListener();
-        puntosWidgetListener = null;
-    }
-    
-    // ✅ Resetear variables
-    currentPairKey = null;
-    // NO limpiar puntosCache (mantener puntos en memoria)
-    
+    // Ocultar widget de puntos
     const widget = document.getElementById('couple-points-widget');
     if (widget) {
         widget.style.display = 'none';
@@ -2066,214 +2047,6 @@ function showChatInterface() {
     
     console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
 }
-
-// ========================================
-// SISTEMA DE PUNTOS DE PAREJA
-// ========================================
-/**
- * Carga y muestra los puntos de pareja para el chat actual desde puntos_partidas
- */
-async function loadCouplePoints(chatId) {
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔍 loadCouplePoints INICIANDO');
-    console.log('   chatId recibido:', chatId);
-    console.log('   currentUserId:', currentUserId);
-    console.log('   currentChatId global:', currentChatId);
-    
-    const widget = document.getElementById('couple-points-widget');
-    const pointsValue = document.getElementById('couple-points-value');
-    
-    if (!widget || !pointsValue) {
-        console.error('❌ Elementos del widget no encontrados');
-        return;
-    }
-    
-    // ✅ ESPERAR a que currentUserId esté listo
-    if (!currentUserId) {
-        console.warn('⏳ currentUserId vacío, reintentando en 200ms...');
-        setTimeout(() => loadCouplePoints(chatId), 200);
-        return;
-    }
-    
-    // ✅ Extraer partnerId del chatId
-    const parts = chatId.split('_');
-    console.log('   Participantes del chat:', parts);
-    
-    const partnerId = parts.find(id => id !== currentUserId);
-    
-    if (!partnerId) {
-        console.error('❌ No se pudo identificar al partnerId');
-        console.error('   chatId:', chatId);
-        console.error('   currentUserId:', currentUserId);
-        console.error('   parts:', parts);
-        return;
-    }
-    
-    console.log('   partnerId identificado:', partnerId);
-    
-    // ✅ Generar clave (MISMO formato que cuatroEnRayaScript.js)
-    const pairKey = currentUserId < partnerId 
-        ? `${currentUserId}_vs_${partnerId}` 
-        : `${partnerId}_vs_${currentUserId}`;
-    
-    console.log('🔑 Clave generada:', pairKey);
-    console.log('📌 currentPairKey anterior:', currentPairKey);
-    
-    // ✅ SI ES LA MISMA PAREJA Y YA HAY LISTENER, NO CREAR OTRO
-    if (currentPairKey === pairKey && puntosWidgetListener) {
-        console.log('✅ Listener ya activo para esta pareja');
-        
-        // ✅ Verificar si hay puntos en cache
-        if (puntosCache[pairKey] !== undefined) {
-            const puntosEnCache = puntosCache[pairKey];
-            console.log('📦 Restaurando desde cache:', puntosEnCache);
-            pointsValue.textContent = puntosEnCache;
-            widget.style.display = 'flex';
-        }
-        
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return;
-    }
-    
-    // ✅ SI CAMBIA DE PAREJA, LIMPIAR LISTENER ANTERIOR
-    if (puntosWidgetListener && currentPairKey !== pairKey) {
-        console.log('🧹 Limpiando listener anterior (cambio de pareja)');
-        console.log('   De:', currentPairKey, '→ A:', pairKey);
-        puntosWidgetListener();
-        puntosWidgetListener = null;
-    }
-    
-    // ✅ Actualizar clave actual
-    currentPairKey = pairKey;
-    
-    try {
-        const docRef = db.collection('puntos_partidas').doc(pairKey);
-        
-        // ✅ CARGAR PUNTOS INICIALES
-        console.log('📡 Consultando Firestore...');
-        const docSnap = await docRef.get();
-        
-        let puntosIniciales = 0;
-        
-        if (docSnap.exists) {
-            const data = docSnap.data();
-            puntosIniciales = data[currentUserId] || 0;
-            
-            console.log('✅ Documento encontrado en Firestore');
-            console.log('   Datos completos:', data);
-            console.log('   Mis puntos:', puntosIniciales);
-        } else {
-            console.log('ℹ️ Documento NO existe (nueva pareja)');
-            puntosIniciales = 0;
-        }
-        
-        // ✅ GUARDAR EN CACHE
-        puntosCache[pairKey] = puntosIniciales;
-        
-        // ✅ ACTUALIZAR UI INMEDIATAMENTE
-        pointsValue.textContent = puntosIniciales;
-        widget.style.display = 'flex';
-        console.log('📊 Widget actualizado:', puntosIniciales, 'puntos');
-        
-        // ✅ CREAR LISTENER EN TIEMPO REAL
-        console.log('🎧 Creando listener en tiempo real...');
-        
-        puntosWidgetListener = docRef.onSnapshot(
-            (snapshot) => {
-                console.log('\n─────────────────────────────────────────────');
-                console.log('🔔 SNAPSHOT recibido');
-                console.log('   Clave:', pairKey);
-                console.log('   Existe:', snapshot.exists);
-                console.log('   currentPairKey:', currentPairKey);
-                
-                // ✅ VERIFICAR que el snapshot sea para la pareja actual
-                if (currentPairKey !== pairKey) {
-                    console.log('⚠️ Snapshot ignorado (pareja diferente)');
-                    console.log('─────────────────────────────────────────────\n');
-                    return;
-                }
-                
-                if (snapshot.exists) {
-                    const data = snapshot.data();
-                    const nuevosPuntos = data[currentUserId] || 0;
-                    const puntosActuales = parseInt(pointsValue.textContent) || 0;
-                    
-                    console.log('   Datos:', data);
-                    console.log('   Puntos actuales en UI:', puntosActuales);
-                    console.log('   Nuevos puntos:', nuevosPuntos);
-                    
-                    if (nuevosPuntos !== puntosActuales) {
-                        pointsValue.textContent = nuevosPuntos;
-                        puntosCache[pairKey] = nuevosPuntos;
-                        
-                        console.log('   ✅ UI ACTUALIZADA:', puntosActuales, '→', nuevosPuntos);
-                        
-                        // Animación si aumentó
-                        if (nuevosPuntos > puntosActuales) {
-                            widget.style.animation = 'none';
-                            setTimeout(() => {
-                                widget.style.animation = 'pulsePoints 0.4s ease';
-                            }, 10);
-                        }
-                    } else {
-                        console.log('   ⏭️ Sin cambios');
-                    }
-                } else {
-                    console.log('   ℹ️ Documento no existe');
-                    console.log('   Manteniendo valor actual:', pointsValue.textContent);
-                }
-                
-                console.log('─────────────────────────────────────────────\n');
-            },
-            (error) => {
-                console.error('❌ Error en listener:', error);
-            }
-        );
-        
-        console.log('✅ Listener creado exitosamente');
-        
-    } catch (error) {
-        console.error('❌ ERROR GENERAL:', error);
-        pointsValue.textContent = '0';
-        widget.style.display = 'flex';
-    }
-    
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-}
-
-/**
- * Añade puntos a una pareja (llamar cuando se gana un juego)
- */
-async function addCouplePoints(chatId, pointsToAdd = 10) {
-    try {
-        const pointsRef = db.collection('couplePoints').doc(chatId);
-        const pointsDoc = await pointsRef.get();
-        
-        if (pointsDoc.exists) {
-            // Incrementar puntos existentes
-            await pointsRef.update({
-                points: firebase.firestore.FieldValue.increment(pointsToAdd),
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } else {
-            // Crear nuevo documento de puntos
-            await pointsRef.set({
-                points: pointsToAdd,
-                chatId: chatId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        console.log(`+${pointsToAdd} puntos añadidos a la pareja ${chatId}`);
-        
-    } catch (error) {
-        console.error('Error al añadir puntos de pareja:', error);
-    }
-}
-
-// Exponer función globalmente para que otros scripts la usen
-window.addCouplePoints = addCouplePoints;
 
 //Exportar funciones para pruebas unitarias
 if (typeof module !== 'undefined' && module.exports) {

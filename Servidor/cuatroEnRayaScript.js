@@ -16,104 +16,108 @@
     const PLAYER_RED = 1;
     const PLAYER_YELLOW = 2;
 
-    // ===== SISTEMA DE PUNTOS POR PAREJA =====
-    let puntosPartidas = {};
+    // ===== SISTEMA DE PUNTOS POR CHAT =====
+    let currentChatPoints = 0;
+    let pointsListener = null;
 
-    function getPartidaKey(user1, user2) {
-        return [user1, user2].sort().join('vs');
-    }
-
-    function getPuntosContrario(miUsuario, contrario) {
-        const key = getPartidaKey(miUsuario, contrario);
-        if (!puntosPartidas[key]) {
-            puntosPartidas[key] = { [miUsuario]: 0, [contrario]: 0 };
-        }
-        return puntosPartidas[key][miUsuario] || 0;
-    }
-
-    async function actualizarPuntos(ganador, perdedor, empate = false) {
-        const key = getPartidaKey(ganador, perdedor);
-        
-        if (!puntosPartidas[key]) {
-            puntosPartidas[key] = { [ganador]: 0, [perdedor]: 0 };
-        }
-        
-        if (empate) {
-            puntosPartidas[key][ganador] += 1;
-            puntosPartidas[key][perdedor] += 1;
-        } else {
-            puntosPartidas[key][ganador] += 3;
-        }
-        
-        await guardarPuntosEnBD(key, puntosPartidas[key]);
-        actualizarVisualizacionPuntos(ganador, perdedor);
-        
-        console.log('[Puntos] Actualizados:', puntosPartidas[key]);
-    }
-
-    function actualizarVisualizacionPuntos(user1, user2) {
-        const puntosWidget = document.getElementById('couple-points-widget');
-        const puntosValue = document.getElementById('couple-points-value');
-        
-        if (puntosWidget && puntosValue) {
-            const misPuntos = getPuntosContrario(currentUserId, 
-                user1 === currentUserId ? user2 : user1);
-            puntosValue.textContent = misPuntos;
-            puntosWidget.style.display = 'flex';
-            console.log('[Puntos] Visualización actualizada:', misPuntos);
+    /**
+     * Actualiza los puntos del chat (suma o resta)
+     */
+    async function updateChatPoints(chatId, pointsChange) {
+        try {
+            console.log(`[Puntos] Actualizando chat ${chatId}: ${pointsChange > 0 ? '+' : ''}${pointsChange}`);
+            
+            const chatRef = db.collection('chats').doc(chatId);
+            const chatDoc = await chatRef.get();
+            
+            if (!chatDoc.exists) {
+                console.error('[Puntos] El chat no existe');
+                return;
+            }
+            
+            const chatData = chatDoc.data();
+            const currentPoints = chatData.couplePoints || 0;
+            const newPoints = currentPoints + pointsChange;
+            
+            await chatRef.update({
+                couplePoints: newPoints
+            });
+            
+            console.log(`[Puntos] Actualizados: ${currentPoints} → ${newPoints}`);
+            
+        } catch (error) {
+            console.error('[Puntos] Error al actualizar:', error);
         }
     }
 
-async function guardarPuntosEnBD(partidaKey, puntosObj) {
-    try {
-        const ref = db.collection('puntos_partidas').doc(partidaKey);
-        const snap = await ref.get();
-        if (snap.exists) {
-            const prev = snap.data();
-            const merged = { ...prev, ...puntosObj };
-            await ref.set(merged);
-        } else {
-            await ref.set(puntosObj);
-        }
-        console.log('[Puntos] Guardados', partidaKey, puntosObj);
-    } catch (e) {
-        console.error('[Puntos] Error guardando', e);
-    }
-}
-
-    async function cargarPuntosDePartida(user1, user2) {
-        const key = getPartidaKey(user1, user2);
+    /**
+     * Carga los puntos del chat actual
+     */
+    async function loadChatPoints(chatId) {
+        console.log(`[Puntos] Cargando puntos para chat: ${chatId}`);
         
-        if (puntosListener) {
-            puntosListener();
-            puntosListener = null;
+        const widget = document.getElementById('couple-points-widget');
+        const pointsValue = document.getElementById('couple-points-value');
+        
+        if (!widget || !pointsValue) {
+            console.error('[Puntos] Elementos del widget no encontrados');
+            return;
         }
         
         try {
-            const puntosDoc = await db.collection('puntos_partidas').doc(key).get();
-            
-            if (puntosDoc.exists) {
-                puntosPartidas[key] = puntosDoc.data();
-                console.log('[Puntos] Cargados:', puntosPartidas[key]);
-            } else {
-                puntosPartidas[key] = { [user1]: 0, [user2]: 0 };
-                console.log('[Puntos] Inicializados a 0');
+            if (pointsListener) {
+                pointsListener();
+                pointsListener = null;
             }
             
-            actualizarVisualizacionPuntos(user1, user2);
-
-            puntosListener = db.collection('puntos_partidas').doc(key)
-                .onSnapshot((doc) => {
+            pointsListener = db.collection('chats').doc(chatId).onSnapshot(
+                (doc) => {
                     if (doc.exists) {
-                        puntosPartidas[key] = doc.data();
-                        actualizarVisualizacionPuntos(user1, user2);
+                        const data = doc.data();
+                        const points = data.couplePoints || 0;
+                        
+                        if (points !== currentChatPoints) {
+                            const wasIncrease = points > currentChatPoints;
+                            currentChatPoints = points;
+                            
+                            pointsValue.textContent = points;
+                            widget.style.display = 'flex';
+                            
+                            if (wasIncrease) {
+                                widget.style.animation = 'none';
+                                setTimeout(() => {
+                                    widget.style.animation = 'pulsePoints 0.4s ease';
+                                }, 10);
+                            }
+                            
+                            console.log(`[Puntos] UI actualizada: ${points}`);
+                        }
+                    } else {
+                        pointsValue.textContent = '0';
+                        currentChatPoints = 0;
                     }
-                });
-
+                },
+                (error) => {
+                    console.error('[Puntos] Error en listener:', error);
+                }
+            );
+            
         } catch (error) {
-            console.error('[Puntos] Error al cargar:', error);
-            puntosPartidas[key] = { [user1]: 0, [user2]: 0 };
+            console.error('[Puntos] Error al cargar puntos:', error);
+            pointsValue.textContent = '0';
+            widget.style.display = 'flex';
         }
+    }
+
+    /**
+     * Limpia el listener de puntos
+     */
+    function cleanupPointsListener() {
+        if (pointsListener) {
+            pointsListener();
+            pointsListener = null;
+        }
+        currentChatPoints = 0;
     }
 
     // ===== FUNCIONES DE CONVERSIÓN ARRAY 2D ↔ ARRAY PLANO =====
@@ -147,7 +151,6 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
     let gameBoardElement = null;
     let openGameBtn = null;
     let lastRenderedBoard = null;
-    let puntosListener = null;
 
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', () => {
@@ -283,7 +286,7 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
         }
     }
 
-    // ===== FUNCIÓN: RECHAZAR INVITACIÓN =====
+    // ===== FUNCIÓN: RECHAZAR INVITACIÓN (NO AFECTA PUNTOS) =====
     async function handleRejectInvitation(gameId, messageDocId) {
         try {
             const gameRef = db.collection('games').doc(gameId);
@@ -298,8 +301,6 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
                 .update({
                     processed: true
                 });
-
-            console.log('[4 en Raya] ✅ Mensaje marcado como procesado en Firebase');
 
             const chatRef = db.collection('chats').doc(gameId);
             
@@ -325,7 +326,7 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
 
             await gameRef.delete();
 
-            console.log('[4 en Raya] Invitación rechazada');
+            console.log('[4 en Raya] Invitación rechazada (sin afectar puntos)');
 
         } catch (error) {
             console.error('[4 en Raya] Error al rechazar invitación:', error);
@@ -361,11 +362,8 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
 
             currentGameId = chatId;
 
-            const chatParticipants = chatId.split('_');
-            const partnerId = chatParticipants.find(id => id !== currentUserId);
-            
-            console.log('[Puntos] Cargando puntos para:', currentUserId, 'vs', partnerId);
-            await cargarPuntosDePartida(currentUserId, partnerId);
+            // Cargar puntos del chat
+            await loadChatPoints(chatId);
 
             gameListener = db.collection('games').doc(chatId)
                 .onSnapshot(async (snapshot) => {
@@ -530,24 +528,11 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
             if (hasWon) {
                 updateData.status = 'finished';
                 updateData.winner = currentUserId;
-
-                const perdedor = gameData.players.red === currentUserId
-                    ? gameData.players.yellow
-                    : gameData.players.red;
-                
-                console.log('[Puntos] Ganador:', currentUserId, 'Perdedor:', perdedor);
-                await actualizarPuntos(currentUserId, perdedor, false);
-
+                await updateChatPoints(currentGameId, 3);
             } else if (isTie) {
                 updateData.status = 'finished';
                 updateData.winner = 'tie';
-
-                const otroJugador = gameData.players.red === currentUserId
-                    ? gameData.players.yellow
-                    : gameData.players.red;
-                
-                console.log('[Puntos] Empate entre:', currentUserId, otroJugador);
-                await actualizarPuntos(currentUserId, otroJugador, true);
+                await updateChatPoints(currentGameId, 3);
             }
 
             await gameRef.update(updateData);
@@ -556,7 +541,6 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
 
             if (hasWon) {
                 const winnerName = await getUserName(currentUserId);
-                
                 await chatRef.collection('messages').add({
                     senderId: 'system',
                     senderName: 'Sistema',
@@ -659,7 +643,7 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
                 const personalMessage = document.createElement('div');
                 personalMessage.style.marginTop = '10px';
                 personalMessage.style.fontSize = '18px';
-                personalMessage.textContent = 'Empate - Obtuviste +1 punto';
+                personalMessage.textContent = '¡Empate! +3 puntos para el chat';
                 personalMessage.style.color = '#ff9800';
                 messageContainer.appendChild(personalMessage);
 
@@ -680,14 +664,8 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
                     const personalMessage = document.createElement('div');
                     personalMessage.style.marginTop = '10px';
                     personalMessage.style.fontSize = '18px';
-                    
-                    if (ganaste) {
-                        personalMessage.textContent = '¡Has ganado! - Obtuviste +3 puntos';
-                        personalMessage.style.color = '#4caf50';
-                    } else {
-                        personalMessage.textContent = 'Has perdido - Obtuviste +0 puntos';
-                        personalMessage.style.color = '#f44336';
-                    }
+                    personalMessage.textContent = ganaste ? '¡Has ganado! +3 puntos para el chat' : 'Has perdido';
+                    personalMessage.style.color = ganaste ? '#4caf50' : '#f44336';
                     
                     messageContainer.appendChild(personalMessage);
                 }
@@ -729,31 +707,26 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
             }
 
             if (gameData.status === 'finished') {
-                console.log('[4 en Raya] Cerrando tablero de partida terminada');
-                
                 await gameRef.update({
                     closedBy: closedBy
                 });
 
                 if (closedBy.length >= 2) {
                     await gameRef.delete();
-                    console.log('[4 en Raya] Partida eliminada (ambos cerraron)');
                 }
 
                 hideGameBoard();
                 return;
             }
 
-            const confirmClose = confirm('¿Estás seguro de que quieres abandonar? El otro jugador ganará automáticamente.');
+            const confirmClose = confirm('¿Estás seguro de que quieres abandonar? El otro jugador ganará automáticamente y perderéis -1 punto.');
             if (!confirmClose) return;
 
             const otroJugador = gameData.players.red === currentUserId
                 ? gameData.players.yellow
                 : gameData.players.red;
 
-            // ✅ ACTUALIZAR PUNTOS AL ABANDONAR
-            console.log('[Puntos] Abandono - Ganador:', otroJugador, 'Perdedor:', currentUserId);
-            await actualizarPuntos(otroJugador, currentUserId, false);
+            await updateChatPoints(currentGameId, -1);
 
             await gameRef.update({
                 status: 'finished',
@@ -767,7 +740,7 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
             await chatRef.collection('messages').add({
                 senderId: 'system',
                 senderName: 'Sistema',
-                text: `🎉 ¡Ganó ${winnerName}! (por abandono)`,
+                text: `🎉 ¡Ganó ${winnerName}! (por abandono) -1 punto`,
                 messageType: 'game-system',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 readBy: []
@@ -795,10 +768,7 @@ async function guardarPuntosEnBD(partidaKey, puntosObj) {
             gameListener = null;
         }
 
-        if (puntosListener) {
-            puntosListener();
-            puntosListener = null;
-        }
+        cleanupPointsListener();
         
         currentGameId = null;
         myRole = null;
