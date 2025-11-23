@@ -17,12 +17,12 @@
 
 #game-container {
     position: absolute;
-    top: 60px; /* Altura del header */
+    top: 90px; /* ✅ CAMBIAR: era 60px, ahora 90px para bajar más */
     left: 0;
     right: 0;
-    bottom: 60px; /* Altura del input-area */
+    bottom: 60px;
     width: 100%;
-    height: calc(100% - 120px);
+    height: calc(100% - 150px); /* ✅ AJUSTAR: era 120px */
     z-index: 10;
     background-color: #f8f9fa;
 }

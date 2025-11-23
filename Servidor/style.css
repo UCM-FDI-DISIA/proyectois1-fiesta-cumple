@@ -577,8 +577,25 @@ html, body {
     padding: 10px 16px;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(255, 122, 90, 0.3);
-    transition: all 0.3s ease;
+    z-index: 1200;
+    position: relative;
     cursor: pointer;
+}
+
+#game-container {
+    position: relative;
+    top: 30px; /* baja el tablero */
+    z-index: 900;
+}
+
+.points-updated {
+    animation: pulsePoints 0.4s ease;
+}
+
+@keyframes pulsePoints {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+    100% { transform: scale(1); }
 }
 
 .couple-points-widget:hover {
@@ -1185,4 +1202,11 @@ html, body {
     .user-card-btn {
         width: 100%;
     }
+}
+
+/* ===== ANIMACIÓN DE PUNTOS ===== */
+@keyframes pulsePoints {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }

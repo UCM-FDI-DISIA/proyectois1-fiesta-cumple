@@ -16,6 +16,106 @@
     const PLAYER_RED = 1;
     const PLAYER_YELLOW = 2;
 
+    // ===== SISTEMA DE PUNTOS POR PAREJA =====
+    let puntosPartidas = {};
+
+    function getPartidaKey(user1, user2) {
+        return [user1, user2].sort().join('vs');
+    }
+
+    function getPuntosContrario(miUsuario, contrario) {
+        const key = getPartidaKey(miUsuario, contrario);
+        if (!puntosPartidas[key]) {
+            puntosPartidas[key] = { [miUsuario]: 0, [contrario]: 0 };
+        }
+        return puntosPartidas[key][miUsuario] || 0;
+    }
+
+    async function actualizarPuntos(ganador, perdedor, empate = false) {
+        const key = getPartidaKey(ganador, perdedor);
+        
+        if (!puntosPartidas[key]) {
+            puntosPartidas[key] = { [ganador]: 0, [perdedor]: 0 };
+        }
+        
+        if (empate) {
+            puntosPartidas[key][ganador] += 1;
+            puntosPartidas[key][perdedor] += 1;
+        } else {
+            puntosPartidas[key][ganador] += 3;
+        }
+        
+        await guardarPuntosEnBD(key, puntosPartidas[key]);
+        actualizarVisualizacionPuntos(ganador, perdedor);
+        
+        console.log('[Puntos] Actualizados:', puntosPartidas[key]);
+    }
+
+    function actualizarVisualizacionPuntos(user1, user2) {
+        const puntosWidget = document.getElementById('couple-points-widget');
+        const puntosValue = document.getElementById('couple-points-value');
+        
+        if (puntosWidget && puntosValue) {
+            const misPuntos = getPuntosContrario(currentUserId, 
+                user1 === currentUserId ? user2 : user1);
+            puntosValue.textContent = misPuntos;
+            puntosWidget.style.display = 'flex';
+            console.log('[Puntos] Visualización actualizada:', misPuntos);
+        }
+    }
+
+async function guardarPuntosEnBD(partidaKey, puntosObj) {
+    try {
+        const ref = db.collection('puntos_partidas').doc(partidaKey);
+        const snap = await ref.get();
+        if (snap.exists) {
+            const prev = snap.data();
+            const merged = { ...prev, ...puntosObj };
+            await ref.set(merged);
+        } else {
+            await ref.set(puntosObj);
+        }
+        console.log('[Puntos] Guardados', partidaKey, puntosObj);
+    } catch (e) {
+        console.error('[Puntos] Error guardando', e);
+    }
+}
+
+    async function cargarPuntosDePartida(user1, user2) {
+        const key = getPartidaKey(user1, user2);
+        
+        if (puntosListener) {
+            puntosListener();
+            puntosListener = null;
+        }
+        
+        try {
+            const puntosDoc = await db.collection('puntos_partidas').doc(key).get();
+            
+            if (puntosDoc.exists) {
+                puntosPartidas[key] = puntosDoc.data();
+                console.log('[Puntos] Cargados:', puntosPartidas[key]);
+            } else {
+                puntosPartidas[key] = { [user1]: 0, [user2]: 0 };
+                console.log('[Puntos] Inicializados a 0');
+            }
+            
+            actualizarVisualizacionPuntos(user1, user2);
+
+            puntosListener = db.collection('puntos_partidas').doc(key)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        puntosPartidas[key] = doc.data();
+                        actualizarVisualizacionPuntos(user1, user2);
+                    }
+                });
+
+        } catch (error) {
+            console.error('[Puntos] Error al cargar:', error);
+            puntosPartidas[key] = { [user1]: 0, [user2]: 0 };
+        }
+    }
+
     // ===== FUNCIONES DE CONVERSIÓN ARRAY 2D ↔ ARRAY PLANO =====
     function flatTo2D(flatBoard) {
         const board2D = [];
@@ -46,7 +146,8 @@
     let gameContainer = null;
     let gameBoardElement = null;
     let openGameBtn = null;
-    let lastRenderedBoard = null; // ✅ Para detectar fichas nuevas
+    let lastRenderedBoard = null;
+    let puntosListener = null;
 
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', () => {
@@ -110,7 +211,6 @@
             const partnerId = chatParticipants.find(id => id !== currentUserId);
             const flatBoard = new Array(ROWS * COLS).fill(EMPTY);
 
-            // Crear documento de juego
             await db.collection('games').doc(gameId).set({
                 players: {
                     red: currentUserId,
@@ -127,15 +227,14 @@
                 closedBy: []
             });
 
-            // ✅ CAMBIO 1: Enviar mensaje de invitación a Firebase
             await db.collection('chats').doc(currentChatId).collection('messages').add({
                 senderId: currentUserId,
                 senderName: currentUserName,
                 text: '',
-                messageType: 'game-invitation', // ✅ Tipo especial
+                messageType: 'game-invitation',
                 gameId: gameId,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                readBy: [currentUserId] // El remitente ya ha "leído" su propio mensaje
+                readBy: [currentUserId]
             });
 
             console.log('[4 en Raya] Invitación enviada');
@@ -164,7 +263,6 @@
                 return;
             }
 
-            // ✅ NUEVO: Marcar el mensaje como procesado en Firebase
             await db.collection('chats').doc(gameId)
                 .collection('messages').doc(messageDocId)
                 .update({
@@ -173,7 +271,6 @@
 
             console.log('[4 en Raya] ✅ Mensaje marcado como procesado en Firebase');
 
-            // Actualizar estado del juego
             await gameRef.update({
                 status: 'playing'
             });
@@ -196,7 +293,6 @@
 
             const gameData = gameDoc.data();
 
-            // ✅ NUEVO: Marcar el mensaje como procesado en Firebase
             await db.collection('chats').doc(gameId)
                 .collection('messages').doc(messageDocId)
                 .update({
@@ -205,7 +301,6 @@
 
             console.log('[4 en Raya] ✅ Mensaje marcado como procesado en Firebase');
 
-            // Enviar mensajes personalizados a Firebase
             const chatRef = db.collection('chats').doc(gameId);
             
             await chatRef.collection('messages').add({
@@ -266,6 +361,12 @@
 
             currentGameId = chatId;
 
+            const chatParticipants = chatId.split('_');
+            const partnerId = chatParticipants.find(id => id !== currentUserId);
+            
+            console.log('[Puntos] Cargando puntos para:', currentUserId, 'vs', partnerId);
+            await cargarPuntosDePartida(currentUserId, partnerId);
+
             gameListener = db.collection('games').doc(chatId)
                 .onSnapshot(async (snapshot) => {
                     if (!snapshot.exists) {
@@ -281,15 +382,12 @@
                         myRole = 'yellow';
                     }
 
-                    // ✅ CORREGIDO: NO mostrar el tablero si el juego terminó Y el usuario ya lo cerró
                     if (gameData.status === 'finished') {
                         const closedBy = gameData.closedBy || [];
                         if (closedBy.includes(currentUserId)) {
-                            // El usuario ya cerró este juego terminado
                             hideGameBoard();
                             return;
                         }
-                        // Si no ha cerrado, mostrar el tablero con el resultado
                         showGameBoard(gameData);
                     } else if (gameData.status === 'playing') {
                         showGameBoard(gameData);
@@ -311,13 +409,11 @@
     function showGameBoard(gameData) {
         if (!gameContainer || !gameBoardElement) return;
 
-        // ✅ Ocultar el contenedor de mensajes
         const messagesDiv = document.getElementById('messages');
         if (messagesDiv) {
             messagesDiv.style.display = 'none';
         }
 
-        // ✅ Mostrar el contenedor del juego
         gameContainer.style.display = 'flex';
 
         renderBoard(gameData.board, gameData.currentTurn, gameData.status, gameData.winner, gameData.lastMove);
@@ -328,15 +424,12 @@
     function hideGameBoard() {
         if (!gameContainer) return;
 
-        // ✅ Ocultar el contenedor del juego
         gameContainer.style.display = 'none';
 
-        // ✅ Mostrar el contenedor de mensajes
         const messagesDiv = document.getElementById('messages');
         if (messagesDiv) {
             messagesDiv.style.display = '';
 
-            // ✅ Scroll automático al final
             setTimeout(() => {
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }, 50);
@@ -361,7 +454,6 @@
                     const chip = document.createElement('div');
                     chip.className = `chip-online ${board[row][col] === PLAYER_RED ? 'red' : 'yellow'}`;
 
-                    // ✅ CAMBIO 3: Añadir animación solo a la última ficha
                     if (lastMove && lastMove.row === row && lastMove.col === col) {
                         chip.classList.add('drop-animation');
                     }
@@ -438,19 +530,31 @@
             if (hasWon) {
                 updateData.status = 'finished';
                 updateData.winner = currentUserId;
+
+                const perdedor = gameData.players.red === currentUserId
+                    ? gameData.players.yellow
+                    : gameData.players.red;
+                
+                console.log('[Puntos] Ganador:', currentUserId, 'Perdedor:', perdedor);
+                await actualizarPuntos(currentUserId, perdedor, false);
+
             } else if (isTie) {
                 updateData.status = 'finished';
                 updateData.winner = 'tie';
+
+                const otroJugador = gameData.players.red === currentUserId
+                    ? gameData.players.yellow
+                    : gameData.players.red;
+                
+                console.log('[Puntos] Empate entre:', currentUserId, otroJugador);
+                await actualizarPuntos(currentUserId, otroJugador, true);
             }
 
-            // ✅ Actualizar primero el juego
             await gameRef.update(updateData);
 
-            // ✅ MODIFICADO: Enviar mensaje de finalización al chat con NOMBRE del ganador
             const chatRef = db.collection('chats').doc(currentGameId);
 
             if (hasWon) {
-                // Obtener el nombre del ganador (que soy yo en este caso)
                 const winnerName = await getUserName(currentUserId);
                 
                 await chatRef.collection('messages').add({
@@ -543,7 +647,7 @@
         if (!indicator || !messageContainer) return;
 
         messageContainer.className = 'game-message-container';
-        messageContainer.textContent = '';
+        messageContainer.innerHTML = '';
 
         if (status === 'finished') {
             if (winner === 'tie') {
@@ -551,6 +655,14 @@
                 indicator.style.fontSize = '24px';
                 indicator.style.fontWeight = 'bold';
                 indicator.style.color = '#ff9800';
+
+                const personalMessage = document.createElement('div');
+                personalMessage.style.marginTop = '10px';
+                personalMessage.style.fontSize = '18px';
+                personalMessage.textContent = 'Empate - Obtuviste +1 punto';
+                personalMessage.style.color = '#ff9800';
+                messageContainer.appendChild(personalMessage);
+
             } else {
                 const gameRef = db.collection('games').doc(currentGameId);
                 const gameDoc = await gameRef.get();
@@ -558,15 +670,29 @@
                 if (gameDoc.exists) {
                     const gameData = gameDoc.data();
                     const winnerColor = gameData.players.red === winner ? 'Rojas' : 'Amarillas';
-                    
+                    const ganaste = winner === currentUserId;
+
                     indicator.textContent = `🎉 ¡Ganan las ${winnerColor}!`;
                     indicator.style.fontSize = '24px';
                     indicator.style.fontWeight = 'bold';
                     indicator.style.color = winnerColor === 'Rojas' ? '#c92a2a' : '#f0a500';
+               
+                    const personalMessage = document.createElement('div');
+                    personalMessage.style.marginTop = '10px';
+                    personalMessage.style.fontSize = '18px';
+                    
+                    if (ganaste) {
+                        personalMessage.textContent = '¡Has ganado! - Obtuviste +3 puntos';
+                        personalMessage.style.color = '#4caf50';
+                    } else {
+                        personalMessage.textContent = 'Has perdido - Obtuviste +0 puntos';
+                        personalMessage.style.color = '#f44336';
+                    }
+                    
+                    messageContainer.appendChild(personalMessage);
                 }
             }
         } else {
-            // ✅ Restablecer estilos para juego activo
             indicator.style.fontSize = '';
             indicator.style.fontWeight = '';
             indicator.style.color = '';
@@ -598,12 +724,10 @@
             const gameData = gameDoc.data();
             const closedBy = gameData.closedBy || [];
 
-            // ✅ SIEMPRE añadir el usuario actual a closedBy
             if (!closedBy.includes(currentUserId)) {
                 closedBy.push(currentUserId);
             }
 
-            // ✅ Si el juego ya terminó, solo actualizar closedBy y cerrar tablero
             if (gameData.status === 'finished') {
                 console.log('[4 en Raya] Cerrando tablero de partida terminada');
                 
@@ -611,7 +735,6 @@
                     closedBy: closedBy
                 });
 
-                // Si ambos cerraron, eliminar el juego
                 if (closedBy.length >= 2) {
                     await gameRef.delete();
                     console.log('[4 en Raya] Partida eliminada (ambos cerraron)');
@@ -621,44 +744,37 @@
                 return;
             }
 
-            // Si el juego está en curso, confirmar abandono
-            const confirmClose = confirm('¿Estás seguro de que quieres cerrar el juego? Esto contará como abandono y el otro jugador ganará.');
+            const confirmClose = confirm('¿Estás seguro de que quieres abandonar? El otro jugador ganará automáticamente.');
             if (!confirmClose) return;
 
-            const otherPlayer = gameData.players.red === currentUserId
+            const otroJugador = gameData.players.red === currentUserId
                 ? gameData.players.yellow
                 : gameData.players.red;
 
+            // ✅ ACTUALIZAR PUNTOS AL ABANDONAR
+            console.log('[Puntos] Abandono - Ganador:', otroJugador, 'Perdedor:', currentUserId);
+            await actualizarPuntos(otroJugador, currentUserId, false);
+
             await gameRef.update({
                 status: 'finished',
-                winner: otherPlayer,
+                winner: otroJugador,
                 closedBy: closedBy
             });
 
-            // Mensajes personalizados al abandonar
             const chatRef = db.collection('chats').doc(currentGameId);
-
-            await chatRef.collection('messages').add({
-                senderId: currentUserId,
-                senderName: currentUserName,
-                text: 'Has abandonado la partida',
-                messageType: 'game-system',
-                visibleTo: currentUserId,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const winnerName = await getUserName(otroJugador);
 
             await chatRef.collection('messages').add({
                 senderId: 'system',
                 senderName: 'Sistema',
-                text: `${currentUserName} ha abandonado la partida`,
+                text: `🎉 ¡Ganó ${winnerName}! (por abandono)`,
                 messageType: 'game-system',
-                visibleTo: otherPlayer,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                readBy: []
             });
 
             if (closedBy.length >= 2) {
                 await gameRef.delete();
-                console.log('[4 en Raya] Partida eliminada (ambos cerraron)');
             }
 
             hideGameBoard();
@@ -678,6 +794,12 @@
             gameListener();
             gameListener = null;
         }
+
+        if (puntosListener) {
+            puntosListener();
+            puntosListener = null;
+        }
+        
         currentGameId = null;
         myRole = null;
         hideGameBoard();
@@ -698,23 +820,20 @@
     window.renderGameInvitationFromMessage = function (messageElement, messageData, messageDocId) {
         const isInviter = messageData.senderId === currentUserId;
 
-        // Añadir data-message-id al elemento
         messageElement.setAttribute('data-message-id', messageDocId);
 
-        // ✅ NUEVO: Verificar si ya fue procesada
         if (messageData.processed) {
-            // Si fue procesada, mostrar solo el texto sin botones (SIN mensaje adicional)
-            messageElement.innerHTML = `    <div class="message-header">
+            messageElement.innerHTML = `
+                <div class="message-header">
                     <strong>${messageData.senderName}</strong>
                 </div>
                 <div class="game-invitation-text">
-                    🎮 ${isInviter ? 'Invitaste a jugar Cuatro en Raya' : 'Te invitó a jugar Cuatro en Raya' }
+                    🎮 ${isInviter ? 'Invitaste a jugar Cuatro en Raya' : 'Te invitó a jugar Cuatro en Raya'}
                 </div>
             `;
             return;
         }
 
-        // Mensaje sin procesar (lógica original)
         if (isInviter) {
             messageElement.innerHTML = `
                 <div class="message-header">
@@ -725,7 +844,6 @@
                 </div>
             `;
         } else {
-            // Quien recibe ve los botones
             messageElement.innerHTML = `
                 <div class="message-header">
                     <strong>${messageData.senderName}</strong>
@@ -751,7 +869,6 @@
         }
     };
 
-    //Exportar funciones para pruebas unitarias
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = {
             flatTo2D,
