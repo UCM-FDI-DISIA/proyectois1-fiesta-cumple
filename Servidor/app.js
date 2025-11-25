@@ -1593,10 +1593,12 @@ function openChat(chatId, partnerId, partnerName) {
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const playBtn = document.getElementById('open-game-btn');
+    const dvBtn = document.getElementById('open-dosverdades-btn');
     messageInput.disabled = false;
     messageInput.placeholder = 'Escribe tu mensaje aquí...';
     sendBtn.disabled = false;
     playBtn.disabled = false;
+    if (dvBtn) dvBtn.disabled = false;
     
     const messagesDiv = document.getElementById('messages');
     messagesDiv.classList.remove('empty-state');
@@ -1669,6 +1671,8 @@ function closeCurrentChat() {
     currentChatPartner = null;
     
     console.log('Chat cerrado');
+    const dvBtn = document.getElementById('open-dosverdades-btn');
+    if (dvBtn) dvBtn.disabled = true;
 }
 
 // ========================================
@@ -1822,7 +1826,18 @@ function loadMessages(chatId) {
                     if (typeof window.renderGameInvitationFromMessage === 'function') {
                         window.renderGameInvitationFromMessage(messageElement, msg, messageDocId);
                     }
-                    
+
+                } else if (msg.messageType === 'dosverdades') {
+                    messageElement.classList.add('dosverdades-message');
+
+                    if (msg.senderId === currentUserId) {
+                        messageElement.classList.add('my-message');
+                    }
+
+                    if (typeof window.renderDosVerdadesFromMessage === 'function') {
+                        window.renderDosVerdadesFromMessage(messageElement, msg, messageDocId);
+                    }
+
                 } else if (msg.messageType === 'game-system') {
                     messageElement.classList.add('game-system-message');
                     messageElement.textContent = msg.text;
