@@ -38,25 +38,6 @@
 .dv-choose-lie { margin: 10px 0; display:flex; gap:8px; }
 .dv-choose-lie label { font-size:14px; }
 
-/* Make the DosVerdades button match the open-game button size & style */
-#input-area #open-dosverdades-btn {
-    margin-right: 10px;
-    font-size: 30px;
-    padding-top: 1px;
-    padding-bottom: 11px;
-    padding-right: 5px;
-    padding-left: 5px;
-    background-color: #FF9F7A; /* match site accent */
-    color: #fff;
-    border: none;
-    border-radius: 40px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-#input-area #open-dosverdades-btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
-#input-area #open-dosverdades-btn:hover:not(:disabled) { filter: brightness(0.95); }
-
 .dv-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
 .dv-actions button { padding:10px 14px; border-radius:12px; border: none; cursor:pointer; font-weight:600; }
 #dv-send-btn { background: #FF9F7A; color: #fff; }
@@ -76,19 +57,6 @@
 /* Highlight correct / wrong answers */
 .dv-correct { background: #e9fff0 !important; border-color: #2ecc71 !important; color: #046b2f !important; }
 .dv-wrong { background: #fff0f0 !important; border-color: #e74c3c !important; color: #7a1d1d !important; }
-
-/* Center emoji and ensure consistent size */
-#input-area #open-dosverdades-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    min-width: 44px;
-    padding-left: 12px;
-    padding-right: 12px;
-}
-
-#input-area #open-dosverdades-btn svg, #input-area #open-dosverdades-btn img { width:22px; height:22px; }
 
 .dv-summary { font-weight:600; margin-top:6px; }
 

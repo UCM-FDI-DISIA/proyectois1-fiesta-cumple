@@ -6,8 +6,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         openBtn = document.getElementById('open-dosverdades-btn');
-        if (!openBtn) return;
-        openBtn.addEventListener('click', openDosVerdadesModal);
+        // Solo añadir listener si existe el botón antiguo (compatibilidad)
+        if (openBtn) {
+            openBtn.addEventListener('click', openDosVerdadesModal);
+        }
     });
 
     function createModalIfNeeded() {
@@ -271,5 +273,10 @@
         } catch (e) { /* ignore */ }
         return id;
     }
+
+    // Exponer función para el menú de juegos
+    window.triggerDosVerdades = function() {
+        openDosVerdadesModal();
+    };
 
 })();
