@@ -23,13 +23,13 @@
         <div class="login-container">
             <!-- Columna izquierda: contenido -->
             <div class="login-content">
-                <div class="login-logo">
+                <div class="login-logo" id="veneris-logo">
                     <img src="LOGOPROPUESTA.png" alt="Veneris Logo">
                 </div>
-                <h1 class="login-title">Conecta con quien vibra como tú.</h1>
+                <h1 class="login-title" id="main-title">Conecta con quien vibra como tú.</h1>
                 <h2 class="login-subtitle">Amor, juego y mitología.</h2>
                 <button class="login-cta-btn" onclick="showRegisterForm()">Explorar Veneris</button>
-                <p class="login-tagline">Inspirado en Venus. Diseñado para almas que buscan algo más.</p>
+                <p class="login-tagline" id="tagline">Inspirado en Venus. Diseñado para almas que buscan algo más.</p>
             </div>
             
             <!-- Columna derecha: formulario -->
@@ -167,5 +167,247 @@
     <script src="app.js"></script>
     <script src="listausuarios.js"></script>
     <script src="cuatroEnRayaScript.js"></script>
+
+    <!-- Easter Eggs Script -->
+    <script>
+        // Easter Egg 1: Konami Code (↑↑↓↓←→←→BA)
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        // Easter Egg 2: Triple click en el logo
+        let logoClickCount = 0;
+        let logoClickTimer = null;
+
+        // Easter Egg 3: Escribir "cupido" en el input
+        let secretWord = '';
+        let secretTimer = null;
+
+        // Easter Egg 4: Click en el título 5 veces
+        let titleClickCount = 0;
+
+        // Konami Code listener
+        document.addEventListener('keydown', function(e) {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateKonamiEasterEgg();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function activateKonamiEasterEgg() {
+            // Crear lluvia de corazones
+            createHeartRain();
+            showSecretMessage('🎮 ¡Código Konami activado! Las flechas de Cupido llueven sobre ti... 💘');
+        }
+
+        function createHeartRain() {
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                    heart.style.position = 'fixed';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = '-50px';
+                    heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                    heart.style.zIndex = '10000';
+                    heart.style.pointerEvents = 'none';
+                    heart.style.animation = 'fall ' + (Math.random() * 2 + 3) + 's linear';
+                    document.body.appendChild(heart);
+                    
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 100);
+            }
+
+            // Agregar animación CSS si no existe
+            if (!document.getElementById('heart-rain-style')) {
+                const style = document.createElement('style');
+                style.id = 'heart-rain-style';
+                style.textContent = `
+                    @keyframes fall {
+                        to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Triple click en logo
+        const logo = document.getElementById('veneris-logo');
+        if (logo) {
+            logo.addEventListener('click', function() {
+                logoClickCount++;
+                clearTimeout(logoClickTimer);
+                
+                if (logoClickCount === 3) {
+                    logo.style.transform = 'rotate(360deg) scale(1.2)';
+                    logo.style.transition = 'transform 0.8s ease';
+                    setTimeout(() => {
+                        logo.style.transform = 'none';
+                        showSecretMessage('🌊 Como Venus nacida de la espuma del mar, el amor emerge en los lugares más inesperados...');
+                    }, 800);
+                    logoClickCount = 0;
+                } else {
+                    logoClickTimer = setTimeout(() => logoClickCount = 0, 500);
+                }
+            });
+        }
+
+        // Escribir palabra secreta
+        document.addEventListener('keypress', function(e) {
+            clearTimeout(secretTimer);
+            secretWord += e.key.toLowerCase();
+            
+            if (secretWord.includes('cupido')) {
+                showSecretMessage('🏹 ¡Has invocado a Cupido! Que sus flechas doradas guíen tu camino hacia el amor verdadero.');
+                secretWord = '';
+                document.body.style.animation = 'pulse-bg 2s ease-in-out';
+                setTimeout(() => document.body.style.animation = '', 2000);
+            } else if (secretWord.includes('venus')) {
+                showSecretMessage('✨ Venus te sonríe. Según la leyenda, pronunciar su nombre tres veces trae buena fortuna en el amor.');
+                secretWord = '';
+            } else if (secretWord.includes('amor')) {
+                showSecretMessage('💝 "Amor vincit omnia" - El amor todo lo vence. Palabras sabias de los antiguos romanos.');
+                secretWord = '';
+            }
+            
+            if (secretWord.length > 20) secretWord = secretWord.slice(-10);
+            
+            secretTimer = setTimeout(() => secretWord = '', 2000);
+        });
+
+        // Click múltiple en título
+        const title = document.getElementById('main-title');
+        if (title) {
+            title.addEventListener('click', function() {
+                titleClickCount++;
+                
+                if (titleClickCount === 5) {
+                    const messages = [
+                        '🌟 "El verdadero amor nunca se desvanece" - Sófocles',
+                        '💫 En la mitología, Venus y Marte fueron amantes eternos a pesar de sus diferencias',
+                        '🔮 Los romanos creían que Venus podía unir corazones a través de las estrellas',
+                        '⚡ Cupido, hijo de Venus, jamás reveló el secreto de sus flechas doradas'
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    showSecretMessage(randomMessage);
+                    
+                    title.style.background = 'linear-gradient(135deg, #FF9F7A 0%, #FF7A5A 100%)';
+                    title.style.webkitBackgroundClip = 'text';
+                    title.style.webkitTextFillColor = 'transparent';
+                    
+                    setTimeout(() => {
+                        title.style.background = '';
+                        title.style.webkitBackgroundClip = '';
+                        title.style.webkitTextFillColor = '';
+                    }, 2000);
+                    
+                    titleClickCount = 0;
+                }
+            });
+        }
+
+        // Easter Egg 5: Mantener presionado Alt + V durante 3 segundos
+        let altVPressed = false;
+        let altVTimer = null;
+
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key.toLowerCase() === 'v' && !altVPressed) {
+                altVPressed = true;
+                altVTimer = setTimeout(() => {
+                    showSecretMessage('🎭 Has descubierto el saludo secreto de Veneris. Los verdaderos devotos de Venus conocen este gesto.');
+                    createGoldenGlow();
+                }, 3000);
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key.toLowerCase() === 'v' || !e.altKey) {
+                clearTimeout(altVTimer);
+                altVPressed = false;
+            }
+        });
+
+        function createGoldenGlow() {
+            document.body.style.boxShadow = 'inset 0 0 100px rgba(255, 215, 0, 0.3)';
+            setTimeout(() => {
+                document.body.style.boxShadow = '';
+            }, 3000);
+        }
+
+        // Función para mostrar mensajes secretos
+        function showSecretMessage(message) {
+            const existingMessage = document.getElementById('secret-toast');
+            if (existingMessage) existingMessage.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'secret-toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #FF9F7A 0%, #FF7A5A 100%);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 30px;
+                box-shadow: 0 10px 40px rgba(255, 122, 90, 0.5);
+                z-index: 10000;
+                font-size: 15px;
+                font-weight: 600;
+                max-width: 80%;
+                text-align: center;
+                animation: slideDown 0.5s ease-out, slideUp 0.5s ease-in 4.5s;
+                font-family: Georgia, serif;
+            `;
+            document.body.appendChild(toast);
+
+            // Agregar animaciones si no existen
+            if (!document.getElementById('toast-animations')) {
+                const style = document.createElement('style');
+                style.id = 'toast-animations';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                        to { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                    }
+                    @keyframes pulse-bg {
+                        0%, 100% { filter: brightness(1); }
+                        50% { filter: brightness(1.1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // Easter Egg 6: Hora especial (14:14 - hora del amor)
+        function checkLoveTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            if (hours === 14 && minutes === 14) {
+                showSecretMessage('💞 ¡Son las 14:14! Hora del amor eterno. Venus te bendice en este momento mágico.');
+            }
+        }
+
+        setInterval(checkLoveTime, 60000); // Verificar cada minuto
+
+        // Pista oculta en consola
+        console.log('%c🏹 Pista de Cupido 🏹', 'color: #FF7A5A; font-size: 20px; font-weight: bold;');
+        console.log('%cLos secretos de Veneris esperan ser descubiertos...', 'color: #FF9F7A; font-size: 14px;');
+        console.log('%cIntenta: Código Konami, triple-click en el logo, escribe "cupido", "venus" o "amor", 5 clicks en el título, Alt+V durante 3s', 'color: #999; font-size: 12px; font-style: italic;');
+    </script>
 </body>
 </html>
