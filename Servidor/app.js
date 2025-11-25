@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('[OK] Sistema de botón de chat configurado correctamente');
     
+    updateProfileButtonVisibility();
+
     // ===== CONFIGURAR TECLA ENTER EN EL INPUT =====
     const input = document.getElementById('message-input');
     if (input) {
@@ -149,18 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Alterna la apertura del modal de login/registro cuando se pulsa el botón de perfil
 function toggleAuthMenu() {
-    // Si no hay usuario logueado, mostramos/ocultamos el login
-    if (!currentUserId) {
-        const login = document.getElementById('login-screen');
-        if (!login) return;
-        login.style.display = (login.style.display === 'block') ? 'none' : 'block';
-        // Asegurarse de ocultar el register si estaba abierto
-        const reg = document.getElementById('register-screen');
-        if (reg) reg.style.display = 'none';
-    } else {
-        // Si el usuario está logueado, mostrar/ocultar el menú de perfil
+    // SOLO funciona cuando hay usuario logueado
+    if (currentUserId) {
+        // Mostrar/ocultar el menú de perfil
         toggleProfileMenu();
     }
+    // Si no hay usuario, no hace nada (el botón está oculto de todas formas)
 }
 
 // Crea el DOM del menú de perfil si no existe
@@ -466,7 +462,7 @@ async function loadProfileData() {
 window.showUserProfile = async function(userId, userData) {
     try {
         createProfileModal();
-        // Si se está viendo otro usuario, ocultamos la pestaña de edición
+        // Si se está viendo otro usuario, ocultamos la pestaña 'edit'
         const modal = document.getElementById('profileModal');
         const tabs = modal ? modal.querySelectorAll('.profile-tab') : null;
         if (tabs && tabs.length > 0) {
@@ -884,6 +880,7 @@ function ocultar_chat() {
 function showRegisterForm() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('register-screen').style.display = 'block';
+    updateProfileButtonVisibility();
 }
 
 // Volver al login
@@ -892,6 +889,7 @@ function showLoginForm() {
     document.getElementById('register-screen').style.display = 'none';
     // Limpiar errores
     document.getElementById('register-error').textContent = '';
+    updateProfileButtonVisibility();
 }
 
 // Iniciar sesión solo con nombre de usuario
@@ -935,7 +933,7 @@ async function login() {
         loadUserChats();
     // Actualizar el botón de perfil para mostrar foto/usuario
     try { updateProfileButton(); } catch(e) { /* no crítico */ }
-        
+        updateProfileButtonVisibility();
         
         setTimeout(() => {
             showChatInterface();
@@ -1247,6 +1245,7 @@ function logout() {
     console.log('Sesión cerrada correctamente');
     // Actualizar botón de perfil a estado por defecto
     try { updateProfileButton(); } catch (e) { }
+    updateProfileButtonVisibility();
 
     if (typeof window.hideGameButton === 'function') window.hideGameButton();
 
@@ -1917,6 +1916,39 @@ function showEmptyState() {
 }
 
 // ========================================
+// FUNCIÓN: CONTROL DE VISIBILIDAD DEL BOTÓN DE PERFIL
+// ========================================
+/**
+ * Muestra u oculta el botón de perfil según el contexto
+ * - En pantallas de login/registro: OCULTO
+ * - Después del login: VISIBLE con funcionalidad completa
+ */
+function updateProfileButtonVisibility() {
+    const profileBtn = document.getElementById('profileBtn');
+    if (!profileBtn) return;
+
+    const loginScreen = document.getElementById('login-screen');
+    const registerScreen = document.getElementById('register-screen');
+
+    // Verificar si estamos en pantallas de login o registro
+    const inLoginScreen = loginScreen && loginScreen.style.display !== 'none';
+    const inRegisterScreen = registerScreen && registerScreen.style.display !== 'none';
+
+    if (inLoginScreen || inRegisterScreen) {
+        // Ocultar botón en pantallas de inicio/registro
+        profileBtn.style.display = 'none';
+        console.log('[Profile Button] Oculto en pantalla de login/registro');
+    } else if (currentUserId) {
+        // Mostrar botón cuando hay usuario logueado
+        profileBtn.style.display = 'flex';
+        console.log('[Profile Button] Visible para usuario logueado');
+    } else {
+        // En cualquier otro caso sin usuario, ocultar
+        profileBtn.style.display = 'none';
+    }
+}
+
+    // ========================================
 // FUNCIONES TOGGLE PARA BOTONES DE NAVEGACIÓN
 // ========================================
 /*
@@ -2044,31 +2076,35 @@ function closeAllPanels() {
 }
 
 // ========================================
-// ACTUALIZAR FUNCIÓN showChatInterface()
+// ✅ FUNCIÓN RESTAURADA: showChatInterface()
 // ========================================
 /*
    Mantenemos showChatInterface() para compatibilidad con el código existente
-   (login, registro, etc.), pero ahora SOLO muestra la barra de navegación
-   y NO abre el chat automáticamente.
+   (login, registro, etc.)
+   
+   CAMBIO: Ahora también actualiza la visibilidad del botón de perfil
 */
 function showChatInterface() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('register-screen').style.display = 'none';
-    // NO mostramos el chat automáticamente, solo la barra de navegación
+    // Mostrar la barra de navegación
     document.getElementById('nav-bar').style.display = 'block';
     
     // Cerrar panel de usuarios
     const usersPanel = document.getElementById('users-panel');
     if (usersPanel) usersPanel.classList.add('hidden');
     
-    //Mostrar ventana de chat por defecto
+    // Mostrar ventana de chat por defecto
     const chatScreen = document.getElementById('chat-screen');
     if (chatScreen) {
         chatScreen.style.display = 'flex';
         console.log('[showChatInterface] Chat mostrado por defecto después del registro/login');
     }
     
-    console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
+    // ✅ AÑADIDO: Actualizar visibilidad del botón de perfil
+    updateProfileButtonVisibility();
+    
+    console.log('[showChatInterface] Interfaz de navegación mostrada');
 }
 
 //Exportar funciones para pruebas unitarias
