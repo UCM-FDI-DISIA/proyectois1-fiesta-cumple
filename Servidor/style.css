@@ -797,18 +797,16 @@ html, body {
 
 #input-area #open-games-menu-btn {
     margin-right: 10px;
-    font-size: 30px;
+    font-size: 25px;
     padding-top: 1px;
-    padding-bottom: 11px;
-    padding-right: 5px;
-    padding-left: 5px;
+    padding-bottom: 8px;
+    padding-right: 0px;
+    padding-left: 1px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     height: 44px;
     min-width: 44px;
-    padding-left: 12px;
-    padding-right: 12px;
 }
 
 .games-dropdown {
@@ -819,7 +817,8 @@ html, body {
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    min-width: 220px;
+    width: 220px;
+    max-width: 90vw;
     z-index: 1000;
     overflow: hidden;
 }
@@ -828,32 +827,45 @@ html, body {
     display: block;
 }
 
-.game-option {
-    display: block;
+#games-dropdown .game-option {
+    display: flex; /* Permite separar emoji y texto */
+    align-items: center; /* Centra verticalmente */
+    gap: 10px; /* Espacio entre emoji y texto */
     width: 100%;
-    padding: 12px 16px;
+    padding: 14px 20px; /* Mayor padding horizontal */
     background: white;
     border: none;
     border-bottom: 1px solid #f0f0f0;
     text-align: left;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px; /* Ligeramente más grande */
     font-weight: 600;
     color: #333;
-    transition: background 0.2s;
+    transition: all 0.25s ease; /* Transición suavizada */
+    border-radius: 0; /* Reset para evitar conflictos */
+    box-sizing: border-box;
+    margin-left: 0;
 }
 
-.game-option:last-child {
-    border-bottom: none;
-}
+    #games-dropdown .game-option:first-child {
+        border-radius: 10px 10px 0 0;
+    }
 
-.game-option:hover {
-    background: #fff7f2;
-}
+    #games-dropdown .game-option:last-child {
+        border-bottom: none;
+        border-radius: 0 0 10px 10px;
+    }
 
-.game-option:active {
-    background: #ffe8dc;
-}
+    #games-dropdown .game-option:hover {
+        background: linear-gradient(135deg, #fff7f2 0%, #ffe8dc 100%); /* Degradado suave */
+        transform: translateX(4px); /* Desplazamiento sutil a la derecha */
+        box-shadow: inset 3px 0 0 0 #FF9F7A; /* Barra lateral izquierda en hover */
+    }
+
+    #games-dropdown .game-option:active {
+        background: #ffe8dc;
+        transform: translateX(2px) scale(0.98); /* Efecto de "presión" */
+    }
 
 /* ========================================
    BOTÓN FLOTANTE DE CHAT
