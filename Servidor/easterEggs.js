@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // SISTEMA DE EASTER EGGS PARA VENERIS
 // ============================================
 // Este archivo gestiona los easter eggs ocultos en la aplicación
@@ -52,13 +52,13 @@ function isTypingInInputField(e) {
 }
 
 /**
- * Verifica si el usuario está en la pantalla de login/inicio
- * @returns {boolean} - true si la pantalla de login está visible
+ * Verifica si el usuario está en la pantalla de registro
+ * @returns {boolean} - true si la pantalla de registro está visible
  */
-function isInLoginScreen() {
-    const loginScreen = document.getElementById('login-screen');
+function isInRegisterScreen() {
+    const registerScreen = document.getElementById('register-screen');
     // Comprobamos que existe y que está visible (display no es 'none')
-    return loginScreen && loginScreen.style.display !== 'none';
+    return registerScreen && registerScreen.style.display !== 'none';
 }
 
 // ============================================
@@ -172,20 +172,20 @@ if (logo) {
 // ============================================
 // EASTER EGG 3: PALABRAS SECRETAS
 // ============================================
-// Escribir "cupido", "venus" o "amor" en la pantalla de LOGIN/INICIO para activar
-// CAMBIO IMPORTANTE: Ahora funciona en la pantalla de LOGIN (no en registro)
-// Solo se activa cuando el usuario está en la pantalla de login
-// y NO está escribiendo dentro del campo de nombre de usuario
+// Escribir "cupido", "venus" o "amor" en la pantalla de REGISTRO para activar
+// CORRECCIÓN: Solo se activa cuando el usuario está en la pantalla de registro
+// y NO está escribiendo dentro de un campo de entrada
 
+// CAMBIO IMPORTANTE: Usar 'keydown' en lugar de 'keypress' (más moderno y confiable)
 document.addEventListener('keydown', function(e) {
-    // VALIDACIÓN 1: Verificar que estamos en la pantalla de login/inicio
-    if (!isInLoginScreen()) {
-        return; // Si no estamos en login, salir
+    // VALIDACIÓN 1: Verificar que estamos en la pantalla de registro
+    if (!isInRegisterScreen()) {
+        return; // Si no estamos en registro, salir
     }
     
     // VALIDACIÓN 2: Verificar que NO estamos escribiendo en un input
     if (isTypingInInputField(e)) {
-        return; // Si estamos en un input (como el campo de username), salir
+        return; // Si estamos en un input, salir
     }
     
     // VALIDACIÓN 3: Ignorar teclas especiales (flechas, ctrl, alt, etc.)
@@ -438,4 +438,4 @@ window.cleanupEasterEggs = cleanupEasterEggs;
 
 console.log('%c🏹 Pista de Cupido 🏹', 'color: #FF7A5A; font-size: 20px; font-weight: bold;');
 console.log('%cLos secretos de Veneris esperan ser descubiertos...', 'color: #FF9F7A; font-size: 14px;');
-console.log('%cIntenta: Código Konami, triple-click en el logo, escribe "cupido", "venus" o "amor" (en pantalla inicio), 5 clicks en el título, Alt+V durante 3s', 'color: #999; font-size: 12px; font-style: italic;');
+console.log('%cIntenta: Código Konami, triple-click en el logo, escribe "cupido", "venus" o "amor" (en registro), 5 clicks en el título, Alt+V durante 3s', 'color: #999; font-size: 12px; font-style: italic;');
