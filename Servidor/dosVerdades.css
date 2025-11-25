@@ -1,0 +1,98 @@
+/* Estilos para Dos Verdades y Una Mentira */
+.dv-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 1200;
+}
+
+.dv-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+}
+
+.dv-dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    color: #222;
+    padding: 18px;
+    border-radius: 8px;
+    width: 360px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+}
+
+.dv-dialog h3 { margin: 0 0 8px 0; }
+.dv-dialog p { margin: 0 0 12px 0; color: #444; }
+
+.dv-inputs label { display:block; margin-bottom:8px; }
+.dv-inputs input[type="text"] { width:100%; padding:12px; border:1px solid #e9e9e9; border-radius:12px; background:#fff; font-size:14px; color:#222; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+.dv-inputs input[type="text"]::placeholder { color:#999; }
+
+.dv-choose-lie { margin: 10px 0; display:flex; gap:8px; }
+.dv-choose-lie label { font-size:14px; }
+
+/* Make the DosVerdades button match the open-game button size & style */
+#input-area #open-dosverdades-btn {
+    margin-right: 10px;
+    font-size: 30px;
+    padding-top: 1px;
+    padding-bottom: 11px;
+    padding-right: 5px;
+    padding-left: 5px;
+    background-color: #FF9F7A; /* match site accent */
+    color: #fff;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#input-area #open-dosverdades-btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+#input-area #open-dosverdades-btn:hover:not(:disabled) { filter: brightness(0.95); }
+
+.dv-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.dv-actions button { padding:10px 14px; border-radius:12px; border: none; cursor:pointer; font-weight:600; }
+#dv-send-btn { background: #FF9F7A; color: #fff; }
+#dv-cancel-btn { background: #f0f0f0; color:#333; }
+
+.dv-error { color: #b00020; margin-top:8px; font-size:13px; }
+
+/* Mensajes en el chat */
+
+.dosverdades-message .dv-phrases { margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+.dosverdades-message .dv-phrase { background:#fff; padding:10px; border-radius:12px; border:1px solid #f0f0f0; box-shadow: 0 2px 6px rgba(0,0,0,0.03); color: #000; }
+.dosverdades-message .dv-invite { margin-top:6px; }
+
+.dosverdades-message .dv-phrases .dv-choose { display:block; width:100%; text-align:left; padding:10px; background:#fff; border:1px solid #e6e6e6; border-radius:12px; cursor:pointer; font-weight:600; color: #000; }
+.dosverdades-message .dv-phrases .dv-choose:hover { background: #fff7f2; }
+
+/* Highlight correct / wrong answers */
+.dv-correct { background: #e9fff0 !important; border-color: #2ecc71 !important; color: #046b2f !important; }
+.dv-wrong { background: #fff0f0 !important; border-color: #e74c3c !important; color: #7a1d1d !important; }
+
+/* Center emoji and ensure consistent size */
+#input-area #open-dosverdades-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-width: 44px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+#input-area #open-dosverdades-btn svg, #input-area #open-dosverdades-btn img { width:22px; height:22px; }
+
+.dv-summary { font-weight:600; margin-top:6px; }
+
+/* Small responsive */
+@media (max-width:420px) {
+    .dv-dialog { width: 92%; }
+}
