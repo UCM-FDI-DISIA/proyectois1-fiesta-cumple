@@ -1592,13 +1592,11 @@ function openChat(chatId, partnerId, partnerName) {
     
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
-    const playBtn = document.getElementById('open-game-btn');
-    const dvBtn = document.getElementById('open-dosverdades-btn');
+    const gamesBtn = document.getElementById('open-games-menu-btn');
     messageInput.disabled = false;
     messageInput.placeholder = 'Escribe tu mensaje aquí...';
     sendBtn.disabled = false;
-    playBtn.disabled = false;
-    if (dvBtn) dvBtn.disabled = false;
+    if (gamesBtn) gamesBtn.disabled = false;
     
     const messagesDiv = document.getElementById('messages');
     messagesDiv.classList.remove('empty-state');
@@ -1673,6 +1671,8 @@ function closeCurrentChat() {
     console.log('Chat cerrado');
     const dvBtn = document.getElementById('open-dosverdades-btn');
     if (dvBtn) dvBtn.disabled = true;
+    const gamesBtn = document.getElementById('open-games-menu-btn');
+    if (gamesBtn) gamesBtn.disabled = true;
 }
 
 // ========================================
@@ -1912,8 +1912,8 @@ function showEmptyState() {
     messageInput.placeholder = 'Selecciona un chat para empezar';
     sendBtn.disabled = true;
 
-    const playBtn = document.getElementById('open-game-btn');
-    playBtn.disabled = true;
+    const gamesBtn = document.getElementById('open-games-menu-btn');
+    if (gamesBtn) gamesBtn.disabled = true;
 }
 
 // ========================================

@@ -6,8 +6,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         openBtn = document.getElementById('open-dosverdades-btn');
-        if (!openBtn) return;
-        openBtn.addEventListener('click', openDosVerdadesModal);
+        // Solo añadir listener si existe el botón antiguo (compatibilidad)
+        if (openBtn) {
+            openBtn.addEventListener('click', openDosVerdadesModal);
+        }
     });
 
     function createModalIfNeeded() {
@@ -272,6 +274,7 @@
         return id;
     }
 
+<<<<<<< HEAD
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = {
             sendDosVerdades, 
@@ -279,5 +282,11 @@
             submitGuess
         };
     }
+=======
+    // Exponer función para el menú de juegos
+    window.triggerDosVerdades = function() {
+        openDosVerdadesModal();
+    };
+>>>>>>> d8c3ac2147f52084c11954924204f819f620aa67
 
 })();

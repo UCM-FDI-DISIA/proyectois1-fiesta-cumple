@@ -146,8 +146,13 @@
 
             <!-- ÁREA DE ENTRADA DE MENSAJES -->
             <div id="input-area">
-                <button id="open-game-btn" title="Jugar Cuatro en Raya" disabled>🎮</button>
-                <button id="open-dosverdades-btn" title="Dos Verdades y Una Mentira" disabled>🤥</button>
+                <div class="games-menu-container">
+                    <button id="open-games-menu-btn" title="Juegos" disabled>🎮</button>
+                    <div id="games-dropdown" class="games-dropdown">
+                        <button class="game-option" data-game="cuatroEnRaya">🎮 Cuatro en Raya</button>
+                        <button class="game-option" data-game="dosVerdades">🤥 Dos Verdades y Una Mentira</button>
+                    </div>
+                </div>
                 <input type="text" id="message-input" placeholder="Selecciona un chat para empezar" disabled>
                 <button id="send-btn" onclick="sendMessage()" disabled>Enviar</button>
             </div>
@@ -170,6 +175,10 @@
     <script src="listausuarios.js"></script>
     <script src="cuatroEnRayaScript.js"></script>
     <script src="dosVerdades.js"></script>
+<<<<<<< HEAD
+=======
+    <script src="gamesMenu.js"></script>
+>>>>>>> d8c3ac2147f52084c11954924204f819f620aa67
 
     <!-- Easter Eggs Script -->
     <script>

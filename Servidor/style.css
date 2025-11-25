@@ -787,14 +787,74 @@ html, body {
         opacity: 0.6;
     }
 
-#input-area #open-game-btn {
+/* ========================================
+   MENÚ DE JUEGOS UNIFICADO
+   ======================================== */
+.games-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+#input-area #open-games-menu-btn {
     margin-right: 10px;
     font-size: 30px;
     padding-top: 1px;
     padding-bottom: 11px;
     padding-right: 5px;
     padding-left: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-width: 44px;
+    padding-left: 12px;
+    padding-right: 12px;
 }
+
+.games-dropdown {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 220px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.games-dropdown.show {
+    display: block;
+}
+
+.game-option {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: white;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.game-option:last-child {
+    border-bottom: none;
+}
+
+.game-option:hover {
+    background: #fff7f2;
+}
+
+.game-option:active {
+    background: #ffe8dc;
+}
+
 /* ========================================
    BOTÓN FLOTANTE DE CHAT
    ======================================== */
