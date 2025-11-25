@@ -2057,8 +2057,16 @@ function showChatInterface() {
     // NO mostramos el chat automáticamente, solo la barra de navegación
     document.getElementById('nav-bar').style.display = 'block';
     
-    // Asegurar que todo esté cerrado inicialmente
-    closeAllPanels();
+    // Cerrar panel de usuarios
+    const usersPanel = document.getElementById('users-panel');
+    if (usersPanel) usersPanel.classList.add('hidden');
+    
+    //Mostrar ventana de chat por defecto
+    const chatScreen = document.getElementById('chat-screen');
+    if (chatScreen) {
+        chatScreen.style.display = 'flex';
+        console.log('[showChatInterface] Chat mostrado por defecto después del registro/login');
+    }
     
     console.log('[showChatInterface] Interfaz de navegación mostrada (chat y panel cerrados)');
 }
