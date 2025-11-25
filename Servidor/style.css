@@ -9,12 +9,16 @@
 
 html, body {
     font-family: Arial, sans-serif;
-     /* Fondo radial: naranja claro en el centro que difumina a blanco en los bordes.
-         Aumentamos la zona naranja para que no pase a blanco tan pronto. */
+    /* Fondo radial: naranja claro en el centro que difumina a blanco en los bordes.
+       Aumentamos la zona naranja para que no pase a blanco tan pronto. */
     background: radial-gradient(circle at center, #ffd8a8 0%, #ffe6cc 60%, #fff5eb 85%, #ffffff 100%);
-    overflow: hidden;
-    height: 100%;
+    /* Permitir desplazamiento vertical cuando el contenido excede la ventana.
+       Usamos min-height para dejar que el body crezca si es necesario. */
+    min-height: 100%;
+    height: auto;
     width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
     color: #000; /* Texto en negro por defecto */
 }
 
