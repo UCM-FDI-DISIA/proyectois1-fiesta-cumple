@@ -14,6 +14,9 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 
 ## Vista previa
 
+<a href="https://veneriswebcitas.web.app/">
+   <img src="Preview.png">
+</a>
 
 ---
 
@@ -47,10 +50,8 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
 > La aplicación se ejecuta directamente desde un archivo **HTML** local.  
 > Asegúrate de mantenerlo en su ubicación original para evitar errores al abrir la web.
 
-## Tests
-
-
-
+> [!IMPORTANT]
+> También puesdes acceder a la página web desde tu navegador: "https://veneriswebcitas.web.app/"
 
 ## Tecnologías utilizadas
 
