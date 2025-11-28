@@ -158,14 +158,17 @@
 
         gameContainer = document.getElementById('game-container');
         gameBoardElement = document.getElementById('game-board-online');
-        openGameBtn = document.getElementById('open-game-btn');
+        openGameBtn = document.getElementById('open-game-btn'); // Legacy support
 
-        if (!gameContainer || !gameBoardElement || !openGameBtn) {
+        if (!gameContainer || !gameBoardElement) {
             console.error('[4 en Raya Online] Elementos necesarios no encontrados');
             return;
         }
 
-        openGameBtn.addEventListener('click', handleGameButtonClick);
+        // Solo añadir listener si existe el botón antiguo (compatibilidad)
+        if (openGameBtn) {
+            openGameBtn.addEventListener('click', handleGameButtonClick);
+        }
 
         const closeBtn = document.getElementById('close-game-online-btn');
         if (closeBtn) {
@@ -837,6 +840,12 @@
                 rejectBtn.addEventListener('click', () => handleRejectInvitation(messageData.gameId, messageDocId));
             }
         }
+    };
+
+    // Exponer función para el menú de juegos
+    window.triggerCuatroEnRaya = function() {
+        console.log('[4 en Raya] triggerCuatroEnRaya llamado');
+        handleGameButtonClick();
     };
 
     if (typeof module !== 'undefined' && module.exports) {

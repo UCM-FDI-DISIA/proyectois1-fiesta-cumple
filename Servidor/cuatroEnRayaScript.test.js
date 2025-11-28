@@ -1,8 +1,5 @@
 /*
 TESTS PARA cuatroEnRayaScript.js
-
-Funciones testeadas:
-
 */
 
 //Importamos las funciones necesarias
