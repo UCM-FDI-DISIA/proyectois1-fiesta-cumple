@@ -768,6 +768,8 @@ html.session-restoring #login-screen { display: none !important; }
     padding: 20px;
     background-color: #f0f2f5;
 }
+/* Permitir posicionar elementos en overlay sobre los mensajes */
+#messages { position: relative; }
 
     /* Estado vacío: cuando no hay chat seleccionado */
     #messages.empty-state {
@@ -1384,4 +1386,46 @@ html.session-restoring #login-screen { display: none !important; }
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+/* Tarjeta de bloqueo (overlay) - mantiene la paleta y permite ver mensajes de fondo */
+.blocked-banner {
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    border-radius: 14px;
+    padding: 16px 18px;
+    z-index: 1600;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.blocked-banner .blocked-text {
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Botón de borrar chat dentro de la tarjeta: usar la paleta principal pero en tamaño reducido */
+.blocked-banner .btn-primary {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    min-width: auto;
+    box-shadow: 0 6px 16px rgba(255,122,90,0.22);
+}
+
+/* Variante más compacta para móviles */
+@media (max-width: 768px) {
+    .blocked-banner { top: 18%; padding: 12px; }
+    .blocked-banner .blocked-text { font-size: 14px; }
 }

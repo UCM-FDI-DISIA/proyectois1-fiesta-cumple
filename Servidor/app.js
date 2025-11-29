@@ -59,6 +59,8 @@ let chatsListener = null;        // Listener de la lista de chats (para evitar d
 // Chats ocultados localmente (optimistic UI). Evita que el snapshot
 // vuelva a renderizar un chat inmediatamente después de ocultarlo.
 let locallyHiddenChats = new Set();
+// Bandera para saber si el partner nos ha bloqueado (evitar enviar mensajes)
+let partnerHasBlockedMe = false;
 
 // ========================================
 // VERSIÓN ACTUAL: INICIALIZACIÓN CON AUTENTICACIÓN
@@ -1570,6 +1572,21 @@ async function renderChatItem(chatId, chatData) {
     // Determinar el ID del otro usuario
     const otherUserId = chatData.participants.find(id => id !== currentUserId);
 
+    // Si yo bloqueé al otro usuario, no mostrar este chat
+    try {
+        if (currentUserId) {
+            const meDoc = await db.collection('users').doc(currentUserId).get();
+            if (meDoc.exists) {
+                const meData = meDoc.data() || {};
+                if (Array.isArray(meData.blockedUsers) && meData.blockedUsers.includes(otherUserId)) {
+                    return null;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('renderChatItem: no se pudo comprobar blockedUsers del currentUser:', e);
+    }
+
     // Comprobar si el usuario actual ocultó este chat y cuándo
     const hiddenAtMap = chatData && chatData.hiddenAt ? chatData.hiddenAt : null;
     const hiddenAtForMe = hiddenAtMap && hiddenAtMap[currentUserId] ? hiddenAtMap[currentUserId] : null;
@@ -1670,10 +1687,21 @@ async function renderChatItem(chatId, chatData) {
             const blockOpt = document.createElement('div');
             blockOpt.className = 'chat-item-menu-option chat-item-menu-option-block';
             blockOpt.textContent = 'Bloquear usuario';
-            blockOpt.addEventListener('click', (e) => {
+            blockOpt.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                // Placeholder: no implementado aún
-                alert('Funcionalidad "Bloquear usuario" no implementada todavía.');
+                const ok = confirm('¿Quieres bloquear a "' + otherUserName + '"? No podrá enviarte mensajes y dejarás de ver su chat.');
+                if (!ok) {
+                    const existing = chatItem.querySelector('.chat-item-menu');
+                    if (existing) existing.remove();
+                    return;
+                }
+                try {
+                    await blockUser(otherUserId, chatId);
+                    alert('Usuario bloqueado correctamente');
+                } catch (err) {
+                    console.error('Error bloqueando usuario:', err);
+                    alert('No se pudo bloquear al usuario: ' + (err && err.message ? err.message : String(err)));
+                }
                 // Cerrar el menú
                 const existing = chatItem.querySelector('.chat-item-menu');
                 if (existing) existing.remove();
@@ -1806,7 +1834,7 @@ async function addNewChat() {
    
    Abre una conversación específica en la ventana de mensajes.
 */
-function openChat(chatId, partnerId, partnerName) {
+async function openChat(chatId, partnerId, partnerName) {
     console.log('\n🟢 ═══════════════════════════════════════════');
     console.log('   ABRIENDO CHAT');
     console.log('   chatId:', chatId);
@@ -1831,6 +1859,54 @@ function openChat(chatId, partnerId, partnerName) {
     chatTitle.textContent = partnerName || partnerId;
     
     updateChatAvatar(partnerId);
+    // Comprobar si el partner nos ha bloqueado
+    partnerHasBlockedMe = false;
+    try {
+        const partnerDoc = await db.collection('users').doc(partnerId).get();
+        if (partnerDoc.exists) {
+            const pData = partnerDoc.data() || {};
+            if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
+                partnerHasBlockedMe = true;
+                // Mostrar mensaje de bloqueo y permitir borrar el chat
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.classList.remove('empty-state');
+                messagesDiv.innerHTML = '';
+
+                const banner = document.createElement('div');
+                banner.className = 'blocked-banner';
+                banner.innerHTML = '<div class="blocked-text">Este usuario te ha bloqueado.</div>';
+
+                const delBtn = document.createElement('button');
+                delBtn.textContent = 'Borrar chat';
+                // Aplicar estilo consistente con la web
+                delBtn.className = 'btn-primary';
+                delBtn.addEventListener('click', async () => {
+                    const ok = confirm('¿Deseas borrar este chat para ti?');
+                    if (!ok) return;
+                    try { await deleteChatForMe(chatId); } catch (e) { console.warn('Error borrando chat desde banner:', e); }
+                });
+
+                banner.appendChild(delBtn);
+                messagesDiv.appendChild(banner);
+
+                // Deshabilitar envío
+                const messageInput = document.getElementById('message-input');
+                const sendBtn = document.getElementById('send-btn');
+                if (messageInput) {
+                    messageInput.disabled = true;
+                    messageInput.placeholder = 'No puedes enviar mensajes a este usuario.';
+                }
+                if (sendBtn) sendBtn.disabled = true;
+            }
+        }
+    } catch (err) {
+        console.warn('openChat: no se pudo comprobar si el partner bloqueó:', err);
+    }
+    // Si el partner nos ha bloqueado, no habilitamos el input ni cargamos mensajes
+    if (partnerHasBlockedMe) {
+        updateChatListSelection(chatId);
+        return;
+    }
     
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
@@ -1967,6 +2043,28 @@ async function sendMessage() {
     if (message === '') {
         alert('Escribe algo antes de enviar');
         return;
+    }
+
+    // Verificar en tiempo real si el partner nos ha bloqueado
+    if (partnerHasBlockedMe) {
+        alert('No puedes enviar mensajes: este usuario te ha bloqueado.');
+        return;
+    }
+    try {
+        // Comprobar en servidor por si cambió el estado
+        if (currentChatPartner) {
+            const partnerDoc = await db.collection('users').doc(currentChatPartner).get();
+            if (partnerDoc.exists) {
+                const pData = partnerDoc.data() || {};
+                if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
+                    partnerHasBlockedMe = true;
+                    alert('No puedes enviar mensajes: este usuario te ha bloqueado.');
+                    return;
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('sendMessage: error comprobando bloqueo del partner:', err);
     }
     
     try {
@@ -2415,6 +2513,27 @@ async function deleteChatForMe(chatId) {
     } catch (err) {
         console.error('[deleteChatForMe] Error al ocultar chat:', err);
         alert('No se pudo eliminar el chat: ' + (err && err.message ? err.message : String(err)));
+    }
+}
+
+// ========================================
+// FUNCIÓN: BLOQUEAR USUARIO
+// ========================================
+async function blockUser(blockedUserId, chatId) {
+    if (!currentUserId) throw new Error('Usuario no autenticado');
+    if (!blockedUserId) throw new Error('ID de usuario a bloquear inválido');
+
+    try {
+        // Añadir a la lista blockedUsers del usuario actual
+        await db.collection('users').doc(currentUserId).update({
+            blockedUsers: firebase.firestore.FieldValue.arrayUnion(blockedUserId)
+        });
+
+        // Ocultar el chat para el bloqueador (optimistic)
+        try { await deleteChatForMe(chatId); } catch(e) { console.warn('deleteChatForMe falló tras block:', e); }
+    } catch (err) {
+        console.error('[blockUser] Error al bloquear usuario:', err);
+        throw err;
     }
 }
 

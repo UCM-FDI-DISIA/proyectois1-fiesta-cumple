@@ -138,6 +138,7 @@
                 const tokens = ['no especificado', 'no especificada', 'sin especificar', 'n/a', 'none', 'unknown', 'unspecified', 'no definido', 'no definida'];
                 return tokens.includes(cleaned) || cleaned === '';
             };
+            let myBlockedUsers = [];
             try {
                 if (typeof currentUserId !== 'undefined' && currentUserId) {
                     // Leer perfil del usuario actual para conocer su preferencia
@@ -147,6 +148,7 @@
                             const meData = meDoc.data() || {};
                             myPreference = singular(stripPunct(normalize(meData.preference || meData.interests || '')));
                             myGender = singular(stripPunct(normalize(meData.gender || meData.genero || '')));
+                            myBlockedUsers = Array.isArray(meData.blockedUsers) ? meData.blockedUsers : [];
                         }
                     } catch (prefErr) {
                         console.warn('[listausuarios] No se pudo leer la preferencia del usuario actual:', prefErr);
@@ -183,13 +185,18 @@
             }
 
             try {
-                snapshot.forEach(doc => {
+                    snapshot.forEach(doc => {
                     try {
                         // Excluir el propio perfil
                         if (typeof currentUserId !== 'undefined' && currentUserId && doc.id === currentUserId) return;
 
                         // Excluir perfiles con los que ya existe un chat
                         if (openChatPartners.has(doc.id)) return;
+
+                        // Excluir perfiles bloqueados por mi o que me hayan bloqueado
+                        const docData = doc.data() || {};
+                        if (Array.isArray(myBlockedUsers) && myBlockedUsers.includes(doc.id)) return;
+                        if (Array.isArray(docData.blockedUsers) && docData.blockedUsers.includes(currentUserId)) return;
 
                         const data = doc.data() || {};
 
