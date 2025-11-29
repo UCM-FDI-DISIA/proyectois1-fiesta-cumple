@@ -2093,9 +2093,9 @@ async function openChat(chatId, partnerId, partnerName) {
                 // Aplicar estilo consistente con la web
                 delBtn.className = 'btn-primary';
                 delBtn.addEventListener('click', async () => {
-                    const ok = confirm('Ocultar chat solo para ti. Si el otro usuario te desbloquea, el chat volverá mostrando solo los mensajes posteriores a esta acción. ¿Continuar?');
+                    const ok = confirm('Ocultar chat solo para ti hasta que el usuario te desbloquee. Al desbloquear se restaurará el historial anterior al bloqueo. ¿Continuar?');
                     if (!ok) return;
-                    try { await deleteChatForMe(chatId); } catch (e) { console.warn('Error ocultando chat desde banner:', e); }
+                    try { await deleteChatForMe(chatId, false); } catch (e) { console.warn('Error ocultando chat desde banner:', e); }
                 });
 
                 banner.appendChild(delBtn);
