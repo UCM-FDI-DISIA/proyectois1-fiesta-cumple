@@ -240,6 +240,9 @@
                     img.src = u.raw.photoURL || u.raw.photo;
                     img.alt = (u.display || 'Usuario') + ' - foto';
                     img.loading = 'lazy';
+                    img.decoding = 'async';
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
                     photoSection.appendChild(img);
                 } else {
                     // Fallback con gradiente
