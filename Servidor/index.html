@@ -8,6 +8,23 @@
     <link rel="stylesheet" href="profile-styles.css">
     <link rel="stylesheet" href="cuatroEnRaya.css">
     <link rel="stylesheet" href="dosVerdades.css">
+    <!-- Script temprano: evita que la pantalla de login parpadee si hay sesión guardada -->
+    <script>
+        try {
+            var _saved = null;
+            try { _saved = sessionStorage.getItem('chat_currentUserId'); } catch(e) { _saved = null; }
+            // Fallback: si sessionStorage no está disponible, comprobar localStorage (compatibilidad)
+            if (!_saved) {
+                try { _saved = localStorage.getItem('chat_currentUserId'); } catch(e) { /* ignore */ }
+            }
+            if (_saved) {
+                // Marcar el documento como en proceso de restauración para ocultar el login antes de pintar
+                document.documentElement.classList.add('session-restoring');
+            }
+        } catch (e) {
+            /* No crítico si falla */
+        }
+    </script>
 </head>
 <body>
     <!-- BARRA DE NAVEGACIÓN -->

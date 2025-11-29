@@ -56,6 +56,9 @@ let currentChatId = null;        // ID del chat actualmente abierto
 let currentChatPartner = null;   // Nombre del usuario con quien se está chateando
 let activeChatListener = null;   // Listener activo de mensajes (para poder desuscribirse)
 let chatsListener = null;        // Listener de la lista de chats (para evitar duplicados)       
+// Chats ocultados localmente (optimistic UI). Evita que el snapshot
+// vuelva a renderizar un chat inmediatamente después de ocultarlo.
+let locallyHiddenChats = new Set();
 
 // ========================================
 // VERSIÓN ACTUAL: INICIALIZACIÓN CON AUTENTICACIÓN
@@ -168,6 +171,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Mostrar un spinner centralizado mientras se restaura la sesión
+function showSessionSpinner() {
+    // No crear doble overlay
+    if (document.getElementById('session-spinner-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'session-spinner-overlay';
+    overlay.className = 'session-spinner-overlay';
+
+    const holder = document.createElement('div');
+    holder.style.display = 'flex';
+    holder.style.flexDirection = 'column';
+    holder.style.alignItems = 'center';
+
+    const spinner = document.createElement('div');
+    spinner.className = 'session-spinner';
+
+    const txt = document.createElement('div');
+    txt.className = 'session-spinner-text';
+    txt.textContent = 'Restaurando sesión...';
+
+    holder.appendChild(spinner);
+    holder.appendChild(txt);
+    overlay.appendChild(holder);
+
+    document.body.appendChild(overlay);
+}
+
+function hideSessionSpinner() {
+    const overlay = document.getElementById('session-spinner-overlay');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    // Limpiar la clase que ocultaba el login antes de pintar
+    try { document.documentElement.classList.remove('session-restoring'); } catch(e) { /* ignore */ }
+}
 
 // Alterna la apertura del modal de login/registro cuando se pulsa el botón de perfil
 function toggleAuthMenu() {
@@ -1038,6 +1075,10 @@ async function completeRegistration() {
         // Establecer ID de usuario
         currentUserId = user.uid;
         currentUserName = name.trim();
+        // Persistir sesión por pestaña (sessionStorage). Fallback a localStorage si no disponible.
+        try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) {
+            try { localStorage.setItem('chat_currentUserId', currentUserId); } catch(e2) { console.warn('No se pudo persistir sesión tras registro:', e2); }
+        }
 
         // ✅ NUEVA LÓGICA: Subir foto a ImgBB en vez de Firebase Storage
         let photoURL = '';
@@ -1247,6 +1288,8 @@ function logout() {
     showEmptyState();
     
     // Limpiar variables
+    // Limpiar persistencia de sesión (sessionStorage preferido, fallback a localStorage)
+    try { sessionStorage.removeItem('chat_currentUserId'); } catch(e) { try { localStorage.removeItem('chat_currentUserId'); } catch(e2) { /* ignore */ } }
     currentUserId = '';
     currentUserName = '';
     currentUser = null;
@@ -1387,8 +1430,25 @@ function loadUserChats() {
  * evita duplicados y condiciones de carrera cuando hay operaciones async.
  */
 async function renderChatItem(chatId, chatData) {
+    // Si este chat fue ocultado optimísticamente por el usuario, no lo renderizamos
+    if (typeof locallyHiddenChats !== 'undefined' && locallyHiddenChats.has(chatId)) {
+        return null;
+    }
     // Determinar el ID del otro usuario
     const otherUserId = chatData.participants.find(id => id !== currentUserId);
+
+    // Comprobar si el usuario actual ocultó este chat y cuándo
+    const hiddenAtMap = chatData && chatData.hiddenAt ? chatData.hiddenAt : null;
+    const hiddenAtForMe = hiddenAtMap && hiddenAtMap[currentUserId] ? hiddenAtMap[currentUserId] : null;
+
+    // Si el usuario lo ocultó y no hay mensajes posteriores al hiddenAt, no mostrar el chat
+    if (hiddenAtForMe) {
+        const lastMsg = chatData.lastMessageTime || chatData.lastMessageTime === 0 ? chatData.lastMessageTime : null;
+        // Si no hay lastMessageTime o el último mensaje es anterior o igual al hiddenAt, ocultar
+        if (!chatData.lastMessageTime || (chatData.lastMessageTime && chatData.lastMessageTime.toMillis() <= hiddenAtForMe.toMillis())) {
+            return null;
+        }
+    }
 
     // Obtener el nombre real del otro usuario
     let otherUserName = otherUserId;
@@ -1404,12 +1464,13 @@ async function renderChatItem(chatId, chatData) {
     // Contar mensajes no leídos
     let unreadCount = 0;
     try {
-        const messagesSnapshot = await db.collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .where('senderId', '!=', currentUserId)
-            .get();
-        
+        // Construir query de mensajes: si ocultó el chat, sólo contar mensajes posteriores al hiddenAt
+        let messagesQuery = db.collection('chats').doc(chatId).collection('messages').where('senderId', '!=', currentUserId);
+        if (hiddenAtForMe) {
+            messagesQuery = messagesQuery.where('timestamp', '>', hiddenAtForMe);
+        }
+        const messagesSnapshot = await messagesQuery.get();
+
         messagesSnapshot.forEach(doc => {
             const msg = doc.data();
             // Contar si no tiene campo readBy o si currentUserId no está en readBy
@@ -1443,6 +1504,59 @@ async function renderChatItem(chatId, chatData) {
     chatItem.addEventListener('click', () => {
         openChat(chatId, otherUserId, otherUserName);
     });
+
+    // Botón de menú (tres puntos verticales)
+    try {
+        const menuBtn = document.createElement('button');
+        menuBtn.className = 'chat-item-menu-btn';
+        menuBtn.title = 'Opciones';
+        menuBtn.innerHTML = '&#8942;'; // ⋮ vertical ellipsis
+        menuBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            // Toggle del menú simple
+            let existing = chatItem.querySelector('.chat-item-menu');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+
+            const menu = document.createElement('div');
+            menu.className = 'chat-item-menu';
+            const del = document.createElement('div');
+            del.className = 'chat-item-menu-option';
+            del.textContent = 'Eliminar chat';
+            del.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const ok = confirm('Eliminar chat solo para ti: los mensajes anteriores dejarán de ser visibles para ti. El otro usuario seguirá viendo el historial. ¿Continuar?');
+                if (!ok) return;
+                await deleteChatForMe(chatId);
+            });
+            menu.appendChild(del);
+
+            // Opción adicional: Bloquear usuario (por ahora no funcional)
+            const blockOpt = document.createElement('div');
+            blockOpt.className = 'chat-item-menu-option chat-item-menu-option-block';
+            blockOpt.textContent = 'Bloquear usuario';
+            blockOpt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Placeholder: no implementado aún
+                alert('Funcionalidad "Bloquear usuario" no implementada todavía.');
+                // Cerrar el menú
+                const existing = chatItem.querySelector('.chat-item-menu');
+                if (existing) existing.remove();
+            });
+            menu.appendChild(blockOpt);
+            chatItem.appendChild(menu);
+        });
+
+        // Insertar el botón al final del contenido
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'chat-item-menu-container';
+        btnContainer.appendChild(menuBtn);
+        chatItem.appendChild(btnContainer);
+    } catch (e) {
+        console.warn('No se pudo añadir el botón de menú al chat item:', e);
+    }
 
     return chatItem;
 }
@@ -1576,6 +1690,9 @@ function openChat(chatId, partnerId, partnerName) {
     
     currentChatId = chatId;
     currentChatPartner = partnerId;
+
+    // Nota: No desocultamos automáticamente el chat al abrirlo. El historial permanece oculto
+    // si lo eliminaste previamente; nuevos mensajes aparecerán según la lógica de `loadMessages`.
     
     const chatTitle = document.getElementById('chat-title');
     chatTitle.textContent = partnerName || partnerId;
@@ -1772,11 +1889,20 @@ function loadMessages(chatId) {
     }
     
     // Suscribirse a mensajes en tiempo real
-    activeChatListener = db.collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot(snapshot => {
+    (async function startListener() {
+        try {
+            const chatRef = db.collection('chats').doc(chatId);
+            const chatDoc = await chatRef.get();
+            const chatData = chatDoc.exists ? chatDoc.data() : {};
+            const hiddenAtMap = chatData && chatData.hiddenAt ? chatData.hiddenAt : null;
+            const hiddenAtForMe = hiddenAtMap && hiddenAtMap[currentUserId] ? hiddenAtMap[currentUserId] : null;
+
+            let query = chatRef.collection('messages').orderBy('timestamp', 'asc');
+            if (hiddenAtForMe) {
+                query = chatRef.collection('messages').where('timestamp', '>', hiddenAtForMe).orderBy('timestamp', 'asc');
+            }
+
+            activeChatListener = query.onSnapshot(snapshot => {
             messagesDiv.innerHTML = '';
             
             snapshot.forEach(doc => {
@@ -1858,9 +1984,13 @@ function loadMessages(chatId) {
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
             console.log(`Cargados ${snapshot.size} mensajes`);
-        }, error => {
-            console.error('Error al cargar mensajes:', error);
-        });
+            }, error => {
+                console.error('Error al cargar mensajes:', error);
+            });
+        } catch (err) {
+            console.error('[loadMessages] Error iniciando listener de mensajes:', err);
+        }
+    })();
 }
 
 // ========================================
@@ -2106,3 +2236,63 @@ if (typeof module !== 'undefined' && module.exports) {
         generateChatId
     };
 }
+
+// ========================================
+// FUNCIÓN: BORRAR CHAT SOLO PARA EL USUARIO
+// ========================================
+async function deleteChatForMe(chatId) {
+    try {
+        // Añadir a la caché local para evitar que el listener re-renderice el chat
+        try { locallyHiddenChats.add(chatId); } catch(e) { console.warn('No se pudo marcar localmente el chat:', e); }
+        if (typeof db === 'undefined' || !db) throw new Error('Firestore no disponible');
+        const chatRef = db.collection('chats').doc(chatId);
+
+        // Optimistic UI: eliminar el elemento de la lista lateral y cerrar el chat inmediatamente
+        const chatEl = document.querySelector(`[data-chat-id="${chatId}"]`);
+        if (chatEl && chatEl.parentNode) chatEl.parentNode.removeChild(chatEl);
+        if (currentChatId === chatId) {
+            closeCurrentChat();
+            showEmptyState();
+        }
+
+        // Añadir el usuario actual al array hiddenFor (ocultar solo para él)
+        // Y registrar la marca temporal hiddenAt.<userId> para que los mensajes previos no se muestren
+        const updateObj = {
+            hiddenFor: firebase.firestore.FieldValue.arrayUnion(currentUserId)
+        };
+        updateObj['hiddenAt.' + currentUserId] = firebase.firestore.FieldValue.serverTimestamp();
+
+        try {
+            await chatRef.update(updateObj);
+            console.log('[deleteChatForMe] Chat marcado como oculto para', currentUserId);
+        } catch (errUpdate) {
+            console.error('[deleteChatForMe] Error actualizando Firestore:', errUpdate);
+            alert('No se pudo completar la eliminación del chat en el servidor. Se recargará la lista de chats.');
+            // Revertir la marca local si la actualización falla
+            try { locallyHiddenChats.delete(chatId); } catch(e) { /* ignore */ }
+            // Intentar recargar la lista de chats para sincronizar el estado
+            if (typeof loadUserChats === 'function') {
+                try { loadUserChats(); } catch(e){ console.warn('Error recargando chats:', e); }
+            }
+            return;
+        }
+    } catch (err) {
+        console.error('[deleteChatForMe] Error al ocultar chat:', err);
+        alert('No se pudo eliminar el chat: ' + (err && err.message ? err.message : String(err)));
+    }
+}
+
+// Cerrar menú de opciones (⋮) si el usuario hace click fuera del menú o del botón
+document.addEventListener('click', (ev) => {
+    try {
+        // Si el click fue dentro de un menú o en un botón de menú, no cerrar
+        if (ev.target && ev.target.closest && (ev.target.closest('.chat-item-menu') || ev.target.closest('.chat-item-menu-btn'))) {
+            return;
+        }
+
+        // Cerrar todos los menús abiertos
+        document.querySelectorAll('.chat-item-menu').forEach(m => m.remove());
+    } catch (err) {
+        console.warn('[app.js] Error cerrando menús al click fuera:', err);
+    }
+});
