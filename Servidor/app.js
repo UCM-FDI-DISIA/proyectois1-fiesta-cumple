@@ -195,10 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserId = user.uid;
             // Persistir sesión en storage por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
             try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage en onAuthStateChanged:', e); }
-            loadUserProfile();
+            loadUserProfile(); // ya llama internamente a updateProfileButton
             loadUserChats();
-            showChatInterface();
+            showChatInterface(); // ahora también llama a updateProfileButton con reintentos
             updateProfileButtonVisibility();
+            // Reintento extra fuera de showChatInterface por seguridad
+            setTimeout(() => { try { updateProfileButton(); } catch(_) {} }, 1500);
             if (typeof window.showGameButton === 'function') window.showGameButton();
         } else {
             showLoginForm();
@@ -884,56 +886,53 @@ async function saveProfileChanges() {
 // Actualiza el botón de perfil: si hay foto la muestra, si no muestra la silueta
 async function updateProfileButton() {
     const btn = document.getElementById('profileBtn');
-    console.log('[updateProfileButton] Botón encontrado:', btn);
-    console.log('[updateProfileButton] currentUserId:', currentUserId);
     if (!btn) return;
+    console.log('[updateProfileButton] START user:', currentUserId);
 
-    // Si no hay usuario, mostrar SVG por defecto
+    // Caso sin usuario
     if (!currentUserId) {
-        // Asegurarse de que el SVG esté presente
-        const svg = document.getElementById('profileSvg');
-        if (!svg) {
-            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
-        }
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
         btn.title = 'Iniciar sesión / Crear cuenta';
         return;
     }
 
-    // Si hay usuario, intentar cargar foto desde Firestore
+    let data;
     try {
         const doc = await db.collection('users').doc(currentUserId).get();
-        if (doc.exists) {
-            const data = doc.data() || {};
-            const photoURL = data.photoURL;
-            console.log('[updateProfileButton] photoURL:', photoURL);
-            if (photoURL) {
-                btn.innerHTML = '';
-                const img = document.createElement('img');
-                img.src = photoURL;
-                img.alt = 'Foto de perfil';
-                img.style.display = 'block';
-                img.onerror = function() {
-                    console.warn('Imagen de perfil bloqueada en botón:', img.src);
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
-                };
-                img.onload = function() {
-                    console.log('[updateProfileButton] Imagen cargada exitosamente');
-                    console.log('[updateProfileButton] Dimensiones de la imagen:', img.width, 'x', img.height);
-                    console.log('[updateProfileButton] Botón innerHTML:', btn.innerHTML.substring(0, 100));
-                };
-                btn.appendChild(img);
-                console.log('[updateProfileButton] Imagen agregada al botón');
-                btn.title = data.userName ? (data.userName + '') : 'Mi perfil';
-                return;
-            }
-        }
-    } catch (err) {
-        console.warn('No se pudo cargar la foto de perfil:', err);
+        data = doc.exists ? (doc.data() || {}) : {};
+    } catch (e) {
+        console.warn('[updateProfileButton] Firestore error:', e);
+        data = {};
     }
 
-    // Fallback: silueta
-    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
-    btn.title = 'Mi perfil';
+    const photoSrc = data.photoURL || data.photo || null;
+    const displayName = data.userName || data.username || 'Mi perfil';
+    btn.title = displayName;
+
+    // Limpia siempre para evitar imagen anterior
+    btn.innerHTML = '';
+
+    if (!photoSrc) {
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        console.log('[updateProfileButton] No photo, showing silhouette');
+        return;
+    }
+
+    // Añadir cache bust para evitar imagen anterior (solo si es misma URL)
+    const cacheBust = (photoSrc.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+    const finalSrc = photoSrc + cacheBust;
+    const img = document.createElement('img');
+    img.alt = 'Foto de perfil';
+    img.src = finalSrc;
+    img.loading = 'eager';
+    img.decoding = 'async';
+    img.onerror = () => {
+        console.warn('[updateProfileButton] Error cargando foto, fallback');
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+    };
+    img.onload = () => console.log('[updateProfileButton] Foto cargada ok');
+    btn.appendChild(img);
+    console.log('[updateProfileButton] Foto aplicada:', finalSrc);
 }
 
 // ========================================
@@ -2360,6 +2359,9 @@ function showChatInterface() {
     
     // ✅ AÑADIDO: Actualizar visibilidad del botón de perfil
     updateProfileButtonVisibility();
+    try { updateProfileButton(); } catch(e) { console.warn('updateProfileButton fallo inicial:', e); }
+    setTimeout(() => { try { updateProfileButton(); } catch(_) {} }, 300);
+    setTimeout(() => { try { updateProfileButton(); } catch(_) {} }, 1000);
     
     console.log('[showChatInterface] Interfaz de navegación mostrada');
 }
