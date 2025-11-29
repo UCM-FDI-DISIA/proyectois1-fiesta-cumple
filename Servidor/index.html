@@ -36,8 +36,9 @@
             <!-- Columna derecha: formulario -->
             <div class="login-form-section">
                 <h3>Iniciar sesión / Registrarse</h3>
-                <p id="login-subtitle">Inicia sesión con tu nombre de usuario</p>
-                <input type="text" id="login-username" placeholder="Tu nombre de usuario">
+                <p id="login-subtitle">Inicia sesión con tu email y contraseña</p>
+                <input type="email" id="login-email" placeholder="Tu email">
+                <input type="password" id="login-password" placeholder="Tu contraseña">
                 <button onclick="login()" class="login-btn-primary">Iniciar Sesión</button>
                 <button onclick="showRegisterForm()" class="login-btn-secondary">Crear Cuenta Nueva</button>
                 <p id="login-error" style="color:red;"></p>
@@ -51,6 +52,8 @@
         <p>Completa tu perfil para empezar a chatear</p>
         <div class="register-form">
             <h3>Datos de acceso</h3>
+            <input type="email" id="register-email" placeholder="Tu email" required>
+            <input type="password" id="register-password" placeholder="Tu contraseña (mínimo 6 caracteres)" required>
             <input type="text" id="register-name" placeholder="Tu nombre de usuario (debe ser único)" required>
             
             <h3>Foto de perfil</h3>
@@ -168,6 +171,7 @@
 
     <!-- SCRIPTS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 

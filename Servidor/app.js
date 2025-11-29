@@ -25,11 +25,10 @@ firebase.initializeApp(firebaseConfig);
 // ========================================
 // SERVICIOS DE FIREBASE
 // ========================================
-// VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-// const auth = firebase.auth();
+const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
-// let currentUser = null;
+let currentUser = null;
 let currentUserId = '';
 let currentUserName = '';
 
@@ -137,16 +136,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Permitir enviar Enter en el input de login para iniciar sesión
-    const loginInput = document.getElementById('login-username');
-    if (loginInput) {
-        loginInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                login();
-            }
-        });
-    }
+    // Permitir enviar Enter en los inputs de login para iniciar sesión
+    const loginEmailInput = document.getElementById('login-email');
+    const loginPasswordInput = document.getElementById('login-password');
+    
+    [loginEmailInput, loginPasswordInput].forEach(input => {
+        if (input) {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    login();
+                }
+            });
+        }
+    });
+
+    // ========================================
+    // AUTENTICACIÓN: Listener de estado de autenticación
+    // ========================================
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            currentUserId = user.uid;
+            loadUserProfile();
+            loadUserChats();
+            showChatInterface();
+            updateProfileButtonVisibility();
+            if (typeof window.showGameButton === 'function') window.showGameButton();
+        } else {
+            showLoginForm();
+        }
+    });
 });
 
 // Alterna la apertura del modal de login/registro cuando se pulsa el botón de perfil
@@ -796,27 +816,6 @@ async function updateProfileButton() {
 }
 
 // ========================================
-// VERSIÓN SIMPLIFICADA: INICIAR DIRECTAMENTE EN REGISTRO
-// ========================================
-// VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-/*
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        currentUserId = user.uid;
-        loadUserProfile();
-        loadUserChats();
-        showChatInterface();
-    } else {
-        showLogin();
-    }
-});
-*/
-
-// Para versión de prueba, mostramos directamente el formulario de registro
-// El usuario se "auto-autentica" al crear su perfil
-
-// ========================================
 // FUNCIÓN: MOSTRAR CHAT
 // ========================================
 /*
@@ -887,66 +886,71 @@ function showRegisterForm() {
 function showLoginForm() {
     document.getElementById('login-screen').style.display = 'block';
     document.getElementById('register-screen').style.display = 'none';
-    // Limpiar errores
+    document.getElementById('chat-screen').style.display = 'none';
+    document.getElementById('nav-bar').style.display = 'none';
+    // Limpiar errores y campos
+    document.getElementById('login-error').textContent = '';
     document.getElementById('register-error').textContent = '';
+    if (document.getElementById('login-email')) {
+        document.getElementById('login-email').value = '';
+    }
+    if (document.getElementById('login-password')) {
+        document.getElementById('login-password').value = '';
+    }
     updateProfileButtonVisibility();
 }
 
-// Iniciar sesión solo con nombre de usuario
+// Iniciar sesión con email y contraseña
 async function login() {
-    const username = document.getElementById('login-username').value;
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
     const errorElement = document.getElementById('login-error');
     
-    if (!username || username.trim() === '') {
-        errorElement.textContent = 'Por favor ingresa tu nombre de usuario';
+    if (!email || email.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa tu email';
+        return;
+    }
+    
+    if (!password || password.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa tu contraseña';
         return;
     }
     
     try {
-        errorElement.textContent = 'Buscando usuario...';
+        errorElement.textContent = 'Iniciando sesión...';
         
-        // Buscar usuario por nombre exacto
-        const usersSnapshot = await db.collection('users')
-            .where('userName', '==', username.trim())
-            .get();
+        // Autenticar con Firebase Auth
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
         
-        if (usersSnapshot.empty) {
-            errorElement.textContent = 'Usuario no encontrado. ¿Quieres crear una cuenta nueva?';
-            return;
-        }
-        
-        // Si hay múltiples usuarios con el mismo nombre, tomar el primero
-        const userDoc = usersSnapshot.docs[0];
-        const userData = userDoc.data();
-        
-        // Establecer usuario actual
-        currentUserId = userDoc.id;
-        currentUserName = userData.userName;
-        
+        // El resto se maneja en onAuthStateChanged
         errorElement.style.color = 'green';
-        errorElement.textContent = '¡Bienvenido de nuevo, ' + currentUserName + '!';
-        
-        // Actualizar UI
-        document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
-        
-        // Cargar chats y mostrar interfaz
-        loadUserChats();
-    // Actualizar el botón de perfil para mostrar foto/usuario
-    try { updateProfileButton(); } catch(e) { /* no crítico */ }
-        updateProfileButtonVisibility();
-        
-        setTimeout(() => {
-            showChatInterface();
-            errorElement.textContent = '';
-            errorElement.style.color = 'red';
-        }, 1000);
+        errorElement.textContent = '¡Iniciando sesión!';
         
     } catch (error) {
-        errorElement.textContent = 'Error al iniciar sesión: ' + error.message;
+        errorElement.style.color = 'red';
+        let message = 'Error al iniciar sesión';
+        
+        switch(error.code) {
+            case 'auth/user-not-found':
+                message = 'No existe una cuenta con este email';
+                break;
+            case 'auth/wrong-password':
+                message = 'Contraseña incorrecta';
+                break;
+            case 'auth/invalid-email':
+                message = 'Email inválido';
+                break;
+            case 'auth/user-disabled':
+                message = 'Esta cuenta ha sido deshabilitada';
+                break;
+            default:
+                message = 'Error: ' + error.message;
+        }
+        
+        errorElement.textContent = message;
         console.error('Error al iniciar sesión:', error);
     }
-
-    if (typeof window.showGameButton === 'function') window.showGameButton();
 }
 
 // Preview de foto de perfil
@@ -963,8 +967,10 @@ function previewProfilePhoto(event) {
     }
 }
 
-// Completar registro con encuesta
+// Completar registro con encuesta y autenticación
 async function completeRegistration() {
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
     const name = document.getElementById('register-name').value;
     const photoFile = document.getElementById('profile-photo').files[0];
     // Leer la preferencia seleccionada en el registro (radio name="preference")
@@ -980,6 +986,21 @@ async function completeRegistration() {
     const habits = Array.from(habitsCheckboxes).map(cb => cb.value);
 
     // Validaciones
+    if (!email || email.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa tu email';
+        return;
+    }
+
+    if (!password || password.trim() === '') {
+        errorElement.textContent = 'Por favor ingresa una contraseña';
+        return;
+    }
+
+    if (password.length < 6) {
+        errorElement.textContent = 'La contraseña debe tener mínimo 6 caracteres';
+        return;
+    }
+
     if (!name || name.trim() === '') {
         errorElement.textContent = 'Por favor ingresa tu nombre de usuario';
         return;
@@ -1008,11 +1029,14 @@ async function completeRegistration() {
             return;
         }
 
-        errorElement.textContent = 'Creando perfil...';
+        errorElement.textContent = 'Creando cuenta...';
 
-        // Generar ID basado en el nombre de usuario (minúsculas y guiones bajos)
-        const userId = name.trim().toLowerCase().replace(/\s+/g, '_');
-        currentUserId = userId;
+        // 1. Crear usuario en Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        // Establecer ID de usuario
+        currentUserId = user.uid;
         currentUserName = name.trim();
 
         // ✅ NUEVA LÓGICA: Subir foto a ImgBB en vez de Firebase Storage
@@ -1061,11 +1085,12 @@ async function completeRegistration() {
             }
         }
 
-        // Guardar perfil completo en Firestore usando el ID formateado
+        // Guardar perfil completo en Firestore usando el UID de Firebase Auth
         errorElement.textContent = 'Guardando perfil...';
-        await db.collection('users').doc(userId).set({
-            userId: userId,
+        await db.collection('users').doc(user.uid).set({
+            userId: user.uid,
             userName: name.trim(),
+            email: email,
             photoURL: photoURL,
             habits: habits,
             // Guardar preference y mantener interests por compatibilidad
@@ -1079,34 +1104,27 @@ async function completeRegistration() {
         errorElement.style.color = 'green';
         errorElement.textContent = '¡Perfil creado con éxito! Redirigiendo...';
 
-        // Actualizar UI
-        document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
-
-        // Cargar chats y mostrar interfaz
-        loadUserChats();
-
-        if (typeof window.showGameButton === 'function') window.showGameButton();
-
-        setTimeout(() => {
-            showChatInterface();
-            // Limpiar formulario
-            document.getElementById('register-name').value = '';
-            document.getElementById('profile-photo').value = '';
-            document.getElementById('photo-preview').innerHTML = '';
-            // Restaurar valor por defecto de las radios (ambos)
-            try {
-                const defaultRadio = document.querySelector('input[name="preference"][value="ambos"]');
-                if (defaultRadio) defaultRadio.checked = true;
-            } catch (e) { }
-            document.getElementById('age').value = '';
-            document.querySelectorAll('input[name="habit"]:checked').forEach(cb => cb.checked = false);
-            errorElement.textContent = '';
-            errorElement.style.color = 'red';
-        }, 1000);
+        // El auth.onAuthStateChanged se encargará de cargar el perfil automáticamente
 
     } catch (error) {
         errorElement.style.color = 'red';
-        errorElement.textContent = 'Error: ' + error.message;
+        let message = 'Error al crear cuenta';
+        
+        switch(error.code) {
+            case 'auth/email-already-in-use':
+                message = 'Este email ya está registrado. Usa "Iniciar Sesión"';
+                break;
+            case 'auth/weak-password':
+                message = 'La contraseña debe tener mínimo 6 caracteres';
+                break;
+            case 'auth/invalid-email':
+                message = 'El email no es válido';
+                break;
+            default:
+                message = 'Error: ' + error.message;
+        }
+        
+        errorElement.textContent = message;
         console.error('Error al crear perfil:', error);
     }
 }
@@ -1231,21 +1249,17 @@ function logout() {
     // Limpiar variables
     currentUserId = '';
     currentUserName = '';
+    currentUser = null;
     
-    // Volver a la pantalla de login
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('register-screen').style.display = 'none';
-    document.getElementById('chat-screen').style.display = 'none';
-    document.getElementById('nav-bar').style.display = 'none';
-    
-    // Limpiar campo de login
-    document.getElementById('login-username').value = '';
-    document.getElementById('login-error').textContent = '';
-    
-    console.log('Sesión cerrada correctamente');
-    // Actualizar botón de perfil a estado por defecto
-    try { updateProfileButton(); } catch (e) { }
-    updateProfileButtonVisibility();
+    // Cerrar sesión en Firebase Auth
+    auth.signOut()
+        .then(() => {
+            console.log('Sesión cerrada correctamente');
+            // El onAuthStateChanged manejará el resto
+        })
+        .catch((error) => {
+            console.error('Error al cerrar sesión:', error);
+        });
 
     if (typeof window.hideGameButton === 'function') window.hideGameButton();
 
@@ -1256,27 +1270,6 @@ function logout() {
     // Cerrar todos los paneles
     closeAllPanels();
 }
-
-/* VERSIÓN CON AUTENTICACIÓN (COMENTADA)
-function logout() {
-    // Cerrar chat activo si lo hay
-    if (currentChatId) {
-        closeCurrentChat();
-    }
-
-    // Limpiar la ventana de chat
-    showEmptyState();
-    
-    // Cerrar sesión en Firebase Auth
-    auth.signOut()
-        .then(() => {
-            console.log('Sesión cerrada correctamente');
-        })
-        .catch((error) => {
-            console.error('Error al cerrar sesión:', error);
-        });
-}
-*/
 
 // ========================================
 // FUNCIÓN: GENERAR ID DE CHAT

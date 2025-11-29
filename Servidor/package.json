@@ -4,15 +4,21 @@
   "scripts": {
     "test": "jest --verbose",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "seed:users": "node ./scripts/seed_auth_and_users.js ./serviceAccountKey.json ./seed_users_firestore.json Veneris123!"
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ]
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.0"
   }
 }
