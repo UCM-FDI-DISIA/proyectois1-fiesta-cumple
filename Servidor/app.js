@@ -268,6 +268,7 @@ function createProfileMenu() {
         </div>
         <div class="profile-menu-actions">
             <button id="viewProfileBtn">Ver perfil</button>
+            <button id="blockedUsersBtn">Usuarios bloqueados</button>
             <button id="logoutMenuBtn">Cerrar sesión</button>
         </div>
     `;
@@ -277,10 +278,204 @@ function createProfileMenu() {
         hideProfileMenu();
         viewProfile();
     });
+    menu.querySelector('#blockedUsersBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideProfileMenu();
+        showBlockedUsersModal();
+    });
     menu.querySelector('#logoutMenuBtn').addEventListener('click', () => {
         hideProfileMenu();
         logout();
     });
+}
+
+// ========================================
+// BLOQUEADOS: Modal / Tarjeta de Usuarios Bloqueados
+// ========================================
+function createBlockedUsersModal() {
+    if (document.getElementById('blockedUsersModal')) return;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'blocked-users-backdrop profile-modal-backdrop';
+    backdrop.style.display = 'none';
+    backdrop.id = 'blockedUsersBackdrop';
+
+    const modal = document.createElement('div');
+    modal.id = 'blockedUsersModal';
+    modal.className = 'blocked-users-modal';
+    modal.style.display = 'none';
+
+    modal.innerHTML = `
+        <div class="blocked-users-header">
+            <strong>Usuarios bloqueados</strong>
+            <button id="closeBlockedUsersBtn" class="btn-secondary">Cerrar</button>
+        </div>
+        <div id="blockedUsersList" class="blocked-users-list">
+            <div class="blocked-empty">Cargando...</div>
+        </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+
+    backdrop.addEventListener('click', closeBlockedUsersModal);
+    modal.querySelector('#closeBlockedUsersBtn').addEventListener('click', closeBlockedUsersModal);
+}
+
+async function showBlockedUsersModal() {
+    createBlockedUsersModal();
+    const backdrop = document.getElementById('blockedUsersBackdrop');
+    const modal = document.getElementById('blockedUsersModal');
+    if (!modal || !backdrop) return;
+
+    backdrop.style.display = 'block';
+    modal.style.display = 'block';
+    // Cargar lista
+    await renderBlockedUsersList();
+}
+
+function closeBlockedUsersModal() {
+    const backdrop = document.getElementById('blockedUsersBackdrop');
+    const modal = document.getElementById('blockedUsersModal');
+    if (backdrop) backdrop.style.display = 'none';
+    if (modal) modal.style.display = 'none';
+}
+
+async function renderBlockedUsersList() {
+    const listEl = document.getElementById('blockedUsersList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    if (!currentUserId || typeof db === 'undefined' || !db) {
+        listEl.innerHTML = '<div class="blocked-empty">No hay sesión activa.</div>';
+        return;
+    }
+
+    try {
+        const meDoc = await db.collection('users').doc(currentUserId).get();
+        if (!meDoc.exists) { listEl.innerHTML = '<div class="blocked-empty">Perfil no encontrado.</div>'; return; }
+        const meData = meDoc.data() || {};
+        const blocked = Array.isArray(meData.blockedUsers) ? meData.blockedUsers : [];
+        if (blocked.length === 0) { listEl.innerHTML = '<div class="blocked-empty">No has bloqueado a nadie.</div>'; return; }
+
+        // Render each blocked user
+        for (const uid of blocked) {
+            try {
+                const uDoc = await db.collection('users').doc(uid).get();
+                const uData = uDoc && uDoc.exists ? (uDoc.data() || {}) : { userName: uid };
+
+                const row = document.createElement('div');
+                row.className = 'blocked-user-item';
+
+                const left = document.createElement('div');
+                left.className = 'blocked-user-left';
+                const img = document.createElement('img');
+                img.className = 'blocked-user-avatar';
+                img.alt = uData.userName || 'Usuario';
+                img.src = uData.photoURL || uData.photo || '';
+                img.onerror = function() { this.style.display = 'none'; };
+                left.appendChild(img);
+
+                const name = document.createElement('div');
+                name.className = 'blocked-user-name';
+                name.textContent = uData.userName || uData.username || uid;
+
+                const right = document.createElement('div');
+                right.className = 'blocked-user-actions';
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.textContent = 'Desbloquear';
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    try {
+                        await unblockUser(uid);
+                        // quitar fila
+                        row.parentNode && row.parentNode.removeChild(row);
+                        // si no quedan elementos, mostrar empty
+                        if (document.querySelectorAll('.blocked-user-item').length === 0) {
+                            listEl.innerHTML = '<div class="blocked-empty">No has bloqueado a nadie.</div>';
+                        }
+                    } catch (err) {
+                        console.error('unblock error', err);
+                        alert('No se pudo desbloquear al usuario.');
+                        btn.disabled = false;
+                    }
+                });
+                right.appendChild(btn);
+
+                row.appendChild(left);
+                row.appendChild(name);
+                row.appendChild(right);
+
+                listEl.appendChild(row);
+            } catch (e) {
+                console.warn('Error cargando usuario bloqueado', uid, e);
+            }
+        }
+
+    } catch (err) {
+        console.error('Error renderBlockedUsersList', err);
+        listEl.innerHTML = '<div class="blocked-empty">Error cargando usuarios bloqueados.</div>';
+    }
+}
+
+async function unblockUser(userId) {
+    if (!currentUserId) throw new Error('No hay usuario logueado');
+    try {
+        // 1) Leer marca de bloqueo (si existe) y eliminar de la lista blockedUsers
+        // Guardamos la marca para poder decidir si debemos limpiar `hiddenAt` en el chat
+        const myUserRef = db.collection('users').doc(currentUserId);
+        const myDocBefore = await myUserRef.get();
+        const myDataBefore = myDocBefore.exists ? (myDocBefore.data() || {}) : {};
+        const blockedAtMap = myDataBefore.blockedAt || null; // map of userId -> timestamp
+        const blockedTimestampForUser = blockedAtMap && blockedAtMap[userId] ? blockedAtMap[userId] : null;
+
+        await myUserRef.update({
+            blockedUsers: firebase.firestore.FieldValue.arrayRemove(userId),
+            // limpiar la marca blockedAt para este usuario
+            ['blockedAt.' + userId]: firebase.firestore.FieldValue.delete()
+        });
+
+        // 2) Si existe un chat entre ambos, quitar marcas de oculto para este usuario
+        try {
+            const chatId = generateChatId(currentUserId, userId);
+            const chatRef = db.collection('chats').doc(chatId);
+            const chatDoc = await chatRef.get();
+            if (chatDoc.exists) {
+                const updateObj = {};
+                // Quitar hiddenFor para AMBOS participantes: el que desbloquea y el desbloqueado.
+                // Conservamos hiddenAt.* para respetar marcas temporales (solo mensajes posteriores se mostrarán).
+                updateObj['hiddenFor'] = firebase.firestore.FieldValue.arrayRemove(currentUserId, userId);
+                await chatRef.update(updateObj);
+                // limpiar caché local para que vuelva a renderizarse inmediatamente
+                try { locallyHiddenChats.delete(chatId); } catch(e) { /* ignore */ }
+            }
+        } catch (e) {
+            console.warn('unblockUser: no se pudo restaurar visibilidad del chat:', e);
+        }
+
+        // 3) Refrescar UI: lista de usuarios y chats si es posible
+        try {
+            if (typeof window.loadAndRenderUsersFromApp === 'function') {
+                try { await window.loadAndRenderUsersFromApp(); } catch(e) { console.warn('refresh users failed', e); }
+            }
+        } catch (e) { /* ignore */ }
+
+        // Forzar recarga del listener de chats para actualizar la barra lateral
+        try {
+            if (chatsListener) {
+                // Unsubscribe and recreate
+                try { chatsListener(); } catch(e) { /* ignore */ }
+                chatsListener = null;
+            }
+            try { loadUserChats(); } catch(e) { console.warn('loadUserChats error after unblock:', e); }
+        } catch (e) { /* ignore */ }
+
+        return;
+    } catch (err) {
+        console.error('Error en unblockUser', err);
+        throw err;
+    }
 }
 
 function toggleProfileMenu() {
@@ -1591,13 +1786,28 @@ async function renderChatItem(chatId, chatData) {
     const hiddenAtMap = chatData && chatData.hiddenAt ? chatData.hiddenAt : null;
     const hiddenAtForMe = hiddenAtMap && hiddenAtMap[currentUserId] ? hiddenAtMap[currentUserId] : null;
 
-    // Si el usuario lo ocultó y no hay mensajes posteriores al hiddenAt, no mostrar el chat
-    if (hiddenAtForMe) {
-        const lastMsg = chatData.lastMessageTime || chatData.lastMessageTime === 0 ? chatData.lastMessageTime : null;
-        // Si no hay lastMessageTime o el último mensaje es anterior o igual al hiddenAt, ocultar
-        if (!chatData.lastMessageTime || (chatData.lastMessageTime && chatData.lastMessageTime.toMillis() <= hiddenAtForMe.toMillis())) {
-            return null;
+    // Si el chat todavía está marcado como oculto para mí (hiddenFor incluye mi id)
+    // y no hay mensajes posteriores a mi marca temporal, no mostrar el chat.
+    // Sin embargo, si el chat ya no está en hiddenFor para mí (p. ej. porque se me desbloqueó),
+    // lo mostraremos aunque no haya mensajes posteriores: al abrir el chat la carga de mensajes
+    // respetará la marca hiddenAt y solo mostrará mensajes posteriores.
+    try {
+        const hiddenForArray = Array.isArray(chatData.hiddenFor) ? chatData.hiddenFor : [];
+        const amIHidingIt = hiddenForArray.includes(currentUserId);
+        if (amIHidingIt) {
+            // Si hay marca hiddenAt para mí (eliminación previa), ocultar si no hay mensajes posteriores.
+            if (hiddenAtForMe) {
+                if (!chatData.lastMessageTime || (chatData.lastMessageTime && chatData.lastMessageTime.toMillis() <= hiddenAtForMe.toMillis())) {
+                    return null;
+                }
+            } else {
+                // No hay hiddenAt: normalmente esto significa que el chat fue ocultado por bloqueo.
+                // En ese caso ocultamos el chat hasta que se quite hiddenFor (p.ej. al desbloquear).
+                return null;
+            }
         }
+    } catch (e) {
+        // si hay error, no bloqueamos el render por seguridad
     }
 
     // Obtener el nombre real del otro usuario
@@ -1861,12 +2071,14 @@ async function openChat(chatId, partnerId, partnerName) {
     updateChatAvatar(partnerId);
     // Comprobar si el partner nos ha bloqueado
     partnerHasBlockedMe = false;
+    window.partnerHasBlockedMe = false;
     try {
         const partnerDoc = await db.collection('users').doc(partnerId).get();
         if (partnerDoc.exists) {
             const pData = partnerDoc.data() || {};
             if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
                 partnerHasBlockedMe = true;
+                window.partnerHasBlockedMe = true;
                 // Mostrar mensaje de bloqueo y permitir borrar el chat
                 const messagesDiv = document.getElementById('messages');
                 messagesDiv.classList.remove('empty-state');
@@ -1877,13 +2089,13 @@ async function openChat(chatId, partnerId, partnerName) {
                 banner.innerHTML = '<div class="blocked-text">Este usuario te ha bloqueado.</div>';
 
                 const delBtn = document.createElement('button');
-                delBtn.textContent = 'Borrar chat';
+                delBtn.textContent = 'Ocultar chat';
                 // Aplicar estilo consistente con la web
                 delBtn.className = 'btn-primary';
                 delBtn.addEventListener('click', async () => {
-                    const ok = confirm('¿Deseas borrar este chat para ti?');
+                    const ok = confirm('Ocultar chat solo para ti. Si el otro usuario te desbloquea, el chat volverá mostrando solo los mensajes posteriores a esta acción. ¿Continuar?');
                     if (!ok) return;
-                    try { await deleteChatForMe(chatId); } catch (e) { console.warn('Error borrando chat desde banner:', e); }
+                    try { await deleteChatForMe(chatId); } catch (e) { console.warn('Error ocultando chat desde banner:', e); }
                 });
 
                 banner.appendChild(delBtn);
@@ -1897,6 +2109,9 @@ async function openChat(chatId, partnerId, partnerName) {
                     messageInput.placeholder = 'No puedes enviar mensajes a este usuario.';
                 }
                 if (sendBtn) sendBtn.disabled = true;
+                if (gamesBtn) gamesBtn.disabled = true;
+                const dvBtn = document.getElementById('open-dosverdades-btn');
+                if (dvBtn) dvBtn.disabled = true;
             }
         }
     } catch (err) {
@@ -1911,10 +2126,12 @@ async function openChat(chatId, partnerId, partnerName) {
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const gamesBtn = document.getElementById('open-games-menu-btn');
+    const dvBtn = document.getElementById('open-dosverdades-btn');
     messageInput.disabled = false;
     messageInput.placeholder = 'Escribe tu mensaje aquí...';
     sendBtn.disabled = false;
     if (gamesBtn) gamesBtn.disabled = false;
+    if (dvBtn) dvBtn.disabled = false;
     
     const messagesDiv = document.getElementById('messages');
     messagesDiv.classList.remove('empty-state');
@@ -2474,7 +2691,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // ========================================
 // FUNCIÓN: BORRAR CHAT SOLO PARA EL USUARIO
 // ========================================
-async function deleteChatForMe(chatId) {
+async function deleteChatForMe(chatId, setHiddenAt = true) {
     try {
         // Añadir a la caché local para evitar que el listener re-renderice el chat
         try { locallyHiddenChats.add(chatId); } catch(e) { console.warn('No se pudo marcar localmente el chat:', e); }
@@ -2490,11 +2707,16 @@ async function deleteChatForMe(chatId) {
         }
 
         // Añadir el usuario actual al array hiddenFor (ocultar solo para él)
-        // Y registrar la marca temporal hiddenAt.<userId> para que los mensajes previos no se muestren
+        // Si `setHiddenAt` está activado, registrar la marca temporal hiddenAt.<userId>
+        // para que los mensajes previos no se muestren (caso: eliminación por el propio usuario).
+        // Si se llama desde el flujo de bloqueo, se llama con setHiddenAt = false para no perder
+        // el historial en caso de que el usuario no lo hubiera eliminado previamente.
         const updateObj = {
             hiddenFor: firebase.firestore.FieldValue.arrayUnion(currentUserId)
         };
-        updateObj['hiddenAt.' + currentUserId] = firebase.firestore.FieldValue.serverTimestamp();
+        if (setHiddenAt) {
+            updateObj['hiddenAt.' + currentUserId] = firebase.firestore.FieldValue.serverTimestamp();
+        }
 
         try {
             await chatRef.update(updateObj);
@@ -2524,13 +2746,17 @@ async function blockUser(blockedUserId, chatId) {
     if (!blockedUserId) throw new Error('ID de usuario a bloquear inválido');
 
     try {
-        // Añadir a la lista blockedUsers del usuario actual
+        // Añadir a la lista blockedUsers del usuario actual y registrar marca temporal
         await db.collection('users').doc(currentUserId).update({
-            blockedUsers: firebase.firestore.FieldValue.arrayUnion(blockedUserId)
+            blockedUsers: firebase.firestore.FieldValue.arrayUnion(blockedUserId),
+            ['blockedAt.' + blockedUserId]: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Ocultar el chat para el bloqueador (optimistic)
-        try { await deleteChatForMe(chatId); } catch(e) { console.warn('deleteChatForMe falló tras block:', e); }
+        // Ocultar el chat para el bloqueador (optimistic).
+        // IMPORTANTE: Al bloquear NO establecemos hiddenAt para que, al desbloquear,
+        // el chat pueda restaurarse con todo el historial salvo el que cada usuario
+        // haya borrado manualmente antes del bloqueo.
+        try { await deleteChatForMe(chatId, false); } catch(e) { console.warn('deleteChatForMe falló tras block:', e); }
     } catch (err) {
         console.error('[blockUser] Error al bloquear usuario:', err);
         throw err;

@@ -53,6 +53,28 @@
             alert('Selecciona un chat antes de iniciar el juego.');
             return;
         }
+        // Comprobar si el partner nos ha bloqueado: impedir abrir modal
+        try {
+            if (typeof window.partnerHasBlockedMe !== 'undefined' && window.partnerHasBlockedMe) {
+                alert('No puedes iniciar Dos Verdades: este usuario te ha bloqueado.');
+                return;
+            }
+            const chatParticipants = currentChatId.split('_');
+            const partnerId = chatParticipants.find(id => id !== currentUserId);
+            if (partnerId) {
+                const partnerDoc = await db.collection('users').doc(partnerId).get();
+                if (partnerDoc.exists) {
+                    const pData = partnerDoc.data() || {};
+                    if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
+                        window.partnerHasBlockedMe = true;
+                        alert('No puedes iniciar Dos Verdades: este usuario te ha bloqueado.');
+                        return;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('openDosVerdadesModal: error comprobando bloqueo del partner', err);
+        }
         createModalIfNeeded();
         modal.style.display = 'block';
         // reset fields
@@ -71,6 +93,28 @@
     }
 
     async function sendDosVerdades() {
+        // Safety: comprobar bloqueo del partner en servidor antes de enviar
+        try {
+            if (typeof window.partnerHasBlockedMe !== 'undefined' && window.partnerHasBlockedMe) {
+                alert('No puedes enviar Dos Verdades: este usuario te ha bloqueado.');
+                return;
+            }
+            const chatParticipants = currentChatId.split('_');
+            const partnerId = chatParticipants.find(id => id !== currentUserId);
+            if (partnerId) {
+                const partnerDoc = await db.collection('users').doc(partnerId).get();
+                if (partnerDoc.exists) {
+                    const pData = partnerDoc.data() || {};
+                    if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
+                        window.partnerHasBlockedMe = true;
+                        alert('No puedes enviar Dos Verdades: este usuario te ha bloqueado.');
+                        return;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('sendDosVerdades: error comprobando bloqueo del partner', err);
+        }
         const phrases = [];
         for (let i = 0; i < 3; i++) {
             const v = document.getElementById('dv-phrase-' + i).value.trim();

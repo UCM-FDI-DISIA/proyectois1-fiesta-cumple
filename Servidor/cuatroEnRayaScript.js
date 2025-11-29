@@ -211,6 +211,30 @@
             return;
         }
 
+        // Comprobar si el partner nos ha bloqueado: impedir invitaciones si es así
+        try {
+            if (typeof window.partnerHasBlockedMe !== 'undefined' && window.partnerHasBlockedMe) {
+                alert('No puedes invitar a este usuario: te ha bloqueado.');
+                return;
+            }
+            const chatParticipants = currentChatId.split('_');
+            const partnerId = chatParticipants.find(id => id !== currentUserId);
+            if (partnerId) {
+                const partnerDoc = await db.collection('users').doc(partnerId).get();
+                if (partnerDoc.exists) {
+                    const pData = partnerDoc.data() || {};
+                    if (Array.isArray(pData.blockedUsers) && pData.blockedUsers.includes(currentUserId)) {
+                        // Marcar flag local y bloquear la acción
+                        window.partnerHasBlockedMe = true;
+                        alert('No puedes invitar a este usuario: te ha bloqueado.');
+                        return;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('[4 en Raya] Error comprobando bloqueo del partner antes de invitar:', err);
+        }
+
         try {
             const gameId = currentChatId;
             const chatParticipants = currentChatId.split('_');
