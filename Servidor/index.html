@@ -13,10 +13,7 @@
         try {
             var _saved = null;
             try { _saved = sessionStorage.getItem('chat_currentUserId'); } catch(e) { _saved = null; }
-            // Fallback: si sessionStorage no está disponible, comprobar localStorage (compatibilidad)
-            if (!_saved) {
-                try { _saved = localStorage.getItem('chat_currentUserId'); } catch(e) { /* ignore */ }
-            }
+            // NOTA: no se usa localStorage aquí para evitar compartir la sesión entre pestañas.
             if (_saved) {
                 // Marcar el documento como en proceso de restauración para ocultar el login antes de pintar
                 document.documentElement.classList.add('session-restoring');

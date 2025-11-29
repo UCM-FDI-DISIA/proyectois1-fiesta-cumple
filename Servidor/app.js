@@ -154,6 +154,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Restaurar sesión desde sessionStorage (por pestaña) si no hay usuario en Firebase Auth
+    try {
+        let savedUserId = null;
+        try { savedUserId = sessionStorage.getItem('chat_currentUserId'); } catch(e) { savedUserId = null; }
+
+        // Si hay una sesión guardada y no hay usuario autenticado en Auth, rehidratar desde Firestore
+        if (savedUserId && !auth.currentUser) {
+            console.log('[Session] Restaurando sesión local de', savedUserId);
+            currentUserId = savedUserId;
+            try { showSessionSpinner(); } catch(e) { /* ignore */ }
+
+            (async () => {
+                try {
+                    // Intentar cargar perfil y chats
+                    await loadUserProfile();
+                    loadUserChats();
+                    updateProfileButtonVisibility();
+                    showChatInterface();
+                } catch (e) {
+                    console.error('[Session] Error restaurando sesión local:', e);
+                    // Si falla al restaurar (usuario borrado), limpiar almacenamiento de la pestaña
+                    try { sessionStorage.removeItem('chat_currentUserId'); } catch(_) { /* ignore */ }
+                    currentUserId = '';
+                } finally {
+                    try { hideSessionSpinner(); } catch(e) { /* ignore */ }
+                }
+            })();
+        }
+    } catch (e) {
+        console.warn('No se pudo restaurar sesión desde storage:', e);
+    }
+
     // ========================================
     // AUTENTICACIÓN: Listener de estado de autenticación
     // ========================================
@@ -161,6 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             currentUser = user;
             currentUserId = user.uid;
+            // Persistir sesión en storage por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
+            try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage en onAuthStateChanged:', e); }
             loadUserProfile();
             loadUserChats();
             showChatInterface();
@@ -955,11 +989,21 @@ async function login() {
     
     try {
         errorElement.textContent = 'Iniciando sesión...';
-        
+
+        // Asegurar persistencia por pestaña (session) para permitir múltiples sesiones en diferentes pestañas
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        } catch (pErr) {
+            console.warn('No se pudo establecer persistencia SESSION en Auth:', pErr);
+        }
+
         // Autenticar con Firebase Auth
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        
+
+            // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
+            try { sessionStorage.setItem('chat_currentUserId', user.uid); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage tras login:', e); }
+
         // El resto se maneja en onAuthStateChanged
         errorElement.style.color = 'green';
         errorElement.textContent = '¡Iniciando sesión!';
@@ -1068,6 +1112,13 @@ async function completeRegistration() {
 
         errorElement.textContent = 'Creando cuenta...';
 
+        // Asegurar persistencia por pestaña (session) para permitir múltiples sesiones en diferentes pestañas
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        } catch (pErr) {
+            console.warn('No se pudo establecer persistencia SESSION en Auth:', pErr);
+        }
+
         // 1. Crear usuario en Firebase Auth
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
@@ -1075,10 +1126,8 @@ async function completeRegistration() {
         // Establecer ID de usuario
         currentUserId = user.uid;
         currentUserName = name.trim();
-        // Persistir sesión por pestaña (sessionStorage). Fallback a localStorage si no disponible.
-        try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) {
-            try { localStorage.setItem('chat_currentUserId', currentUserId); } catch(e2) { console.warn('No se pudo persistir sesión tras registro:', e2); }
-        }
+        // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
+        try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage tras registro:', e); }
 
         // ✅ NUEVA LÓGICA: Subir foto a ImgBB en vez de Firebase Storage
         let photoURL = '';
@@ -1202,7 +1251,14 @@ async function completeRegistration() {
     
     try {
         errorElement.textContent = 'Creando cuenta...';
-        
+
+        // Asegurar persistencia por pestaña (session) para permitir múltiples sesiones en diferentes pestañas
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        } catch (pErr) {
+            console.warn('No se pudo establecer persistencia SESSION en Auth:', pErr);
+        }
+
         // 1. Crear usuario en Firebase Auth
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
@@ -1288,8 +1344,8 @@ function logout() {
     showEmptyState();
     
     // Limpiar variables
-    // Limpiar persistencia de sesión (sessionStorage preferido, fallback a localStorage)
-    try { sessionStorage.removeItem('chat_currentUserId'); } catch(e) { try { localStorage.removeItem('chat_currentUserId'); } catch(e2) { /* ignore */ } }
+    // Limpiar persistencia de sesión (solo sessionStorage para mantener sesiones por pestaña)
+    try { sessionStorage.removeItem('chat_currentUserId'); } catch(e) { console.warn('No se pudo limpiar sessionStorage en logout:', e); }
     currentUserId = '';
     currentUserName = '';
     currentUser = null;
