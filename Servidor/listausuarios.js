@@ -157,6 +157,15 @@
 
                     chatsSnap.forEach(docChat => {
                         const dataChat = docChat.data() || {};
+                        // Si el usuario lo ocultó, comprobar si hay mensajes posteriores a la marca hiddenAt
+                        const hiddenAtMap = dataChat.hiddenAt || null;
+                        const hiddenAtForMe = hiddenAtMap && hiddenAtMap[currentUserId] ? hiddenAtMap[currentUserId] : null;
+                        if (hiddenAtForMe) {
+                            // Si no hay mensajes posteriores (lastMessageTime <= hiddenAt), ignorar este chat
+                            if (!dataChat.lastMessageTime || (dataChat.lastMessageTime && dataChat.lastMessageTime.toMillis() <= hiddenAtForMe.toMillis())) {
+                                return; // no consideramos que exista chat abierto para efectos de Descubre gente
+                            }
+                        }
                         const parts = Array.isArray(dataChat.participants) ? dataChat.participants : [];
                         parts.forEach(p => {
                             if (p && p !== currentUserId) openChatPartners.add(p);

@@ -22,6 +22,47 @@ html, body {
     color: #000; /* Texto en negro por defecto */
 }
 
+/* Evitar mostrar la pantalla de login durante la restauración de sesión
+    Si el HTML tiene la clase `session-restoring`, ocultamos el login-screen
+    inmediatamente para prevenir parpadeos antes de que JS cargue. */
+html.session-restoring #login-screen { display: none !important; }
+
+/* ========================================
+   SPINNER DE CARGA DE SESIÓN
+   Se muestra mientras se rehidrata la sesión desde localStorage
+   Usa la paleta principal (#FF9F7A / #FF7A5A) para mantener consistencia.
+======================================== */
+.session-spinner-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 245, 238, 0.95); /* tono suave similar al fondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+.session-spinner {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 8px solid rgba(255,159,122,0.15); /* anillo base más claro */
+    border-top-color: #FF7A5A; /* color principal animado */
+    animation: spin 1s linear infinite;
+    box-shadow: 0 6px 20px rgba(255,122,90,0.18);
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mensaje opcional bajo el spinner */
+.session-spinner-text {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    font-weight: 600;
+}
+
 
 /* ========================================
    BARRA DE NAVEGACIÓN
@@ -456,6 +497,64 @@ html, body {
     align-items: center;
     gap: 10px;
 }
+/* permitir posicionamiento relativo para menús absolutos */
+.chat-item {
+    position: relative;
+}
+
+.chat-item-menu-container {
+    margin-left: auto; /* empuja el botón al extremo derecho */
+    display: flex;
+    align-items: center;
+}
+
+.chat-item-menu-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 6px;
+    color: #666;
+}
+
+.chat-item-menu-btn:hover {
+    color: #333;
+}
+
+.chat-item-menu-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Menú flotante simple */
+.chat-item-menu {
+    position: absolute;
+    right: 8px;
+    top: 44px; /* debajo del item */
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    z-index: 1500;
+    overflow: hidden;
+    min-width: 160px;
+}
+
+.chat-item-menu-option {
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    background: white;
+}
+
+.chat-item-menu-option:last-child { border-bottom: none; }
+
+.chat-item-menu-option:hover {
+    background: linear-gradient(135deg, #fff7f2 0%, #ffe8dc 100%);
+}
+
+.chat-item-menu-option-block { color: #c0392b; font-weight: 600; }
 
     .chat-item:hover {
         background-color: #fff5f2;
