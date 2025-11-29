@@ -283,6 +283,10 @@ async function populateProfileMenu() {
                 const img = document.createElement('img');
                 img.src = data.photoURL;
                 img.alt = 'Foto';
+                img.onerror = function() {
+                    console.warn('Imagen de perfil bloqueada:', img.src);
+                    photoEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
                 photoEl.appendChild(img);
                 return;
             }
@@ -500,7 +504,15 @@ async function loadProfileData() {
         // Actualizar foto
         const photoContainer = document.getElementById('profilePhotoView');
         if (data.photoURL) {
-            photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+            const img = document.createElement('img');
+            img.src = data.photoURL;
+            img.alt = 'Foto de perfil';
+            img.onerror = function() {
+                console.warn('Imagen de perfil bloqueada:', img.src);
+                photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+            };
+            photoContainer.innerHTML = '';
+            photoContainer.appendChild(img);
         } else {
             photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
         }
@@ -572,9 +584,25 @@ window.showUserProfile = async function(userId, userData) {
 
         if (photoContainer) {
             if (data && data.photoURL) {
-                photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+                const img = document.createElement('img');
+                img.src = data.photoURL;
+                img.alt = 'Foto de perfil';
+                img.onerror = function() {
+                    console.warn('Imagen bloqueada:', img.src);
+                    photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
+                photoContainer.innerHTML = '';
+                photoContainer.appendChild(img);
             } else if (data && data.photo) {
-                photoContainer.innerHTML = `<img src="${data.photo}" alt="Foto de perfil">`;
+                const img = document.createElement('img');
+                img.src = data.photo;
+                img.alt = 'Foto de perfil';
+                img.onerror = function() {
+                    console.warn('Imagen bloqueada:', img.src);
+                    photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
+                photoContainer.innerHTML = '';
+                photoContainer.appendChild(img);
             } else {
                 photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
             }
@@ -636,7 +664,15 @@ async function populateEditForm() {
         // Mostrar foto actual
         const photoContainer = document.getElementById('profilePhotoEdit');
         if (data.photoURL) {
-            photoContainer.innerHTML = `<img src="${data.photoURL}" alt="Foto de perfil">`;
+            const img = document.createElement('img');
+            img.src = data.photoURL;
+            img.alt = 'Foto de perfil';
+            img.onerror = function() {
+                console.warn('Imagen bloqueada:', img.src);
+                photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+            };
+            photoContainer.innerHTML = '';
+            photoContainer.appendChild(img);
         } else {
             photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
         }

@@ -252,6 +252,13 @@
                     img.decoding = 'async';
                     img.style.maxWidth = '100%';
                     img.style.height = 'auto';
+                    
+                    // Manejo de error si la imagen no carga (WiFi bloqueada, etc.)
+                    img.onerror = function() {
+                        console.warn('Imagen bloqueada o no disponible:', img.src);
+                        photoSection.innerHTML = '<div class="user-card-photo-placeholder"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="80" height="80" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg></div>';
+                    };
+                    
                     photoSection.appendChild(img);
                 } else {
                     // Fallback con gradiente
