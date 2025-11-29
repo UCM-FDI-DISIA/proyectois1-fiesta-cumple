@@ -884,6 +884,8 @@ async function saveProfileChanges() {
 // Actualiza el botón de perfil: si hay foto la muestra, si no muestra la silueta
 async function updateProfileButton() {
     const btn = document.getElementById('profileBtn');
+    console.log('[updateProfileButton] Botón encontrado:', btn);
+    console.log('[updateProfileButton] currentUserId:', currentUserId);
     if (!btn) return;
 
     // Si no hay usuario, mostrar SVG por defecto
@@ -903,12 +905,24 @@ async function updateProfileButton() {
         if (doc.exists) {
             const data = doc.data() || {};
             const photoURL = data.photoURL;
+            console.log('[updateProfileButton] photoURL:', photoURL);
             if (photoURL) {
                 btn.innerHTML = '';
                 const img = document.createElement('img');
                 img.src = photoURL;
                 img.alt = 'Foto de perfil';
+                img.style.display = 'block';
+                img.onerror = function() {
+                    console.warn('Imagen de perfil bloqueada en botón:', img.src);
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
+                img.onload = function() {
+                    console.log('[updateProfileButton] Imagen cargada exitosamente');
+                    console.log('[updateProfileButton] Dimensiones de la imagen:', img.width, 'x', img.height);
+                    console.log('[updateProfileButton] Botón innerHTML:', btn.innerHTML.substring(0, 100));
+                };
                 btn.appendChild(img);
+                console.log('[updateProfileButton] Imagen agregada al botón');
                 btn.title = data.userName ? (data.userName + '') : 'Mi perfil';
                 return;
             }
@@ -1353,6 +1367,9 @@ async function loadUserProfile() {
             currentUserName = userData.userName;
             document.getElementById('user-info').textContent = 'Conectado como: ' + currentUserName;
             console.log('[OK] Perfil de usuario cargado');
+            
+            // Actualizar botón de perfil con la foto del usuario
+            await updateProfileButton();
         } else {
             console.error('No se encontró el perfil del usuario');
         }
