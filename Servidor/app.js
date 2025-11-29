@@ -1396,12 +1396,37 @@ function logout() {
     // Limpiar la ventana de chat
     showEmptyState();
     
+        // Limpiar lista de usuarios si existe
+        const usersList = document.getElementById('users-list');
+        if (usersList) {
+            usersList.innerHTML = '';
+        }
+    
+        // Limpiar panel de usuarios
+        const usersPanel = document.getElementById('users-panel');
+        if (usersPanel) {
+            usersPanel.classList.add('hidden');
+        }
+    
+        // Limpiar menú de perfil
+        const profileMenu = document.getElementById('profileMenu');
+        if (profileMenu) {
+            profileMenu.style.display = 'none';
+        }
+    
     // Limpiar variables
     // Limpiar persistencia de sesión (solo sessionStorage para mantener sesiones por pestaña)
     try { sessionStorage.removeItem('chat_currentUserId'); } catch(e) { console.warn('No se pudo limpiar sessionStorage en logout:', e); }
     currentUserId = '';
     currentUserName = '';
     currentUser = null;
+    
+    // Limpiar el botón de perfil
+    const btn = document.getElementById('profileBtn');
+    if (btn) {
+            btn.innerHTML = '<svg id="profileSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        btn.title = 'Iniciar sesión / Crear cuenta';
+    }
     
     // Cerrar sesión en Firebase Auth
     auth.signOut()
