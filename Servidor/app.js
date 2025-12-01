@@ -563,86 +563,97 @@ function createProfileModal() {
     modal.className = 'profile-modal';
     
     modal.innerHTML = `
-        <div class="profile-modal-header">
-            <h2>Perfil de Usuario</h2>
-            <button class="profile-modal-close" onclick="hideProfileModal()">&times;</button>
+    <div class="profile-modal-header">
+        <h2>Perfil de Usuario</h2>
+        <button class="profile-modal-close" onclick="hideProfileModal()">&times;</button>
+    </div>
+    <div class="profile-tabs">
+        <div class="profile-tab active" data-tab="view">Ver perfil</div>
+        <div class="profile-tab" data-tab="edit">Editar perfil</div>
+    </div>
+    <div class="profile-content">
+        <!-- Vista del perfil -->
+        <div id="viewProfileContent">
+            <div class="profile-photo-section">
+                <div class="profile-photo-container" id="profilePhotoView">
+                    <!-- La foto se inserta aquí -->
+                </div>
+            </div>
+            <div class="profile-info-section">
+                <h3>Nombre de usuario</h3>
+                <p id="profileNameView">Cargando...</p>
+            
+                <h3>Hábitos</h3>
+                <div class="profile-habits" id="profileHabitsView">
+                    <!-- Los hábitos se insertan aquí -->
+                </div>
+            
+                <h3>Gustos e intereses</h3>
+                <p id="profileInterestsView">Cargando...</p>
+
+                <h3>Género</h3>
+                <p id="profileGeneroView">Cargando...</p>
+
+            </div>
         </div>
-        <div class="profile-tabs">
-            <div class="profile-tab active" data-tab="view">Ver perfil</div>
-            <div class="profile-tab" data-tab="edit">Editar perfil</div>
-        </div>
-        <div class="profile-content">
-            <!-- Vista del perfil -->
-            <div id="viewProfileContent">
+    
+        <!-- Formulario de edición -->
+        <div id="editProfileContent" style="display:none">
+            <form class="edit-profile-form" onsubmit="return false;">
                 <div class="profile-photo-section">
-                    <div class="profile-photo-container" id="profilePhotoView">
+                    <div class="profile-photo-container" id="profilePhotoEdit">
                         <!-- La foto se inserta aquí -->
                     </div>
+                    <input type="file" id="newProfilePhoto" accept="image/*" style="display:none">
+                    <button type="button" onclick="document.getElementById('newProfilePhoto').click()">
+                        Cambiar foto
+                    </button>
                 </div>
-                <div class="profile-info-section">
-                    <h3>Nombre de usuario</h3>
-                    <p id="profileNameView">Cargando...</p>
-                    
-                    <h3>Hábitos</h3>
-                    <div class="profile-habits" id="profileHabitsView">
-                        <!-- Los hábitos se insertan aquí -->
-                    </div>
-                    
-                    <h3>Gustos e intereses</h3>
-                    <p id="profileInterestsView">Cargando...</p>
-
-                    <h3>Género</h3>
-                    <p id="profileGeneroView">Cargando...</p>
-
-                </div>
-            </div>
             
-            <!-- Formulario de edición -->
-            <div id="editProfileContent" style="display:none">
-                <form class="edit-profile-form" onsubmit="return false;">
-                    <div class="profile-photo-section">
-                        <div class="profile-photo-container" id="profilePhotoEdit">
-                            <!-- La foto se inserta aquí -->
-                        </div>
-                        <input type="file" id="newProfilePhoto" accept="image/*" style="display:none">
-                        <button type="button" onclick="document.getElementById('newProfilePhoto').click()">
-                            Cambiar foto
-                        </button>
-                    </div>
-                    
-                    <label>
-                        Nombre de usuario
-                        <input type="text" id="editProfileName">
-                    </label>
-                    
-                    <div class="habits-section">
-                        <h3>Hábitos</h3>
-                        <label><input type="checkbox" name="editHabit" value="Deportista"> Deportista</label>
-                        <label><input type="checkbox" name="editHabit" value="Lector"> Lector</label>
-                        <label><input type="checkbox" name="editHabit" value="Viajero"> Viajero</label>
-                        <label><input type="checkbox" name="editHabit" value="Cocinero"> Cocinero</label>
-                        <label><input type="checkbox" name="editHabit" value="Músico"> Músico</label>
-                        <label><input type="checkbox" name="editHabit" value="Gamer"> Gamer</label>
-                    </div>
-                    
-                    <label>Gustos e intereses</label>
-                    <div id="editPreferenceOptions">
-                        <label><input type="radio" name="editPreference" value="hombre"> Hombre</label>
-                        <label><input type="radio" name="editPreference" value="mujer"> Mujer</label>
-                        <label><input type="radio" name="editPreference" value="ambos"> Ambos</label>
-                    </div>
-                    
-                    <label>Género</label>
-                    <div id="editGeneroOptions">
-                        <label><input type="radio" name="editGenero" value="hombre"> Hombre</label>
-                        <label><input type="radio" name="editGenero" value="mujer"> Mujer</label>
-                    </div>
+                <label>
+                    Nombre de usuario
+                    <input type="text" id="editProfileName">
+                </label>
+            
+                <!-- ✅ CAMPOS CON ETIQUETAS (igual que nombre de usuario) -->
+                <label>
+                    Altura (cm)
+                    <input type="number" id="editProfileAltura" min="1" step="1">
+                </label>
+            
+                <label>
+                    Peso (kg)
+                    <input type="number" id="editProfilePeso" min="1" step="1">
+                </label>
+            
+                <div class="habits-section">
+                    <h3>Hábitos</h3>
+                    <label><input type="checkbox" name="editHabit" value="Deportista"> Deportista</label>
+                    <label><input type="checkbox" name="editHabit" value="Lector"> Lector</label>
+                    <label><input type="checkbox" name="editHabit" value="Viajero"> Viajero</label>
+                    <label><input type="checkbox" name="editHabit" value="Cocinero"> Cocinero</label>
+                    <label><input type="checkbox" name="editHabit" value="Músico"> Músico</label>
+                    <label><input type="checkbox" name="editHabit" value="Gamer"> Gamer</label>
+                </div>
+            
+                <label>Gustos e intereses</label>
+                <div id="editPreferenceOptions">
+                    <label><input type="radio" name="editPreference" value="hombre"> Hombre</label>
+                    <label><input type="radio" name="editPreference" value="mujer"> Mujer</label>
+                    <label><input type="radio" name="editPreference" value="ambos"> Ambos</label>
+                </div>
+            
+                <label>Género</label>
+                <div id="editGeneroOptions">
+                    <label><input type="radio" name="editGenero" value="hombre"> Hombre</label>
+                    <label><input type="radio" name="editGenero" value="mujer"> Mujer</label>
+                </div>
 
-                    <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
-                </form>
-            </div>
+                <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
+            </form>
         </div>
-    `;
+    </div>
+`;
     
     // Backdrop para cerrar el modal al hacer click fuera
     const backdrop = document.createElement('div');
@@ -870,6 +881,11 @@ async function populateEditForm() {
         
         // Rellenar campos
         document.getElementById('editProfileName').value = data.userName || '';
+        
+        // ✅ NUEVO: Rellenar altura y peso
+        document.getElementById('editProfileAltura').value = data.altura || '';
+        document.getElementById('editProfilePeso').value = data.peso || '';
+        
         // Rellenar la preferencia (editPreference radios). Usar `preference` si existe, si no `interests`.
         try {
             const pref = data.preference || data.interests || 'ambos';
@@ -956,8 +972,9 @@ async function saveProfileChanges() {
 
         // 1. Recoger datos del formulario
         const newName = document.getElementById('editProfileName').value.trim();
-        // Leer preferencia y género seleccionados (pero no calcular valores por defecto
-        // hasta obtener los datos actuales del perfil)
+        const newAltura = document.getElementById('editProfileAltura').value.trim();
+        const newPeso = document.getElementById('editProfilePeso').value.trim();
+        
         const prefEl = document.querySelector('input[name="editPreference"]:checked');
         const generoEl = document.querySelector('input[name="editGenero"]:checked');
         const selectedHabits = Array.from(document.querySelectorAll('input[name="editHabit"]:checked'))
@@ -966,6 +983,29 @@ async function saveProfileChanges() {
         // Validación básica
         if (!newName) {
             alert('El nombre es obligatorio');
+            return;
+        }
+
+        // ✅ NUEVAS VALIDACIONES: Altura y Peso
+        if (!newAltura || newAltura === '') {
+            alert('La altura es obligatoria');
+            return;
+        }
+
+        const alturaNum = parseFloat(newAltura);
+        if (isNaN(alturaNum) || alturaNum <= 0) {
+            alert('La altura debe ser un número positivo');
+            return;
+        }
+
+        if (!newPeso || newPeso === '') {
+            alert('El peso es obligatorio');
+            return;
+        }
+
+        const pesoNum = parseFloat(newPeso);
+        if (isNaN(pesoNum) || pesoNum <= 0) {
+            alert('El peso debe ser un número positivo');
             return;
         }
 
@@ -980,33 +1020,26 @@ async function saveProfileChanges() {
 
         // Ahora que tenemos `currentData`, calcular las opciones que dependen de él
         const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
-        // Preferir el campo moderno 'gender', si no existe usar 'genero' (compatibilidad)
         const newGenero = generoEl ? generoEl.value : (currentData && (currentData.gender || currentData.genero) ? (currentData.gender || currentData.genero) : '');
 
         // 3. Procesar foto si hay nueva
         console.log('Procesando foto...');
         const photoInput = document.getElementById('newProfilePhoto');
-        let photoURL = currentData.photoURL || ''; // Mantener la URL actual por defecto
+        let photoURL = currentData.photoURL || '';
 
-        // ✅ NUEVA LÓGICA: Subir a ImgBB en vez de Firebase Storage
         if (photoInput && photoInput.files && photoInput.files.length > 0) {
             const file = photoInput.files[0];
             console.log('Subiendo nueva foto a ImgBB...');
 
             try {
-                // Validar tamaño (ImgBB permite hasta 32MB, pero limitamos a 5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('La imagen es demasiado grande. Máximo 5MB.');
                     photoURL = currentData.photoURL || '';
                 } else {
-                    // ✅ Crear FormData para enviar la imagen
                     const formData = new FormData();
                     formData.append('image', file);
+                    const API_KEY = 'c44651d43039727932eaf6daf0918e74';
 
-                    // ✅ IMPORTANTE: Reemplaza 'TU_API_KEY' con tu clave real de ImgBB
-                    const API_KEY = 'c44651d43039727932eaf6daf0918e74'; // ← CAMBIAR ESTO
-
-                    // ✅ Subir imagen a ImgBB
                     const response = await fetch(
                         `https://api.imgbb.com/1/upload?key=${API_KEY}`,
                         {
@@ -1022,7 +1055,7 @@ async function saveProfileChanges() {
                     const data = await response.json();
 
                     if (data.success) {
-                        photoURL = data.data.url; // URL pública de la imagen
+                        photoURL = data.data.url;
                         console.log('✅ Foto subida exitosamente a ImgBB:', photoURL);
                     } else {
                         throw new Error('ImgBB devolvió error');
@@ -1032,8 +1065,6 @@ async function saveProfileChanges() {
             } catch (photoErr) {
                 console.error('❌ Error subiendo foto:', photoErr);
                 alert(`Error al subir la foto: ${photoErr.message}`);
-
-                // Mantener la foto actual si falla
                 photoURL = currentData.photoURL || '';
                 console.log('Se mantendrá la foto actual debido al error');
             }
@@ -1044,14 +1075,14 @@ async function saveProfileChanges() {
         const updateData = {
             userId: currentUserId,
             userName: newName,
-            // Guardar la preferencia explícita y mantener `interests` por compatibilidad
             preference: newPreference,
             interests: newPreference || '',
-            // Guardar tanto 'gender' (campo usado en varias funciones) como 'genero'
             gender: newGenero,
             genero: newGenero,
             habits: selectedHabits || [],
             photoURL: photoURL,
+            altura: alturaNum,  // ✅ NUEVO
+            peso: pesoNum,      // ✅ NUEVO
             age: currentData.age || 18,
             createdAt: currentData.createdAt || firebase.firestore.FieldValue.serverTimestamp()
         };
@@ -1347,6 +1378,8 @@ async function completeRegistration() {
     const age = document.getElementById('age').value;
     const generoEl = document.querySelector('input[name="genero"]:checked');
     const genero = generoEl ? generoEl.value : '';
+    const altura = document.getElementById('altura').value;
+    const peso = document.getElementById('peso').value;
     const errorElement = document.getElementById('register-error');
 
     // Obtener hábitos seleccionados
@@ -1384,6 +1417,36 @@ async function completeRegistration() {
         return;
     }
 
+    // ✅ NUEVA VALIDACIÓN: Foto obligatoria
+    if (!photoFile) {
+        errorElement.textContent = 'La foto es obligatoria';
+        return;
+    }
+
+    // ✅ NUEVA VALIDACIÓN: Altura obligatoria
+    if (!altura || altura.trim() === '') {
+        errorElement.textContent = 'La altura es obligatoria';
+        return;
+    }
+
+    const alturaNum = parseFloat(altura);
+    if (isNaN(alturaNum) || alturaNum <= 0) {
+        errorElement.textContent = 'La altura debe ser un número positivo';
+        return;
+    }
+
+    // ✅ NUEVA VALIDACIÓN: Peso obligatorio
+    if (!peso || peso.trim() === '') {
+        errorElement.textContent = 'El peso es obligatorio';
+        return;
+    }
+
+    const pesoNum = parseFloat(peso);
+    if (isNaN(pesoNum) || pesoNum <= 0) {
+        errorElement.textContent = 'El peso debe ser un número positivo';
+        return;
+    }
+
     try {
         errorElement.textContent = 'Verificando disponibilidad del nombre...';
 
@@ -1416,50 +1479,45 @@ async function completeRegistration() {
         // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
         try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage tras registro:', e); }
 
-        // ✅ NUEVA LÓGICA: Subir foto a ImgBB en vez de Firebase Storage
+        // ✅ Subir foto a ImgBB (sin validaciones de tamaño/tipo, solo subir)
         let photoURL = '';
-        if (photoFile) {
-            errorElement.textContent = 'Subiendo foto de perfil...';
-            try {
-                // Validar tamaño
-                if (photoFile.size > 5 * 1024 * 1024) {
-                    errorElement.textContent = 'La imagen es demasiado grande. El perfil se creará sin foto.';
-                    photoURL = '';
-                } else {
-                    // ✅ Crear FormData
-                    const formData = new FormData();
-                    formData.append('image', photoFile);
+        errorElement.textContent = 'Subiendo foto de perfil...';
+        try {
+            const formData = new FormData();
+            formData.append('image', photoFile);
+            const API_KEY = 'c44651d43039727932eaf6daf0918e74';
 
-                    // ✅ IMPORTANTE: Reemplaza 'TU_API_KEY' con tu clave real
-                    const API_KEY = 'c44651d43039727932eaf6daf0918e74'; // ← CAMBIAR ESTO
-
-                    // ✅ Subir a ImgBB
-                    const response = await fetch(
-                        `https://api.imgbb.com/1/upload?key=${API_KEY}`,
-                        {
-                            method: 'POST',
-                            body: formData
-                        }
-                    );
-
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        photoURL = data.data.url;
-                        console.log('✅ Foto subida a ImgBB:', photoURL);
-                    } else {
-                        throw new Error('ImgBB devolvió error');
-                    }
+            const response = await fetch(
+                `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                {
+                    method: 'POST',
+                    body: formData
                 }
-            } catch (upErr) {
-                console.error('Error subiendo foto durante registro:', upErr);
-                errorElement.textContent = 'Error subiendo la foto. El perfil se creará sin foto.';
-                photoURL = '';
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
             }
+
+            const data = await response.json();
+
+            if (data.success) {
+                photoURL = data.data.url;
+                console.log('✅ Foto subida a ImgBB:', photoURL);
+            } else {
+                throw new Error('ImgBB devolvió error');
+            }
+        } catch (upErr) {
+            console.error('Error subiendo foto durante registro:', upErr);
+            errorElement.textContent = 'Imagen no soportada';
+            // ✅ ELIMINAR usuario de Firebase Auth si falla la foto
+            try {
+                await user.delete();
+                console.log('Usuario eliminado de Auth tras error de foto');
+            } catch (deleteErr) {
+                console.error('Error eliminando usuario tras fallo de foto:', deleteErr);
+            }
+            return;
         }
 
         // Guardar perfil completo en Firestore usando el UID de Firebase Auth
@@ -1470,11 +1528,12 @@ async function completeRegistration() {
             email: email,
             photoURL: photoURL,
             habits: habits,
-            // Guardar preference y mantener interests por compatibilidad
             preference: interests,
             interests: interests,
             gender: genero,
             age: parseInt(age),
+            altura: alturaNum,
+            peso: pesoNum,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 

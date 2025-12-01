@@ -168,3 +168,17 @@
 .edit-profile-form button:hover {
     background: #ff8f5f;
 }
+
+    .edit-profile-form input[type="number"] {
+        width: 100%;
+        padding: 12px; /* Igual que registro */
+        margin: 8px 0; /* Igual que registro */
+        border: 1px solid #ddd;
+        border-radius: 5px; /* Igual que registro */
+        font-size: 14px;
+    }
+
+        /* Asegurar que NO heredan el estilo de flex del label */
+        .edit-profile-form input[type="number"]:not([type="checkbox"]):not([type="radio"]) {
+            display: block; /* Forzar display block */
+        }
