@@ -1217,14 +1217,14 @@ function showLoginForm() {
     updateProfileButtonVisibility();
 }
 
-// Iniciar sesión con email y contraseña
+/// Iniciar sesión con email y contraseña O nombre de usuario y contraseña
 async function login() {
-    const email = document.getElementById('login-email').value;
+    const emailOrUsername = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     const errorElement = document.getElementById('login-error');
     
-    if (!email || email.trim() === '') {
-        errorElement.textContent = 'Por favor ingresa tu email';
+    if (!emailOrUsername || emailOrUsername === '') {
+        errorElement.textContent = 'Por favor ingresa tu email o nombre de usuario';
         return;
     }
     
@@ -1243,12 +1243,51 @@ async function login() {
             console.warn('No se pudo establecer persistencia SESSION en Auth:', pErr);
         }
 
-        // Autenticar con Firebase Auth
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        // ✅ NUEVA LÓGICA: Detectar si es email o username
+        let emailToUse = emailOrUsername;
+        
+        // Si NO contiene '@', asumimos que es un nombre de usuario
+        if (!emailOrUsername.includes('@')) {
+            console.log('Detectado nombre de usuario, buscando email asociado...');
+            
+            try {
+                // Buscar el email asociado a este nombre de usuario en Firestore
+                const usersSnapshot = await db.collection('users')
+                    .where('userName', '==', emailOrUsername)
+                    .limit(1)
+                    .get();
+                
+                if (usersSnapshot.empty) {
+                    errorElement.style.color = 'red';
+                    errorElement.textContent = 'Usuario o contraseña incorrectos';
+                    return;
+                }
+                
+                // Obtener el email del documento encontrado
+                const userDoc = usersSnapshot.docs[0];
+                const userData = userDoc.data();
+                emailToUse = userData.email;
+                
+                console.log('Email encontrado para el usuario:', emailToUse);
+                
+            } catch (firestoreError) {
+                console.error('Error buscando usuario en Firestore:', firestoreError);
+                errorElement.style.color = 'red';
+                errorElement.textContent = 'Error al buscar usuario';
+                return;
+            }
+        }
+
+        // ✅ Autenticar con Firebase Auth usando el email (original o encontrado)
+        const userCredential = await auth.signInWithEmailAndPassword(emailToUse, password);
         const user = userCredential.user;
 
-            // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
-            try { sessionStorage.setItem('chat_currentUserId', user.uid); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage tras login:', e); }
+        // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
+        try { 
+            sessionStorage.setItem('chat_currentUserId', user.uid); 
+        } catch(e) { 
+            console.warn('No se pudo persistir sesión en sessionStorage tras login:', e); 
+        }
 
         // El resto se maneja en onAuthStateChanged
         errorElement.style.color = 'green';
@@ -1260,19 +1299,21 @@ async function login() {
         
         switch(error.code) {
             case 'auth/user-not-found':
-                message = 'No existe una cuenta con este email';
-                break;
             case 'auth/wrong-password':
-                message = 'Contraseña incorrecta';
+            case 'auth/invalid-credential':  
+                message = 'Usuario o contraseña incorrectos';
                 break;
             case 'auth/invalid-email':
-                message = 'Email inválido';
+                message = 'Formato de email inválido';
                 break;
             case 'auth/user-disabled':
                 message = 'Esta cuenta ha sido deshabilitada';
                 break;
+            case 'auth/too-many-requests':
+                message = 'Demasiados intentos fallidos. Inténtalo más tarde.';
+                break;
             default:
-                message = 'Error: ' + error.message;
+                message = 'Usuario o contraseña incorrectos'; 
         }
         
         errorElement.textContent = message;
