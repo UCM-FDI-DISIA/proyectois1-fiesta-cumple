@@ -707,9 +707,9 @@ html.session-restoring #login-screen { display: none !important; }
     flex-shrink: 0;
     gap: 15px;
     flex-wrap: wrap;
-    position: relative;
     border-bottom: 2px solid #e8ecf1;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: relative;
 }
 
     .chat-header-user {
