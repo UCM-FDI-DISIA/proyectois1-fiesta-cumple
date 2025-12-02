@@ -321,9 +321,134 @@ function createBlockedUsersModal() {
 
     document.body.appendChild(backdrop);
     document.body.appendChild(modal);
+    
+    // Listener para el botón Eliminar Perfil (flujo: aviso -> pedir contraseña -> confirmar)
+    const deleteBtn = document.getElementById('deleteProfileBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', showDeleteProfileDialog);
+    }
 
     backdrop.addEventListener('click', closeBlockedUsersModal);
     modal.querySelector('#closeBlockedUsersBtn').addEventListener('click', closeBlockedUsersModal);
+}
+
+// DIALOGOS Y FUNCIONES PARA ELIMINAR PERFIL
+function showDeleteProfileDialog() {
+    // Crear backdrop específico para el diálogo
+    const dlgBackdrop = document.createElement('div');
+    dlgBackdrop.className = 'delete-profile-backdrop';
+    dlgBackdrop.id = 'deleteProfileBackdrop';
+
+    const dlg = document.createElement('div');
+    dlg.className = 'delete-profile-dialog';
+    dlg.id = 'deleteProfileDialog';
+
+    dlg.innerHTML = `
+        <div class="delete-header"><h3>Eliminar perfil</h3></div>
+        <div class="delete-body">
+            <p>Al eliminar tu perfil se perderán datos asociados a tu cuenta y dejarás de poder acceder. Esta acción es irreversible.</p>
+            <p>¿Quieres continuar?</p>
+        </div>
+        <div class="delete-actions">
+            <button id="deleteCancelBtn" class="btn-secondary">Cancelar</button>
+            <button id="deleteContinueBtn" class="btn-primary">Continuar</button>
+        </div>
+    `;
+
+    document.body.appendChild(dlgBackdrop);
+    document.body.appendChild(dlg);
+
+    document.getElementById('deleteCancelBtn').addEventListener('click', () => {
+        dlg.remove();
+        dlgBackdrop.remove();
+    });
+
+    document.getElementById('deleteContinueBtn').addEventListener('click', () => {
+        // Cambiar el contenido para pedir contraseña
+        const body = dlg.querySelector('.delete-body');
+        body.innerHTML = `
+            <p>Introduce tu contraseña para confirmar la eliminación de la cuenta:</p>
+            <input id="confirmDeletePassword" type="password" placeholder="Contraseña" class="auth-input">
+            <div id="confirmDeleteError" class="auth-error" style="display:none;color:red;margin-top:8px"></div>
+        `;
+
+        const actions = dlg.querySelector('.delete-actions');
+        actions.innerHTML = `
+            <button id="deleteBackBtn" class="btn-secondary">Volver</button>
+            <button id="deleteConfirmBtn" class="btn-danger">Confirmar eliminación</button>
+        `;
+
+        document.getElementById('deleteBackBtn').addEventListener('click', () => {
+            dlg.remove();
+            dlgBackdrop.remove();
+        });
+
+        document.getElementById('deleteConfirmBtn').addEventListener('click', async () => {
+            const pwdEl = document.getElementById('confirmDeletePassword');
+            const errEl = document.getElementById('confirmDeleteError');
+            const password = pwdEl.value || '';
+            errEl.style.display = 'none';
+
+            if (!password || password.trim() === '') {
+                errEl.textContent = 'La contraseña es obligatoria';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            // Reautenticar y eliminar
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('No hay usuario autenticado');
+                const email = user.email;
+                const cred = firebase.auth.EmailAuthProvider.credential(email, password);
+                await user.reauthenticateWithCredential(cred);
+
+                // Mostrar pantalla de progreso
+                const body2 = dlg.querySelector('.delete-body');
+                body2.innerHTML = `<p>Estamos procediendo con la eliminación de tu cuenta, se habrá hecho en unos segundos... cerrando sesión.</p>`;
+                const actions2 = dlg.querySelector('.delete-actions');
+                actions2.innerHTML = `<div style="text-align:center;">Procesando...</div>`;
+
+                // Eliminar documento de Firestore (si existe)
+                try {
+                    await db.collection('users').doc(currentUserId).delete();
+                } catch (e) {
+                    console.warn('No se pudo eliminar documento de usuario en Firestore o no existía:', e);
+                }
+
+                // Eliminar usuario en Auth
+                try {
+                    await user.delete();
+                } catch (delErr) {
+                    console.error('Error eliminando usuario en Auth:', delErr);
+                }
+
+                // Forzar cierre: limpiar UI y mostrar login
+                try {
+                    dlg.remove();
+                    dlgBackdrop.remove();
+                } catch (e) {}
+
+                try { 
+                    // Limpiar estado y mostrar pantalla de login
+                    showLoginForm();
+                } catch (e) {
+                    location.reload();
+                }
+
+            } catch (reauthErr) {
+                console.error('Reautenticación fallida:', reauthErr);
+                const code = reauthErr && reauthErr.code ? reauthErr.code : '';
+                const errElInner = document.getElementById('confirmDeleteError');
+                if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+                    errElInner.textContent = 'Contraseña incorrecta';
+                } else {
+                    errElInner.textContent = 'Error al verificar la contraseña';
+                }
+                errElInner.style.display = 'block';
+            }
+        });
+    });
 }
 
 async function showBlockedUsersModal() {
@@ -635,12 +760,12 @@ function createProfileModal() {
                 <!-- ✅ CAMPOS CON ETIQUETAS (igual que nombre de usuario) -->
                 <label>
                     Altura (cm)
-                    <input type="number" id="editProfileAltura" min="1" step="1">
+                    <input type="number" id="editProfileAltura" min="54" max="272" step="1">
                 </label>
             
                 <label>
                     Peso (kg)
-                    <input type="number" id="editProfilePeso" min="1" step="1">
+                    <input type="number" id="editProfilePeso" min="1" max="737" step="1">
                 </label>
             
                 <div class="habits-section">
@@ -666,7 +791,11 @@ function createProfileModal() {
                     <label><input type="radio" name="editGenero" value="mujer"> Mujer</label>
                 </div>
 
-                <button type="button" onclick="saveProfileChanges()">Guardar cambios</button>
+                <div class="profile-delete-section">
+                    <button type="button" id="deleteProfileBtn" class="btn-danger btn-danger--small">Eliminar Perfil</button>
+                </div>
+
+                <button type="button" id="saveProfileBtn" class="btn-primary save-btn" onclick="saveProfileChanges()">Guardar cambios</button>
             </form>
         </div>
     </div>
@@ -700,6 +829,12 @@ function createProfileModal() {
     if (photoInput2) {
         photoInput2.addEventListener('change', (e) => handleProfilePhotoChange(e, 'profilePhotoEdit2'));
     }
+
+    // Listener para el botón Eliminar Perfil (asegurar que se añade cuando el modal se crea)
+    const deleteBtnLocal = document.getElementById('deleteProfileBtn');
+    if (deleteBtnLocal) {
+        deleteBtnLocal.addEventListener('click', showDeleteProfileDialog);
+    }
 }
 
 function showProfileModal() {
@@ -708,6 +843,8 @@ function showProfileModal() {
     if (modal && backdrop) {
         modal.style.display = 'block';
         backdrop.style.display = 'block';
+        // Asegurar que siempre se muestre la pestaña de vista al abrir el modal
+        try { switchProfileTab('view'); } catch(e) { /* ignore */ }
     }
 }
 
@@ -715,6 +852,23 @@ function hideProfileModal() {
     const modal = document.getElementById('profileModal');
     const backdrop = document.querySelector('.profile-modal-backdrop');
     if (modal && backdrop) {
+        // Restaurar la pestaña de vista (descartar cambios en edición)
+        try { switchProfileTab('view'); } catch(e) { /* ignore */ }
+
+        // Limpiar input temporal de foto si existe
+        try {
+            const photoInput = document.getElementById('newProfilePhoto');
+            if (photoInput) photoInput.value = '';
+        } catch(e) {}
+
+        // Eliminar cualquier diálogo secundario de eliminación de perfil si está abierto
+        try {
+            const delDlg = document.getElementById('deleteProfileDialog');
+            const delBackdrop = document.getElementById('deleteProfileBackdrop');
+            if (delDlg) delDlg.remove();
+            if (delBackdrop) delBackdrop.remove();
+        } catch(e) {}
+
         modal.style.display = 'none';
         backdrop.style.display = 'none';
     }
@@ -1065,6 +1219,16 @@ async function saveProfileChanges() {
             return;
         }
 
+        if (alturaNum < 54) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
+        if (alturaNum > 272) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
         if (!newPeso || newPeso === '') {
             alert('El peso es obligatorio');
             return;
@@ -1073,6 +1237,11 @@ async function saveProfileChanges() {
         const pesoNum = parseFloat(newPeso);
         if (isNaN(pesoNum) || pesoNum <= 0) {
             alert('El peso debe ser un número positivo');
+            return;
+        }
+
+        if (pesoNum > 737) {
+            alert('El peso introducido es falso');
             return;
         }
 
@@ -1353,6 +1522,9 @@ function showLoginForm() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'none';
     document.getElementById('nav-bar').style.display = 'none';
+    // Ensure no modals or panels remain open when returning to login
+    try { hideProfileModal(); } catch(e) { /* ignore if not present */ }
+    try { closeAllPanels(); } catch(e) { /* ignore */ }
     // Limpiar errores y campos
     document.getElementById('login-error').textContent = '';
     document.getElementById('register-error').textContent = '';
@@ -1558,6 +1730,16 @@ async function completeRegistration() {
         return;
     }
 
+    if (alturaNum < 54) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
+    if (alturaNum > 272) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
     // ✅ NUEVA VALIDACIÓN: Peso obligatorio
     if (!peso || peso.trim() === '') {
         errorElement.textContent = 'El peso es obligatorio';
@@ -1567,6 +1749,11 @@ async function completeRegistration() {
     const pesoNum = parseFloat(peso);
     if (isNaN(pesoNum) || pesoNum <= 0) {
         errorElement.textContent = 'El peso debe ser un número positivo';
+        return;
+    }
+
+    if (pesoNum > 737) {
+        errorElement.textContent = 'El peso introducido es falso';
         return;
     }
 
