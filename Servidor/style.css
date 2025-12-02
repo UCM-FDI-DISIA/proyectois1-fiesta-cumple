@@ -413,6 +413,41 @@ html.session-restoring #login-screen { display: none !important; }
         background-color: #5a6268;
     }
 
+    .btn-danger:hover {
+        filter: brightness(0.95);
+    }
+
+    /* Variante compacta para botones destructivos dentro de modales */
+    .btn-danger--small {
+        padding: 8px;
+        font-size: 14px;
+        border-radius: 8px;
+        margin: 6px 0;
+        width: 100%;
+    }
+
+    /* Asegurar color exacto para el botón Eliminar Perfil (ID específico) */
+    #deleteProfileBtn {
+        background: #ff4d4f; /* color solicitado */
+        color: #ffffff;
+        border: none;
+        /* Reducir ancho horizontal a 25% (75% más pequeño que 100%) */
+        width: 25%;
+        min-width: 120px; /* evitar que quede demasiado pequeño en pantallas muy estrechas */
+        display: block;
+        margin: 12px auto; /* centrar horizontalmente dentro del modal */
+    }
+
+    #deleteProfileBtn:hover {
+        filter: brightness(0.95);
+    }
+
+    /* Estilo específico para el botón Guardar en el modal de perfil */
+    .save-btn {
+        font-size: 18px; /* un poco más grande */
+        padding: 14px;
+    }
+
 /* ========================================
    CONTENEDOR PRINCIPAL DEL CHAT
    ======================================== */
@@ -1489,3 +1524,37 @@ html.session-restoring #login-screen { display: none !important; }
 .blocked-user-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; background:#f0f2f5; }
 .blocked-user-name { flex:1; font-weight:600; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .blocked-user-actions { display:flex; gap:8px; }
+
+/* Estilos para el diálogo de eliminación de perfil */
+.delete-profile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 4000;
+}
+
+/* Backdrop genérico para el modal de perfil (cubre toda la pantalla para detectar clicks fuera) */
+.profile-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 3000;
+}
+.delete-profile-dialog {
+    position: fixed;
+    left: 50%;
+    top: 18%;
+    transform: translateX(-50%);
+    width: 420px;
+    max-width: calc(100% - 32px);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    padding: 16px;
+    z-index: 4100;
+}
+.delete-profile-dialog .delete-header h3 { margin: 0 0 8px 0; }
+.delete-profile-dialog .delete-body { color: #333; font-size: 14px; margin-bottom: 12px; }
+.delete-profile-dialog .delete-actions { display:flex; justify-content:flex-end; gap:8px; }
+.auth-input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; }
+.auth-error { font-size: 13px; color: #c0392b; }
