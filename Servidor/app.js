@@ -3405,7 +3405,7 @@ document.addEventListener('click', (ev) => {
         if (!alturaElement || !pesoElement) return;
         
         // ALTURA: Se desbloquea con más de 5 puntos
-        if (points > 4) {
+        if (points > 5) {
             const altura = partnerData.altura || '-';
             alturaElement.textContent = altura !== '-' ? `${altura} cm` : '-';
             alturaElement.classList.remove('locked');
@@ -3414,8 +3414,8 @@ document.addEventListener('click', (ev) => {
             alturaElement.classList.add('locked');
         }
         
-        // PESO: Se desbloquea con más de 10 puntos
-        if (points > 9) {
+        // PESO: Se desbloquea con 10 puntos o más (>=)
+        if (points >= 10) {
             const peso = partnerData.peso || '-';
             pesoElement.textContent = peso !== '-' ? `${peso} kg` : '-';
             pesoElement.classList.remove('locked');
