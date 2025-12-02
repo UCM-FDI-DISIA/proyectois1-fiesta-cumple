@@ -2690,6 +2690,10 @@ async function openChat(chatId, partnerId, partnerName) {
     
     loadMessages(chatId);
     updateChatListSelection(chatId);
+
+    if (typeof window.cleanupPartnerInfoDropdown === 'function') {
+        window.cleanupPartnerInfoDropdown();
+    }
     
     if (typeof window.loadGameForChat === 'function') {
         window.loadGameForChat(chatId);
@@ -3328,3 +3332,236 @@ document.addEventListener('click', (ev) => {
         console.warn('[app.js] Error cerrando menús al click fuera:', err);
     }
 });
+
+// ========================================
+// DESPLEGABLE DE INFORMACIÓN DEL PARTNER
+// ========================================
+/**
+ * Sistema que muestra altura y peso del otro usuario según los puntos acumulados:
+ * - Más de 5 puntos: se desbloquea la altura
+ * - Más de 10 puntos: se desbloquea el peso
+ * 
+ * El desplegable se muestra automáticamente al pasar el ratón por encima del widget
+ * de puntos, o al hacer clic en él.
+ */
+
+(function() {
+    'use strict';
+
+    let dropdownVisible = false;
+    let currentPartnerData = null;
+    
+    /**
+     * Inicializa el sistema del desplegable
+     */
+    function initPartnerInfoDropdown() {
+        const widget = document.getElementById('couple-points-widget');
+        const dropdown = document.getElementById('partner-info-dropdown');
+        
+        if (!widget || !dropdown) {
+            console.warn('[Partner Info] Elementos no encontrados');
+            return;
+        }
+        
+        // Hacer el widget y el dropdown interactivos
+        
+        // HOVER: Mostrar al pasar el ratón
+        widget.addEventListener('mouseenter', () => {
+            showPartnerInfoDropdown();
+        });
+        
+        // HOVER: Ocultar al salir del widget Y del dropdown
+        widget.addEventListener('mouseleave', (e) => {
+            // Solo ocultar si no estamos entrando al dropdown
+            const relatedTarget = e.relatedTarget;
+            if (!relatedTarget || !dropdown.contains(relatedTarget)) {
+                hidePartnerInfoDropdown();
+            }
+        });
+        
+        dropdown.addEventListener('mouseleave', (e) => {
+            // Solo ocultar si no estamos volviendo al widget
+            const relatedTarget = e.relatedTarget;
+            if (!relatedTarget || !widget.contains(relatedTarget)) {
+                hidePartnerInfoDropdown();
+            }
+        });
+        
+        // CLICK: Toggle al hacer clic en el widget
+        widget.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el click cierre inmediatamente
+            togglePartnerInfoDropdown();
+        });
+        
+        // Cerrar al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (dropdownVisible && 
+                !widget.contains(e.target) && 
+                !dropdown.contains(e.target)) {
+                hidePartnerInfoDropdown();
+            }
+        });
+        
+        console.log('[Partner Info] Sistema inicializado correctamente');
+    }
+    
+    /**
+     * Muestra el desplegable y carga los datos
+     */
+    function showPartnerInfoDropdown() {
+        const dropdown = document.getElementById('partner-info-dropdown');
+        if (!dropdown || !currentChatId || !currentChatPartner) {
+            return;
+        }
+        
+        dropdown.style.display = 'block';
+        // Forzar reflow para que la animación funcione
+        dropdown.offsetHeight;
+        dropdown.classList.add('show');
+        dropdownVisible = true;
+        
+        // Cargar datos del partner
+        loadPartnerData();
+    }
+    
+    /**
+     * Oculta el desplegable
+     */
+    function hidePartnerInfoDropdown() {
+        const dropdown = document.getElementById('partner-info-dropdown');
+        if (!dropdown) return;
+        
+        dropdown.classList.remove('show');
+        dropdownVisible = false;
+        
+        // Ocultar el elemento después de la animación
+        setTimeout(() => {
+            if (!dropdownVisible) {
+                dropdown.style.display = 'none';
+            }
+        }, 200);
+    }
+    
+    /**
+     * Alterna la visibilidad del desplegable
+     */
+    function togglePartnerInfoDropdown() {
+        if (dropdownVisible) {
+            hidePartnerInfoDropdown();
+        } else {
+            showPartnerInfoDropdown();
+        }
+    }
+    
+    /**
+     * Carga los datos del partner desde Firestore
+     */
+    async function loadPartnerData() {
+        if (!currentChatPartner) {
+            console.warn('[Partner Info] No hay partner activo');
+            return;
+        }
+        
+        try {
+            // Obtener los puntos actuales del chat
+            const chatRef = db.collection('chats').doc(currentChatId);
+            const chatDoc = await chatRef.get();
+            
+            if (!chatDoc.exists) {
+                console.warn('[Partner Info] Chat no encontrado');
+                return;
+            }
+            
+            const chatData = chatDoc.data();
+            const points = chatData.couplePoints || 0;
+            
+            // Obtener los datos del partner
+            const partnerDoc = await db.collection('users').doc(currentChatPartner).get();
+            
+            if (!partnerDoc.exists) {
+                console.warn('[Partner Info] Usuario partner no encontrado');
+                return;
+            }
+            
+            const partnerData = partnerDoc.data();
+            currentPartnerData = partnerData;
+            
+            // Actualizar la UI según los puntos
+            updatePartnerInfoUI(partnerData, points);
+            
+        } catch (error) {
+            console.error('[Partner Info] Error al cargar datos:', error);
+        }
+    }
+    
+    /**
+     * Actualiza la interfaz con los datos del partner según los puntos
+     */
+    function updatePartnerInfoUI(partnerData, points) {
+        const alturaElement = document.getElementById('partner-altura-value');
+        const pesoElement = document.getElementById('partner-peso-value');
+        
+        if (!alturaElement || !pesoElement) return;
+        
+        // ALTURA: Se desbloquea con más de 5 puntos
+        if (points > 5) {
+            const altura = partnerData.altura || '-';
+            alturaElement.textContent = altura !== '-' ? `${altura} cm` : '-';
+            alturaElement.classList.remove('locked');
+        } else {
+            alturaElement.textContent = '-';
+            alturaElement.classList.add('locked');
+        }
+        
+        // PESO: Se desbloquea con 10 puntos o más (>=)
+        if (points >= 10) {
+            const peso = partnerData.peso || '-';
+            pesoElement.textContent = peso !== '-' ? `${peso} kg` : '-';
+            pesoElement.classList.remove('locked');
+        } else {
+            pesoElement.textContent = '-';
+            pesoElement.classList.add('locked');
+        }
+        
+        console.log(`[Partner Info] UI actualizada - Puntos: ${points}, Altura: ${alturaElement.textContent}, Peso: ${pesoElement.textContent}`);
+    }
+    
+    /**
+     * Limpia los datos cuando se cambia de chat
+     */
+    function cleanupPartnerInfo() {
+        currentPartnerData = null;
+        hidePartnerInfoDropdown();
+        
+        // Resetear valores
+        const alturaElement = document.getElementById('partner-altura-value');
+        const pesoElement = document.getElementById('partner-peso-value');
+        
+        if (alturaElement) {
+            alturaElement.textContent = '-';
+            alturaElement.classList.add('locked');
+        }
+        if (pesoElement) {
+            pesoElement.textContent = '-';
+            pesoElement.classList.add('locked');
+        }
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPartnerInfoDropdown);
+    } else {
+        initPartnerInfoDropdown();
+    }
+    
+    // Exponer función de limpieza para usar en cambios de chat
+    window.cleanupPartnerInfoDropdown = cleanupPartnerInfo;
+    
+    // Actualizar datos cuando cambien los puntos (se puede llamar desde cuatroEnRayaScript.js)
+    window.updatePartnerInfoDropdown = function() {
+        if (dropdownVisible) {
+            loadPartnerData();
+        }
+    };
+    
+})();
