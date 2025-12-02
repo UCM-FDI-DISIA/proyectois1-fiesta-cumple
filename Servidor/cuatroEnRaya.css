@@ -252,7 +252,27 @@
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 968px) {
+    #game-container {
+        top: 70px;
+        height: calc(100% - 130px);
+        padding: 15px;
+        padding-bottom: 70px;
+    }
+    
+    #game-board-wrapper {
+        max-width: 500px;
+    }
+}
+
 @media (max-width: 768px) {
+    #game-container {
+        top: 60px;
+        height: calc(100% - 120px);
+        padding: 10px;
+        padding-bottom: 60px;
+    }
+    
     #game-board-online {
         gap: 6px;
         padding: 12px;
@@ -270,9 +290,23 @@
     #game-message-container {
         font-size: 18px;
     }
+    
+    .game-status {
+        padding: 12px;
+    }
+    
+    #game-board-wrapper {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
+    #game-container {
+        top: 50px;
+        padding: 8px;
+        padding-bottom: 50px;
+    }
+    
     .cell-online {
         max-width: 36px;
         max-height: 36px;
@@ -281,6 +315,29 @@
     #game-board-online {
         gap: 5px;
         padding: 10px;
+    }
+    
+    #current-player-game {
+        font-size: 14px;
+    }
+
+    #game-message-container {
+        font-size: 16px;
+    }
+    
+    .game-status {
+        padding: 10px;
+    }
+    
+    .accept-game-btn,
+    .reject-game-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+    
+    .invitation-buttons {
+        flex-direction: column;
+        gap: 8px;
     }
 }
 
