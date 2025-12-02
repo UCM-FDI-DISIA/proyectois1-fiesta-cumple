@@ -707,12 +707,9 @@ html.session-restoring #login-screen { display: none !important; }
     flex-shrink: 0;
     gap: 15px;
     flex-wrap: wrap;
-<<<<<<< HEAD
     position: relative;
-=======
     border-bottom: 2px solid #e8ecf1;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
->>>>>>> 80c7a68233d7b09e20667cefd0053aea1373cde5
 }
 
     .chat-header-user {
@@ -1387,6 +1384,7 @@ html.session-restoring #login-screen { display: none !important; }
     #messages {
         flex: 1 1 auto;
         padding: 16px;
+        padding-bottom: 80px;
         overflow-y: auto;
         min-height: 0;
     }
@@ -1565,6 +1563,7 @@ html.session-restoring #login-screen { display: none !important; }
     
     #messages {
         padding: 12px;
+        padding-bottom: 80px;
     }
     
     .chat-avatar {
@@ -1983,6 +1982,7 @@ html.session-restoring #login-screen { display: none !important; }
     #users-list {
         grid-template-columns: 1fr;
         padding: 16px;
+        padding-bottom: 80px;
         gap: 18px;
     }
 
@@ -2033,6 +2033,7 @@ html.session-restoring #login-screen { display: none !important; }
     
     #users-list {
         padding: 12px;
+        padding-bottom: 80px;
         gap: 14px;
     }
     
@@ -2309,7 +2310,6 @@ html.session-restoring #login-screen { display: none !important; }
 .blocked-user-name { flex:1; font-weight:600; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .blocked-user-actions { display:flex; gap:8px; }
 
-<<<<<<< HEAD
 /* ========================================
    DESPLEGABLE DE INFORMACIÓN DEL PARTNER
    ======================================== */
@@ -2395,7 +2395,9 @@ html.session-restoring #login-screen { display: none !important; }
     
     .partner-info-value {
         font-size: 15px;
-=======
+    }
+}
+
 /* Estilos para el diálogo de eliminación de perfil */
 .delete-profile-backdrop {
     position: fixed;
@@ -2589,6 +2591,5 @@ html {
     .nav-button:active,
     .chat-item:active {
         opacity: 0.7;
->>>>>>> 80c7a68233d7b09e20667cefd0053aea1373cde5
     }
 }
