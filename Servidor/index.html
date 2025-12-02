@@ -70,10 +70,16 @@
             <input type="password" id="register-password" placeholder="Tu contraseña (mínimo 6 caracteres)" required>
             <input type="text" id="register-name" placeholder="Tu nombre de usuario (debe ser único)" required>
 
-            <h3>Foto de perfil</h3>
+            <h3>Fotos de perfil (obligatorias)</h3>
             <div class="photo-upload-container">
+                <label for="profile-photo">Foto principal:</label>
                 <input type="file" id="profile-photo" accept="image/*">
                 <div id="photo-preview" class="photo-preview"></div>
+            </div>
+            <div class="photo-upload-container">
+                <label for="profile-photo-2">Segunda foto:</label>
+                <input type="file" id="profile-photo-2" accept="image/*">
+                <div id="photo-preview-2" class="photo-preview"></div>
             </div>
 
             <h3>Hábitos</h3>
