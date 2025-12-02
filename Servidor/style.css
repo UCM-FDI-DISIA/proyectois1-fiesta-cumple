@@ -75,7 +75,7 @@ html.session-restoring #login-screen { display: none !important; }
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 9999;
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
@@ -1103,7 +1103,7 @@ html.session-restoring #login-screen { display: none !important; }
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    z-index: 10001;
+    z-index: 10000;
     background-color: #FF9F7A;
     box-shadow: 0 4px 12px rgba(255, 122, 90, 0.3);
     cursor: pointer;
@@ -1140,7 +1140,7 @@ html.session-restoring #login-screen { display: none !important; }
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border-radius: 10px;
     padding: 10px;
-    z-index: 2000;
+    z-index: 10001;
     display: none;
 }
 
@@ -1195,6 +1195,7 @@ html.session-restoring #login-screen { display: none !important; }
         min-height: 48px;
         max-width: 48px;
         max-height: 48px;
+        z-index: 10000;
     }
     
     .profile-button img {
@@ -1295,7 +1296,7 @@ html.session-restoring #login-screen { display: none !important; }
         max-height: 48px;
         top: 10px;
         right: 20px;
-        z-index: 10001;
+        z-index: 10000;
     }
     
     .profile-button img {
@@ -1323,71 +1324,132 @@ html.session-restoring #login-screen { display: none !important; }
 
     #chat-screen {
         width: 100%;
-        height: calc(100vh - 100px);
+        min-height: calc(100vh - 100px);
+        height: auto;
+        max-height: calc(100vh - 100px);
         top: 100px;
+        bottom: 0;
         left: 0;
         transform: none;
         border-radius: 0;
         max-width: none;
         flex-direction: column;
+        box-sizing: border-box;
     }
 
     .chat-sidebar {
         width: 100%;
         min-width: 100%;
-        max-height: 30vh;
+        max-height: 35vh;
+        border-bottom: 2px solid #e0e0e0;
+        overflow-y: auto;
     }
     
-    .chat-window {
-        flex: 1;
-        min-height: 250px;
+    .sidebar-header {
+        padding: 12px;
     }
     
-    #messages {
-        padding: 18px;
-    }
-    
-    .message {
-        max-width: 80%;
-        padding: 12px 16px;
-    }
-    
-    #header {
-        padding: 14px 16px;
-    }
-    
-    #header h2 {
+    .sidebar-header h3 {
         font-size: 16px;
     }
     
-    .chat-avatar {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        min-height: 40px;
+    .chat-list {
+        padding: 5px 0;
     }
     
-    .couple-points-widget {
-        padding: 8px 14px;
+    .chat-item {
+        padding: 12px 16px;
+    }
+    
+    .chat-item-name {
         font-size: 14px;
     }
     
+    .sidebar-footer {
+        padding: 12px;
+    }
+    
+    .add-chat-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .chat-window {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #messages {
+        flex: 1 1 auto;
+        padding: 16px;
+        overflow-y: auto;
+        min-height: 0;
+    }
+    
+    .message {
+        max-width: 85%;
+        padding: 10px 14px;
+        margin: 8px 0;
+    }
+    
+    #header {
+        padding: 12px 16px;
+        flex-shrink: 0;
+    }
+    
+    #header h2 {
+        font-size: 15px;
+    }
+    
+    .chat-avatar {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+    }
+    
+    .couple-points-widget {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
     .couple-points-widget .points-value {
+        font-size: 16px;
+    }
+    
+    .couple-points-widget .points-label {
+        font-size: 9px;
+    }
+    
+    .couple-points-widget .points-icon {
         font-size: 18px;
     }
     
     #input-area {
-        padding: 14px 16px;
+        padding: 12px;
+        flex-shrink: 0;
+        background: white;
+        border-top: 2px solid #e8ecf1;
     }
     
     #message-input {
-        font-size: 15px;
-        padding: 12px 16px;
+        font-size: 14px;
+        padding: 10px 14px;
     }
     
     #input-area button {
-        padding: 12px 24px;
-        font-size: 15px;
+        padding: 10px 20px;
+        font-size: 14px;
+        margin-left: 8px;
+    }
+    
+    #input-area #open-games-menu-btn {
+        padding: 8px;
+        font-size: 22px;
+        min-width: 40px;
+        height: 40px;
     }
     
     .profile-button {
@@ -1398,117 +1460,176 @@ html.session-restoring #login-screen { display: none !important; }
         max-width: 48px;
         max-height: 48px;
         top: 10px;
-        right: 20px;
-        z-index: 10001;
+        right: 15px;
+        z-index: 10000;
     }
     
     .profile-button img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
+        display: block;
     }
     
     .profile-button svg {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
+    }
+    
+    .nav-bar {
+        padding: 8px 0;
+    }
+    
+    .nav-title {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+    
+    .nav-buttons {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-button {
+        padding: 6px 14px;
+        font-size: 13px;
     }
 }
 
 @media (max-width: 480px) {
     .nav-bar {
-        padding: 10px 0;
+        padding: 8px 0;
     }
     
     .nav-title {
-        font-size: 18px;
-        margin-bottom: 8px;
+        font-size: 16px;
+        margin-bottom: 6px;
     }
     
     .nav-buttons {
         flex-direction: row;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
         justify-content: center;
     }
     
     .nav-button {
-        padding: 8px 18px;
-        font-size: 13px;
+        padding: 6px 12px;
+        font-size: 12px;
     }
     
     #chat-screen {
-        top: 100px;
-        height: calc(100vh - 120px);
+        top: 90px;
+        min-height: calc(100vh - 90px);
+        height: auto;
+        max-height: calc(100vh - 90px);
+        bottom: 0;
     }
     
     .chat-sidebar {
-        max-height: 25vh;
+        max-height: 30vh;
+    }
+    
+    .sidebar-header {
+        padding: 10px;
+    }
+    
+    .sidebar-header h3 {
+        font-size: 14px;
+    }
+    
+    .chat-item {
+        padding: 10px 12px;
+    }
+    
+    .chat-item-name {
+        font-size: 13px;
+    }
+    
+    .sidebar-footer {
+        padding: 10px;
+    }
+    
+    .add-chat-btn {
+        padding: 8px;
+        font-size: 13px;
     }
     
     .chat-window {
-        min-height: 200px;
+        flex: 1 1 auto;
+        min-height: 0;
     }
     
     #messages {
-        padding: 15px;
+        padding: 12px;
     }
     
     .chat-avatar {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        min-height: 38px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
     }
     
     .chat-header-user {
-        gap: 10px;
+        gap: 8px;
     }
     
     #header {
-        padding: 12px 15px;
+        padding: 10px 12px;
     }
     
     #header h2 {
-        font-size: 15px;
+        font-size: 14px;
     }
     
     .couple-points-widget {
-        padding: 8px 12px;
-        gap: 6px;
+        padding: 6px 8px;
+        gap: 4px;
     }
     
     .couple-points-widget .points-icon {
-        font-size: 20px;
-    }
-    
-    .couple-points-widget .points-label {
-        font-size: 10px;
-    }
-    
-    .couple-points-widget .points-value {
         font-size: 16px;
     }
     
+    .couple-points-widget .points-label {
+        font-size: 8px;
+    }
+    
+    .couple-points-widget .points-value {
+        font-size: 14px;
+    }
+    
     .message {
-        max-width: 85%;
-        padding: 10px 14px;
+        max-width: 88%;
+        padding: 8px 12px;
+        margin: 6px 0;
     }
     
     .message-text {
-        font-size: 14px;
+        font-size: 13px;
     }
     
     #input-area {
-        padding: 12px 15px;
+        padding: 10px;
     }
     
     #message-input {
-        padding: 12px 16px;
-        font-size: 14px;
+        padding: 10px 12px;
+        font-size: 13px;
     }
     
     #input-area button {
-        padding: 12px 20px;
-        font-size: 14px;
+        padding: 10px 16px;
+        font-size: 13px;
+        margin-left: 6px;
+    }
+    
+    #input-area #open-games-menu-btn {
+        padding: 6px;
+        font-size: 20px;
+        min-width: 36px;
+        height: 36px;
     }
     
     .profile-button {
@@ -1520,7 +1641,7 @@ html.session-restoring #login-screen { display: none !important; }
         max-height: 48px;
         top: 12px;
         right: 20px;
-        z-index: 10001;
+        z-index: 10000;
     }
     
     .profile-button img {
@@ -1827,30 +1948,51 @@ html.session-restoring #login-screen { display: none !important; }
 @media (max-width: 768px) {
     #users-panel {
         width: 100%;
-        height: calc(100vh - 100px);
+        min-height: calc(100vh - 100px);
+        height: auto;
+        max-height: calc(100vh - 100px);
         top: 100px;
+        bottom: 0;
         left: 0;
         transform: none;
         border-radius: 0;
         max-width: none;
+        box-sizing: border-box;
+    }
+    
+    #users-panel > div:first-child {
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
+    }
+    
+    #users-panel > div:first-child strong {
+        font-size: 18px;
+    }
+    
+    #users-info {
+        padding: 12px 16px;
+        font-size: 13px;
     }
     
     #users-list {
         grid-template-columns: 1fr;
-        padding: 20px;
-        gap: 20px;
+        padding: 16px;
+        gap: 18px;
     }
 
     .user-card {
         max-width: 100%;
         height: auto;
-        min-height: 480px;
+        min-height: 460px;
         max-height: none;
     }
 
     .user-card-photo {
         aspect-ratio: 1 / 1;
-        height: 320px;
+        height: 280px;
     }
 
     .user-card-actions {
@@ -1861,74 +2003,75 @@ html.session-restoring #login-screen { display: none !important; }
         font-size: 16px;
         padding: 14px 20px;
     }
-    
-    #users-panel > div:first-child {
-        padding: 15px 20px;
-    }
-    
-    #users-panel > div:first-child strong {
-        font-size: 20px;
-    }
 }
 
 @media (max-width: 480px) {
     #users-panel {
-        top: 100px;
-        height: calc(100vh - 120px);
-    }
-    
-    #users-list {
-        padding: 15px;
-        gap: 15px;
-    }
-    
-    .user-card {
-        min-height: 460px;
-    }
-    
-    .user-card-photo {
-        height: 300px;
-    }
-    
-    .user-card-info {
-        padding: 18px;
-        gap: 12px;
-    }
-    
-    .user-card-name-age h3 {
-        font-size: 22px;
-    }
-    
-    .user-card-habits {
-        gap: 8px;
-    }
-    
-    .habit-chip {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-    
-    .user-card-interests {
-        font-size: 14px;
-    }
-    
-    .user-card-actions {
-        padding: 0 18px 18px 18px;
-        gap: 12px;
-    }
-    
-    .user-card-btn {
-        font-size: 15px;
-        padding: 14px;
-        gap: 8px;
+        top: 90px;
+        min-height: calc(100vh - 90px);
+        height: auto;
+        max-height: calc(100vh - 90px);
+        bottom: 0;
     }
     
     #users-panel > div:first-child {
-        padding: 15px;
+        top: 0;
+        padding: 12px 14px;
     }
     
     #users-panel > div:first-child strong {
-        font-size: 18px;
+        font-size: 16px;
+    }
+    
+    #users-info {
+        padding: 10px 14px;
+        font-size: 12px;
+    }
+    
+    #users-list {
+        padding: 12px;
+        gap: 14px;
+    }
+    
+    .user-card {
+        min-height: 440px;
+    }
+    
+    .user-card-photo {
+        height: 260px;
+    }
+    
+    .user-card-info {
+        padding: 14px;
+        gap: 10px;
+    }
+    
+    .user-card-name-age h3 {
+        font-size: 20px;
+    }
+    
+    .user-card-habits {
+        gap: 6px;
+    }
+    
+    .habit-chip {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .user-card-interests {
+        font-size: 13px;
+    }
+    
+    .user-card-actions {
+        padding: 0 14px 14px 14px;
+        gap: 10px;
+    }
+    
+    .user-card-btn {
+        font-size: 14px;
+        padding: 12px;
+        gap: 6px;
     }
 }
 
@@ -1944,13 +2087,17 @@ html.session-restoring #login-screen { display: none !important; }
     }
     
     #chat-screen {
-        top: 95px;
-        height: calc(100vh - 110px);
+        top: 85px;
+        height: calc(100vh - 85px);
     }
     
     #users-panel {
-        top: 95px;
-        height: calc(100vh - 110px);
+        top: 85px;
+        height: calc(100vh - 85px);
+    }
+    
+    #users-panel > div:first-child {
+        top: 0;
     }
     
     .profile-button {
@@ -1962,7 +2109,7 @@ html.session-restoring #login-screen { display: none !important; }
         max-height: 44px;
         top: 10px;
         right: 15px;
-        z-index: 10001;
+        z-index: 10000;
     }
     
     .profile-button img {
@@ -1985,6 +2132,70 @@ html.session-restoring #login-screen { display: none !important; }
     .user-card-btn {
         font-size: 14px;
         padding: 12px;
+    }
+}
+
+/* ===== LANDSCAPE MODE (móviles horizontales) ===== */
+@media (max-width: 926px) and (max-height: 500px) and (orientation: landscape) {
+    .nav-bar {
+        padding: 6px 0;
+    }
+    
+    .nav-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    
+    .nav-buttons {
+        gap: 6px;
+    }
+    
+    .nav-button {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    
+    #chat-screen {
+        top: 70px;
+        height: calc(100vh - 70px);
+    }
+    
+    .chat-sidebar {
+        max-height: 40vh;
+    }
+    
+    #header {
+        padding: 8px 12px;
+    }
+    
+    #input-area {
+        padding: 8px 12px;
+    }
+    
+    #message-input {
+        padding: 8px 12px;
+    }
+    
+    #input-area button {
+        padding: 8px 16px;
+    }
+    
+    #users-panel {
+        top: 70px;
+        height: calc(100vh - 70px);
+    }
+    
+    #users-panel > div:first-child {
+        top: 0;
+        padding: 8px 12px;
+    }
+    
+    .user-card {
+        min-height: 360px;
+    }
+    
+    .user-card-photo {
+        height: 200px;
     }
 }
 
