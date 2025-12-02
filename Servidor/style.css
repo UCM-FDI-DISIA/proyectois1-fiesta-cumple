@@ -2414,7 +2414,7 @@ html.session-restoring #login-screen { display: none !important; }
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 4000;
+    z-index: 10100;
 }
 
 /* Backdrop genérico para el modal de perfil (cubre toda la pantalla para detectar clicks fuera) */
@@ -2435,7 +2435,7 @@ html.session-restoring #login-screen { display: none !important; }
     border-radius: 12px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.22);
     padding: 16px;
-    z-index: 4100;
+    z-index: 10200;
 }
 .delete-profile-dialog .delete-header h3 { margin: 0 0 8px 0; }
 .delete-profile-dialog .delete-body { color: #333; font-size: 14px; margin-bottom: 12px; }
@@ -2604,7 +2604,6 @@ html {
         opacity: 0.7;
     }
 }
-<<<<<<< HEAD
 
 /* ========================================
    DESPLEGABLE DE INFORMACIÓN DEL PARTNER
@@ -2705,5 +2704,3 @@ html {
     margin-top: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-=======
->>>>>>> 617447f892179382bb94f4d45e7743fa3764298f

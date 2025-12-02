@@ -300,7 +300,7 @@ function createBlockedUsersModal() {
     if (document.getElementById('blockedUsersModal')) return;
 
     const backdrop = document.createElement('div');
-    backdrop.className = 'blocked-users-backdrop profile-modal-backdrop';
+    backdrop.className = 'blocked-users-backdrop';
     backdrop.style.display = 'none';
     backdrop.id = 'blockedUsersBackdrop';
 
@@ -602,7 +602,8 @@ async function renderBlockedUsersList() {
                 const btn = document.createElement('button');
                 btn.className = 'btn-primary';
                 btn.textContent = 'Desbloquear';
-                btn.addEventListener('click', async () => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     btn.disabled = true;
                     try {
                         await unblockUser(uid);
