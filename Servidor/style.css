@@ -1336,7 +1336,7 @@ html.session-restoring #login-screen { display: none !important; }
         flex-direction: column;
         box-sizing: border-box;
     }
-
+    
     .chat-sidebar {
         width: 100%;
         min-width: 100%;
@@ -1386,12 +1386,6 @@ html.session-restoring #login-screen { display: none !important; }
         padding: 16px;
         overflow-y: auto;
         min-height: 0;
-    }
-    
-    .message {
-        max-width: 85%;
-        padding: 10px 14px;
-        margin: 8px 0;
     }
     
     #header {
@@ -1639,14 +1633,16 @@ html.session-restoring #login-screen { display: none !important; }
         min-height: 48px;
         max-width: 48px;
         max-height: 48px;
-        top: 12px;
-        right: 20px;
+        top: 10px;
+        right: 15px;
         z-index: 10000;
     }
     
     .profile-button img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
+        display: block;
     }
     
     .profile-button svg {
@@ -1654,11 +1650,25 @@ html.session-restoring #login-screen { display: none !important; }
         height: 22px;
     }
     
-    .profile-menu {
-        right: 15px;
-        top: 65px;
-        width: calc(100% - 30px);
-        max-width: 300px;
+    .nav-bar {
+        padding: 8px 0;
+    }
+    
+    .nav-title {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+    
+    .nav-buttons {
+        flex-direction: row;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-button {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }
 
@@ -1957,6 +1967,7 @@ html.session-restoring #login-screen { display: none !important; }
         transform: none;
         border-radius: 0;
         max-width: none;
+        flex-direction: column;
         box-sizing: border-box;
     }
     
@@ -2588,4 +2599,16 @@ html {
     .partner-info-value {
         font-size: 15px;
     }
+}
+
+/* Estilos específicos para la imagen de la foto */
+.partner-info-value img {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }

@@ -3396,36 +3396,66 @@ document.addEventListener('click', (ev) => {
     }
     
     /**
-     * Actualiza la interfaz con los datos del partner según los puntos
-     */
-    function updatePartnerInfoUI(partnerData, points) {
-        const alturaElement = document.getElementById('partner-altura-value');
-        const pesoElement = document.getElementById('partner-peso-value');
-        
-        if (!alturaElement || !pesoElement) return;
-        
-        // ALTURA: Se desbloquea con más de 5 puntos
-        if (points > 5) {
-            const altura = partnerData.altura || '-';
-            alturaElement.textContent = altura !== '-' ? `${altura} cm` : '-';
-            alturaElement.classList.remove('locked');
-        } else {
-            alturaElement.textContent = '-';
-            alturaElement.classList.add('locked');
-        }
-        
-        // PESO: Se desbloquea con 10 puntos o más (>=)
-        if (points >= 10) {
-            const peso = partnerData.peso || '-';
-            pesoElement.textContent = peso !== '-' ? `${peso} kg` : '-';
-            pesoElement.classList.remove('locked');
-        } else {
-            pesoElement.textContent = '-';
-            pesoElement.classList.add('locked');
-        }
-        
-        console.log(`[Partner Info] UI actualizada - Puntos: ${points}, Altura: ${alturaElement.textContent}, Peso: ${pesoElement.textContent}`);
+ * Actualiza la interfaz con los datos del partner según los puntos
+ */
+function updatePartnerInfoUI(partnerData, points) {
+    const alturaElement = document.getElementById('partner-altura-value');
+    const pesoElement = document.getElementById('partner-peso-value');
+    const fotoElement = document.getElementById('partner-foto-value');
+    
+    if (!alturaElement || !pesoElement || !fotoElement) return;
+    
+    // ALTURA: Se desbloquea con más de 5 puntos
+    if (points > 5) {
+        const altura = partnerData.altura || '-';
+        alturaElement.textContent = altura !== '-' ? `${altura} cm` : '-';
+        alturaElement.classList.remove('locked');
+    } else {
+        alturaElement.textContent = '-';
+        alturaElement.classList.add('locked');
     }
+    
+    // PESO: Se desbloquea con 10 puntos o más
+    if (points >= 10) {
+        const peso = partnerData.peso || '-';
+        pesoElement.textContent = peso !== '-' ? `${peso} kg` : '-';
+        pesoElement.classList.remove('locked');
+    } else {
+        pesoElement.textContent = '-';
+        pesoElement.classList.add('locked');
+    }
+    
+    // ✅ FOTO: Se desbloquea con 12 puntos o más
+    if (points >= 12) {
+        const foto2 = partnerData.photoURL2 || null;
+    
+        if (foto2) {
+            // Crear imagen en lugar de enlace
+            fotoElement.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = foto2;
+            img.alt = 'Segunda foto';
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '150px';
+            img.style.borderRadius = '8px';
+            img.style.marginTop = '8px';
+            img.style.display = 'block';
+            img.onerror = function() {
+                fotoElement.textContent = 'Error al cargar';
+            };
+            fotoElement.appendChild(img);
+            fotoElement.classList.remove('locked');
+        } else {
+            fotoElement.textContent = 'No disponible';
+            fotoElement.classList.remove('locked');
+        }
+    } else {
+        fotoElement.textContent = '-';
+        fotoElement.classList.add('locked');
+    }
+    
+    console.log(`[Partner Info] UI actualizada - Puntos: ${points}, Altura: ${alturaElement.textContent}, Peso: ${pesoElement.textContent}, Foto: ${fotoElement.textContent || fotoElement.innerHTML}`);
+}
     
     /**
      * Limpia los datos cuando se cambia de chat
@@ -3433,11 +3463,12 @@ document.addEventListener('click', (ev) => {
     function cleanupPartnerInfo() {
         currentPartnerData = null;
         hidePartnerInfoDropdown();
-        
+    
         // Resetear valores
         const alturaElement = document.getElementById('partner-altura-value');
         const pesoElement = document.getElementById('partner-peso-value');
-        
+        const fotoElement = document.getElementById('partner-foto-value');
+    
         if (alturaElement) {
             alturaElement.textContent = '-';
             alturaElement.classList.add('locked');
@@ -3445,6 +3476,11 @@ document.addEventListener('click', (ev) => {
         if (pesoElement) {
             pesoElement.textContent = '-';
             pesoElement.classList.add('locked');
+        }
+        // ✅ NUEVO: Resetear foto
+        if (fotoElement) {
+            fotoElement.textContent = '-';
+            fotoElement.classList.add('locked');
         }
     }
     
