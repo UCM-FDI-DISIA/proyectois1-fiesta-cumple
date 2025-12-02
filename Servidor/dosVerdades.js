@@ -48,7 +48,7 @@
         modal.querySelector('#dv-send-btn').addEventListener('click', sendDosVerdades);
     }
 
-    function openDosVerdadesModal() {
+    async function openDosVerdadesModal() {
         if (!currentChatId) {
             alert('Selecciona un chat antes de iniciar el juego.');
             return;
