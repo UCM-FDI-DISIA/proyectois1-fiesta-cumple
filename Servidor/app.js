@@ -635,12 +635,12 @@ function createProfileModal() {
                 <!-- ✅ CAMPOS CON ETIQUETAS (igual que nombre de usuario) -->
                 <label>
                     Altura (cm)
-                    <input type="number" id="editProfileAltura" min="1" step="1">
+                    <input type="number" id="editProfileAltura" min="54" max="272" step="1">
                 </label>
             
                 <label>
                     Peso (kg)
-                    <input type="number" id="editProfilePeso" min="1" step="1">
+                    <input type="number" id="editProfilePeso" min="1" max="737" step="1">
                 </label>
             
                 <div class="habits-section">
@@ -1065,6 +1065,16 @@ async function saveProfileChanges() {
             return;
         }
 
+        if (alturaNum < 54) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
+        if (alturaNum > 272) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
         if (!newPeso || newPeso === '') {
             alert('El peso es obligatorio');
             return;
@@ -1073,6 +1083,11 @@ async function saveProfileChanges() {
         const pesoNum = parseFloat(newPeso);
         if (isNaN(pesoNum) || pesoNum <= 0) {
             alert('El peso debe ser un número positivo');
+            return;
+        }
+
+        if (pesoNum > 737) {
+            alert('El peso introducido es falso');
             return;
         }
 
@@ -1558,6 +1573,16 @@ async function completeRegistration() {
         return;
     }
 
+    if (alturaNum < 54) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
+    if (alturaNum > 272) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
     // ✅ NUEVA VALIDACIÓN: Peso obligatorio
     if (!peso || peso.trim() === '') {
         errorElement.textContent = 'El peso es obligatorio';
@@ -1567,6 +1592,11 @@ async function completeRegistration() {
     const pesoNum = parseFloat(peso);
     if (isNaN(pesoNum) || pesoNum <= 0) {
         errorElement.textContent = 'El peso debe ser un número positivo';
+        return;
+    }
+
+    if (pesoNum > 737) {
+        errorElement.textContent = 'El peso introducido es falso';
         return;
     }
 
