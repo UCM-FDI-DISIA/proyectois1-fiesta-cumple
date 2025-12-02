@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App de Citas - Chat</title>
+    <title>Veneris</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="profile-styles.css">
     <link rel="stylesheet" href="cuatroEnRaya.css">
@@ -70,10 +70,16 @@
             <input type="password" id="register-password" placeholder="Tu contraseña (mínimo 6 caracteres)" required>
             <input type="text" id="register-name" placeholder="Tu nombre de usuario (debe ser único)" required>
 
-            <h3>Foto de perfil</h3>
+            <h3>Fotos de perfil (obligatorias)</h3>
             <div class="photo-upload-container">
+                <label for="profile-photo">Foto principal:</label>
                 <input type="file" id="profile-photo" accept="image/*">
                 <div id="photo-preview" class="photo-preview"></div>
+            </div>
+            <div class="photo-upload-container">
+                <label for="profile-photo-2">Segunda foto:</label>
+                <input type="file" id="profile-photo-2" accept="image/*">
+                <div id="photo-preview-2" class="photo-preview"></div>
             </div>
 
             <h3>Hábitos</h3>
@@ -101,8 +107,8 @@
 
             <h3>Información adicional</h3>
             <input type="number" id="age" placeholder="Tu edad" min="18" max="100">
-            <input type="number" id="altura" placeholder="Tu altura (cm)" min="1" step="1">
-            <input type="number" id="peso" placeholder="Tu peso (kg)" min="1" step="1">
+            <input type="number" id="altura" placeholder="Tu altura (cm)" min="54" max="272" step="1">
+            <input type="number" id="peso" placeholder="Tu peso (kg)" min="1" max="737" step="1">
 
             <button onclick="completeRegistration()" class="btn-primary">Crear Cuenta</button>
             <button onclick="showLoginForm()" class="btn-secondary">Volver al Login</button>

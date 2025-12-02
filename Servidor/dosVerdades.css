@@ -61,6 +61,44 @@
 .dv-summary { font-weight:600; margin-top:6px; }
 
 /* Small responsive */
-@media (max-width:420px) {
-    .dv-dialog { width: 92%; }
+@media (max-width: 768px) {
+    .dv-dialog {
+        width: 90%;
+        max-width: 420px;
+        padding: 16px;
+    }
+    
+    .dv-inputs input[type="text"] {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 420px) {
+    .dv-dialog {
+        width: 92%;
+        padding: 14px;
+    }
+    
+    .dv-dialog h3 {
+        font-size: 18px;
+    }
+    
+    .dv-actions {
+        flex-direction: column;
+    }
+    
+    .dv-actions button {
+        width: 100%;
+    }
+    
+    .dv-inputs input[type="text"] {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .dv-choose-lie {
+        flex-direction: column;
+        gap: 6px;
+    }
 }

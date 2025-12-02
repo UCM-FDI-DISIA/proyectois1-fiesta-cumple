@@ -104,7 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== PREVIEW DE FOTO DE PERFIL =====
     const profilePhotoInput = document.getElementById('profile-photo');
     if (profilePhotoInput) {
-        profilePhotoInput.addEventListener('change', previewProfilePhoto);
+        profilePhotoInput.addEventListener('change', (e) => previewProfilePhoto(e, 'photo-preview'));
+    }
+    const profilePhotoInput2 = document.getElementById('profile-photo-2');
+    if (profilePhotoInput2) {
+        profilePhotoInput2.addEventListener('change', (e) => previewProfilePhoto(e, 'photo-preview-2'));
     }
     // Actualizar el botón de perfil (muestra silueta o foto si hay sesión)
     try { updateProfileButton(); } catch(e) { /* no crítico */ }
@@ -701,7 +705,10 @@ function createProfileModal() {
         <div id="viewProfileContent">
             <div class="profile-photo-section">
                 <div class="profile-photo-container" id="profilePhotoView">
-                    <!-- La foto se inserta aquí -->
+                    <!-- La foto principal se inserta aquí -->
+                </div>
+                <div class="profile-photo-container" id="profilePhotoView2">
+                    <!-- La segunda foto se inserta aquí (solo visible para el dueño) -->
                 </div>
             </div>
             <div class="profile-info-section">
@@ -726,12 +733,22 @@ function createProfileModal() {
         <div id="editProfileContent" style="display:none">
             <form class="edit-profile-form" onsubmit="return false;">
                 <div class="profile-photo-section">
+                    <label>Foto principal</label>
                     <div class="profile-photo-container" id="profilePhotoEdit">
-                        <!-- La foto se inserta aquí -->
+                        <!-- La foto principal se inserta aquí -->
                     </div>
                     <input type="file" id="newProfilePhoto" accept="image/*" style="display:none">
                     <button type="button" onclick="document.getElementById('newProfilePhoto').click()">
-                        Cambiar foto
+                        Cambiar foto principal
+                    </button>
+                    
+                    <label style="margin-top: 15px;">Segunda foto</label>
+                    <div class="profile-photo-container" id="profilePhotoEdit2">
+                        <!-- La segunda foto se inserta aquí -->
+                    </div>
+                    <input type="file" id="newProfilePhoto2" accept="image/*" style="display:none">
+                    <button type="button" onclick="document.getElementById('newProfilePhoto2').click()">
+                        Cambiar segunda foto
                     </button>
                 </div>
             
@@ -743,12 +760,12 @@ function createProfileModal() {
                 <!-- ✅ CAMPOS CON ETIQUETAS (igual que nombre de usuario) -->
                 <label>
                     Altura (cm)
-                    <input type="number" id="editProfileAltura" min="1" step="1">
+                    <input type="number" id="editProfileAltura" min="54" max="272" step="1">
                 </label>
             
                 <label>
                     Peso (kg)
-                    <input type="number" id="editProfilePeso" min="1" step="1">
+                    <input type="number" id="editProfilePeso" min="1" max="737" step="1">
                 </label>
             
                 <div class="habits-section">
@@ -804,7 +821,13 @@ function createProfileModal() {
     // Event listener para la foto de perfil
     const photoInput = document.getElementById('newProfilePhoto');
     if (photoInput) {
-        photoInput.addEventListener('change', handleProfilePhotoChange);
+        photoInput.addEventListener('change', (e) => handleProfilePhotoChange(e, 'profilePhotoEdit'));
+    }
+    
+    // Event listener para la segunda foto
+    const photoInput2 = document.getElementById('newProfilePhoto2');
+    if (photoInput2) {
+        photoInput2.addEventListener('change', (e) => handleProfilePhotoChange(e, 'profilePhotoEdit2'));
     }
 
     // Listener para el botón Eliminar Perfil (asegurar que se añade cuando el modal se crea)
@@ -899,12 +922,12 @@ async function loadProfileData() {
             habitsContainer.innerHTML = '<p>No hay hábitos registrados</p>';
         }
         
-        // Actualizar foto
+        // Actualizar foto principal
         const photoContainer = document.getElementById('profilePhotoView');
         if (data.photoURL) {
             const img = document.createElement('img');
             img.src = data.photoURL;
-            img.alt = 'Foto de perfil';
+            img.alt = 'Foto principal';
             img.onerror = function() {
                 console.warn('Imagen de perfil bloqueada:', img.src);
                 photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
@@ -913,6 +936,24 @@ async function loadProfileData() {
             photoContainer.appendChild(img);
         } else {
             photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+        }
+        
+        // Actualizar segunda foto (solo visible para el dueño)
+        const photoContainer2 = document.getElementById('profilePhotoView2');
+        if (photoContainer2) {
+            if (data.photoURL2) {
+                const img2 = document.createElement('img');
+                img2.src = data.photoURL2;
+                img2.alt = 'Segunda foto';
+                img2.onerror = function() {
+                    console.warn('Segunda imagen bloqueada:', img2.src);
+                    photoContainer2.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
+                photoContainer2.innerHTML = '';
+                photoContainer2.appendChild(img2);
+            } else {
+                photoContainer2.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+            }
         }
         
     } catch (err) {
@@ -1006,7 +1047,7 @@ window.showUserProfile = async function(userId, userData) {
             }
         }
 
-        // Si no es el propio usuario, ocultar controles de edición
+        // Si no es el propio usuario, ocultar controles de edición y segunda foto
         if (typeof currentUserId !== 'undefined' && userId && userId !== currentUserId) {
             const editSection = document.getElementById('editProfileContent');
             if (editSection) editSection.style.display = 'none';
@@ -1017,6 +1058,13 @@ window.showUserProfile = async function(userId, userData) {
             if (photoInput) photoInput.style.display = 'none';
             const changeBtn = editSection ? editSection.querySelector('button') : null;
             if (changeBtn) changeBtn.style.display = 'none';
+            // Ocultar la segunda foto (solo visible para el dueño del perfil)
+            const photoContainer2 = document.getElementById('profilePhotoView2');
+            if (photoContainer2) photoContainer2.style.display = 'none';
+        } else {
+            // Si es el propio usuario, asegurar que la segunda foto sea visible
+            const photoContainer2 = document.getElementById('profilePhotoView2');
+            if (photoContainer2) photoContainer2.style.display = '';
         }
 
         showProfileModal();
@@ -1064,12 +1112,12 @@ async function populateEditForm() {
             cb.checked = data.habits ? data.habits.includes(cb.value) : false;
         });
         
-        // Mostrar foto actual
+        // Mostrar foto principal actual
         const photoContainer = document.getElementById('profilePhotoEdit');
         if (data.photoURL) {
             const img = document.createElement('img');
             img.src = data.photoURL;
-            img.alt = 'Foto de perfil';
+            img.alt = 'Foto principal';
             img.onerror = function() {
                 console.warn('Imagen bloqueada:', img.src);
                 photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
@@ -1080,13 +1128,31 @@ async function populateEditForm() {
             photoContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
         }
         
+        // Mostrar segunda foto actual
+        const photoContainer2 = document.getElementById('profilePhotoEdit2');
+        if (photoContainer2) {
+            if (data.photoURL2) {
+                const img2 = document.createElement('img');
+                img2.src = data.photoURL2;
+                img2.alt = 'Segunda foto';
+                img2.onerror = function() {
+                    console.warn('Segunda imagen bloqueada:', img2.src);
+                    photoContainer2.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+                };
+                photoContainer2.innerHTML = '';
+                photoContainer2.appendChild(img2);
+            } else {
+                photoContainer2.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#999"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.6 0-10.8 1.8-10.8 5.4V22h21.6v-2.2c0-3.6-7.2-5.4-10.8-5.4z"/></svg>';
+            }
+        }
+        
     } catch (err) {
         console.error('Error poblando formulario:', err);
         alert('Error al cargar datos para edición');
     }
 }
 
-async function handleProfilePhotoChange(event) {
+async function handleProfilePhotoChange(event, containerIdParam) {
     const file = event.target.files[0];
     if (!file) return;
     
@@ -1104,10 +1170,11 @@ async function handleProfilePhotoChange(event) {
             return;
         }
         
-        // Mostrar preview
+        // Mostrar preview en el contenedor correspondiente
         const reader = new FileReader();
         reader.onload = function(e) {
-            const photoContainer = document.getElementById('profilePhotoEdit');
+            const containerId = containerIdParam || 'profilePhotoEdit';
+            const photoContainer = document.getElementById(containerId);
             if (photoContainer) {
                 photoContainer.innerHTML = `<img src="${e.target.result}" alt="Nueva foto">`;
             }
@@ -1152,6 +1219,16 @@ async function saveProfileChanges() {
             return;
         }
 
+        if (alturaNum < 54) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
+        if (alturaNum > 272) {
+            alert('La altura introducida es falsa');
+            return;
+        }
+
         if (!newPeso || newPeso === '') {
             alert('El peso es obligatorio');
             return;
@@ -1160,6 +1237,11 @@ async function saveProfileChanges() {
         const pesoNum = parseFloat(newPeso);
         if (isNaN(pesoNum) || pesoNum <= 0) {
             alert('El peso debe ser un número positivo');
+            return;
+        }
+
+        if (pesoNum > 737) {
+            alert('El peso introducido es falso');
             return;
         }
 
@@ -1176,18 +1258,18 @@ async function saveProfileChanges() {
         const newPreference = prefEl ? prefEl.value : (currentData && (currentData.preference || currentData.interests) ? (currentData.preference || currentData.interests) : 'ambos');
         const newGenero = generoEl ? generoEl.value : (currentData && (currentData.gender || currentData.genero) ? (currentData.gender || currentData.genero) : '');
 
-        // 3. Procesar foto si hay nueva
-        console.log('Procesando foto...');
+        // 3. Procesar foto principal si hay nueva
+        console.log('Procesando foto principal...');
         const photoInput = document.getElementById('newProfilePhoto');
         let photoURL = currentData.photoURL || '';
 
         if (photoInput && photoInput.files && photoInput.files.length > 0) {
             const file = photoInput.files[0];
-            console.log('Subiendo nueva foto a ImgBB...');
+            console.log('Subiendo nueva foto principal a ImgBB...');
 
             try {
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('La imagen es demasiado grande. Máximo 5MB.');
+                    alert('La imagen principal es demasiado grande. Máximo 5MB.');
                     photoURL = currentData.photoURL || '';
                 } else {
                     const formData = new FormData();
@@ -1210,17 +1292,65 @@ async function saveProfileChanges() {
 
                     if (data.success) {
                         photoURL = data.data.url;
-                        console.log('✅ Foto subida exitosamente a ImgBB:', photoURL);
+                        console.log('✅ Foto principal subida exitosamente a ImgBB:', photoURL);
                     } else {
                         throw new Error('ImgBB devolvió error');
                     }
                 }
 
             } catch (photoErr) {
-                console.error('❌ Error subiendo foto:', photoErr);
-                alert(`Error al subir la foto: ${photoErr.message}`);
+                console.error('❌ Error subiendo foto principal:', photoErr);
+                alert(`Error al subir la foto principal: ${photoErr.message}`);
                 photoURL = currentData.photoURL || '';
-                console.log('Se mantendrá la foto actual debido al error');
+                console.log('Se mantendrá la foto principal actual debido al error');
+            }
+        }
+
+        // 3b. Procesar segunda foto si hay nueva
+        console.log('Procesando segunda foto...');
+        const photoInput2 = document.getElementById('newProfilePhoto2');
+        let photoURL2 = currentData.photoURL2 || '';
+
+        if (photoInput2 && photoInput2.files && photoInput2.files.length > 0) {
+            const file2 = photoInput2.files[0];
+            console.log('Subiendo nueva segunda foto a ImgBB...');
+
+            try {
+                if (file2.size > 5 * 1024 * 1024) {
+                    alert('La segunda imagen es demasiado grande. Máximo 5MB.');
+                    photoURL2 = currentData.photoURL2 || '';
+                } else {
+                    const formData2 = new FormData();
+                    formData2.append('image', file2);
+                    const API_KEY = 'c44651d43039727932eaf6daf0918e74';
+
+                    const response2 = await fetch(
+                        `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                        {
+                            method: 'POST',
+                            body: formData2
+                        }
+                    );
+
+                    if (!response2.ok) {
+                        throw new Error(`Error HTTP: ${response2.status}`);
+                    }
+
+                    const data2 = await response2.json();
+
+                    if (data2.success) {
+                        photoURL2 = data2.data.url;
+                        console.log('✅ Segunda foto subida exitosamente a ImgBB:', photoURL2);
+                    } else {
+                        throw new Error('ImgBB devolvió error');
+                    }
+                }
+
+            } catch (photoErr2) {
+                console.error('❌ Error subiendo segunda foto:', photoErr2);
+                alert(`Error al subir la segunda foto: ${photoErr2.message}`);
+                photoURL2 = currentData.photoURL2 || '';
+                console.log('Se mantendrá la segunda foto actual debido al error');
             }
         }
 
@@ -1235,6 +1365,7 @@ async function saveProfileChanges() {
             genero: newGenero,
             habits: selectedHabits || [],
             photoURL: photoURL,
+            photoURL2: photoURL2,
             altura: alturaNum,  // ✅ NUEVO
             peso: pesoNum,      // ✅ NUEVO
             age: currentData.age || 18,
@@ -1251,8 +1382,9 @@ async function saveProfileChanges() {
         updateProfileButton();
         document.getElementById('user-info').textContent = 'Conectado como: ' + newName;
 
-        // 7. Limpiar formulario de foto
+        // 7. Limpiar formulario de fotos
         if (photoInput) photoInput.value = '';
+        if (photoInput2) photoInput2.value = '';
 
         // 8. Mostrar confirmación y cambiar a vista
         console.log('✅ ¡Cambios guardados exitosamente!');
@@ -1510,9 +1642,9 @@ async function login() {
 }
 
 // Preview de foto de perfil
-function previewProfilePhoto(event) {
+function previewProfilePhoto(event, previewId) {
     const file = event.target.files[0];
-    const preview = document.getElementById('photo-preview');
+    const preview = document.getElementById(previewId || 'photo-preview');
     
     if (file) {
         const reader = new FileReader();
@@ -1529,6 +1661,7 @@ async function completeRegistration() {
     const password = document.getElementById('register-password').value;
     const name = document.getElementById('register-name').value;
     const photoFile = document.getElementById('profile-photo').files[0];
+    const photoFile2 = document.getElementById('profile-photo-2').files[0];
     // Leer la preferencia seleccionada en el registro (radio name="preference")
     const prefEl = document.querySelector('input[name="preference"]:checked');
     const interests = prefEl ? prefEl.value : 'ambos';
@@ -1574,9 +1707,14 @@ async function completeRegistration() {
         return;
     }
 
-    // ✅ NUEVA VALIDACIÓN: Foto obligatoria
+    // ✅ NUEVA VALIDACIÓN: Ambas fotos obligatorias
     if (!photoFile) {
-        errorElement.textContent = 'La foto es obligatoria';
+        errorElement.textContent = 'La foto principal es obligatoria';
+        return;
+    }
+
+    if (!photoFile2) {
+        errorElement.textContent = 'La segunda foto es obligatoria';
         return;
     }
 
@@ -1592,6 +1730,16 @@ async function completeRegistration() {
         return;
     }
 
+    if (alturaNum < 54) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
+    if (alturaNum > 272) {
+        errorElement.textContent = 'La altura introducida es falsa';
+        return;
+    }
+
     // ✅ NUEVA VALIDACIÓN: Peso obligatorio
     if (!peso || peso.trim() === '') {
         errorElement.textContent = 'El peso es obligatorio';
@@ -1601,6 +1749,11 @@ async function completeRegistration() {
     const pesoNum = parseFloat(peso);
     if (isNaN(pesoNum) || pesoNum <= 0) {
         errorElement.textContent = 'El peso debe ser un número positivo';
+        return;
+    }
+
+    if (pesoNum > 737) {
+        errorElement.textContent = 'El peso introducido es falso';
         return;
     }
 
@@ -1636,9 +1789,9 @@ async function completeRegistration() {
         // Persistir sesión por pestaña (sessionStorage). No usar localStorage para evitar compartir sesión entre pestañas
         try { sessionStorage.setItem('chat_currentUserId', currentUserId); } catch(e) { console.warn('No se pudo persistir sesión en sessionStorage tras registro:', e); }
 
-        // ✅ Subir foto a ImgBB (sin validaciones de tamaño/tipo, solo subir)
+        // ✅ Subir foto principal a ImgBB
         let photoURL = '';
-        errorElement.textContent = 'Subiendo foto de perfil...';
+        errorElement.textContent = 'Subiendo foto principal...';
         try {
             const formData = new FormData();
             formData.append('image', photoFile);
@@ -1660,19 +1813,60 @@ async function completeRegistration() {
 
             if (data.success) {
                 photoURL = data.data.url;
-                console.log('✅ Foto subida a ImgBB:', photoURL);
+                console.log('✅ Foto principal subida a ImgBB:', photoURL);
             } else {
                 throw new Error('ImgBB devolvió error');
             }
         } catch (upErr) {
-            console.error('Error subiendo foto durante registro:', upErr);
-            errorElement.textContent = 'Imagen no soportada';
+            console.error('Error subiendo foto principal durante registro:', upErr);
+            errorElement.textContent = 'Imagen principal no soportada';
             // ✅ ELIMINAR usuario de Firebase Auth si falla la foto
             try {
                 await user.delete();
-                console.log('Usuario eliminado de Auth tras error de foto');
+                console.log('Usuario eliminado de Auth tras error de foto principal');
             } catch (deleteErr) {
                 console.error('Error eliminando usuario tras fallo de foto:', deleteErr);
+            }
+            return;
+        }
+
+        // ✅ Subir segunda foto a ImgBB
+        let photoURL2 = '';
+        errorElement.textContent = 'Subiendo segunda foto...';
+        try {
+            const formData2 = new FormData();
+            formData2.append('image', photoFile2);
+            const API_KEY = 'c44651d43039727932eaf6daf0918e74';
+
+            const response2 = await fetch(
+                `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                {
+                    method: 'POST',
+                    body: formData2
+                }
+            );
+
+            if (!response2.ok) {
+                throw new Error(`Error HTTP: ${response2.status}`);
+            }
+
+            const data2 = await response2.json();
+
+            if (data2.success) {
+                photoURL2 = data2.data.url;
+                console.log('✅ Segunda foto subida a ImgBB:', photoURL2);
+            } else {
+                throw new Error('ImgBB devolvió error');
+            }
+        } catch (upErr2) {
+            console.error('Error subiendo segunda foto durante registro:', upErr2);
+            errorElement.textContent = 'Segunda imagen no soportada';
+            // ✅ ELIMINAR usuario de Firebase Auth si falla la segunda foto
+            try {
+                await user.delete();
+                console.log('Usuario eliminado de Auth tras error de segunda foto');
+            } catch (deleteErr) {
+                console.error('Error eliminando usuario tras fallo de segunda foto:', deleteErr);
             }
             return;
         }
@@ -1684,6 +1878,7 @@ async function completeRegistration() {
             userName: name.trim(),
             email: email,
             photoURL: photoURL,
+            photoURL2: photoURL2,
             habits: habits,
             preference: interests,
             interests: interests,
