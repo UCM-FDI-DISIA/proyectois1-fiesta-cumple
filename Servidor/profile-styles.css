@@ -9,7 +9,7 @@
     max-width: 600px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    z-index: 2001;
+    z-index: 10002;
     display: none;
 }
 
@@ -20,7 +20,7 @@
     right: 0;
     bottom: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 2000;
+    z-index: 10001;
     display: none;
 }
 
@@ -44,7 +44,12 @@
     font-size: 24px;
     color: #666;
     cursor: pointer;
-    padding: 0 8px;
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .profile-tabs {

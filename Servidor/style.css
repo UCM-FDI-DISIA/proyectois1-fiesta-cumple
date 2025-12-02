@@ -1384,6 +1384,7 @@ html.session-restoring #login-screen { display: none !important; }
     #messages {
         flex: 1 1 auto;
         padding: 16px;
+        padding-bottom: 80px;
         overflow-y: auto;
         min-height: 0;
     }
@@ -1556,6 +1557,7 @@ html.session-restoring #login-screen { display: none !important; }
     
     #messages {
         padding: 12px;
+        padding-bottom: 80px;
     }
     
     .chat-avatar {
@@ -1991,6 +1993,7 @@ html.session-restoring #login-screen { display: none !important; }
     #users-list {
         grid-template-columns: 1fr;
         padding: 16px;
+        padding-bottom: 80px;
         gap: 18px;
     }
 
@@ -2041,6 +2044,7 @@ html.session-restoring #login-screen { display: none !important; }
     
     #users-list {
         padding: 12px;
+        padding-bottom: 80px;
         gap: 14px;
     }
     
@@ -2317,6 +2321,94 @@ html.session-restoring #login-screen { display: none !important; }
 .blocked-user-name { flex:1; font-weight:600; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .blocked-user-actions { display:flex; gap:8px; }
 
+/* ========================================
+   DESPLEGABLE DE INFORMACIÓN DEL PARTNER
+   ======================================== */
+.partner-info-dropdown {
+    position: absolute;
+    top: calc(100% + 8px); /* ✅ 8px debajo del widget (no del header) */
+    right: 0; /* ✅ Alineado a la derecha del widget */
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 14px 18px;
+    min-width: 180px;
+    z-index: 1300; /* Por encima del widget */
+    /* Animación de entrada */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+/* Estado visible */
+.partner-info-dropdown.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Item individual (altura/peso) */
+.partner-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.partner-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.partner-info-item:first-child {
+    padding-top: 0;
+}
+
+/* Etiquetas (Altura / Peso) */
+.partner-info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+/* Valores */
+.partner-info-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    background: linear-gradient(135deg, #FF9F7A 0%, #FF7A5A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Cuando el valor es "-" (bloqueado) */
+.partner-info-value.locked {
+    color: #999;
+    background: none;
+    -webkit-text-fill-color: #999;
+    font-size: 18px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .partner-info-dropdown {
+        right: 10px;
+        min-width: 160px;
+        padding: 12px 16px;
+    }
+    
+    .partner-info-label {
+        font-size: 13px;
+    }
+    
+    .partner-info-value {
+        font-size: 15px;
+    }
+}
+
 /* Estilos para el diálogo de eliminación de perfil */
 .delete-profile-backdrop {
     position: fixed;
@@ -2512,6 +2604,7 @@ html {
         opacity: 0.7;
     }
 }
+<<<<<<< HEAD
 
 /* ========================================
    DESPLEGABLE DE INFORMACIÓN DEL PARTNER
@@ -2612,3 +2705,5 @@ html {
     margin-top: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+=======
+>>>>>>> 617447f892179382bb94f4d45e7743fa3764298f

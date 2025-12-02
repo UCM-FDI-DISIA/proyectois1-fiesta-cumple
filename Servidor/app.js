@@ -333,6 +333,85 @@ function createBlockedUsersModal() {
 }
 
 // DIALOGOS Y FUNCIONES PARA ELIMINAR PERFIL
+// Eliminar todos los chats en los que participa un usuario (y sus mensajes)
+async function deleteAllUserChats(uid) {
+    if (!uid) return;
+    if (typeof db === 'undefined' || !db) {
+        console.warn('Firestore no disponible para eliminar chats del usuario', uid);
+        return;
+    }
+
+    try {
+        const chatsSnap = await db.collection('chats').where('participants', 'array-contains', uid).get();
+        if (chatsSnap.empty) {
+            console.log('[deleteAllUserChats] No se encontraron chats para', uid);
+            return;
+        }
+
+        console.log('[deleteAllUserChats] Chats encontrados:', chatsSnap.size);
+
+        for (const chatDoc of chatsSnap.docs) {
+            const chatRef = chatDoc.ref;
+            console.log('[deleteAllUserChats] Procesando chat', chatRef.id);
+
+            // Primer borrado: eliminar todos los documentos en la subcolección 'messages' en batches
+            try {
+                const msgsSnap = await chatRef.collection('messages').get();
+                if (!msgsSnap.empty) {
+                    let batch = db.batch();
+                    let counter = 0;
+                    for (const m of msgsSnap.docs) {
+                        batch.delete(m.ref);
+                        counter++;
+                        if (counter >= 450) { // commit periódicamente (seguro por debajo de 500)
+                            await batch.commit();
+                            batch = db.batch();
+                            counter = 0;
+                        }
+                    }
+                    if (counter > 0) await batch.commit();
+                    console.log('[deleteAllUserChats] Mensajes eliminados para chat', chatRef.id);
+                }
+            } catch (e) {
+                console.warn('[deleteAllUserChats] Error borrando mensajes en', chatRef.id, e);
+            }
+
+            // Intentar eliminar el documento del chat. Si falla por reglas, marcarlo como oculto
+            try {
+                await chatRef.delete();
+                console.log('[deleteAllUserChats] Chat eliminado:', chatRef.id);
+            } catch (e) {
+                console.warn('[deleteAllUserChats] No se pudo eliminar chat (intentando ocultarlo):', chatRef.id, e);
+                try {
+                    // Obtener participantes para ocultar el chat para ellos
+                    const fresh = await chatRef.get();
+                    const data = fresh.exists ? fresh.data() || {} : {};
+                    const participants = Array.isArray(data.participants) ? data.participants : [];
+                    const toHide = participants.filter(p => p !== uid);
+                    if (toHide.length > 0) {
+                        const updateObj = {
+                            hiddenFor: firebase.firestore.FieldValue.arrayUnion(...toHide)
+                        };
+                        // Añadir marcas hiddenAt para cada participante ocultado
+                        toHide.forEach(p => {
+                            updateObj['hiddenAt.' + p] = firebase.firestore.FieldValue.serverTimestamp();
+                        });
+                        await chatRef.update(updateObj);
+                        console.log('[deleteAllUserChats] Chat marcado como oculto para participantes:', toHide.join(','));
+                    } else {
+                        console.log('[deleteAllUserChats] No hay participantes a ocultar para chat', chatRef.id);
+                    }
+                } catch (updErr) {
+                    console.warn('[deleteAllUserChats] Error marcando chat como oculto', chatRef.id, updErr);
+                }
+            }
+        }
+
+    } catch (err) {
+        console.error('[deleteAllUserChats] Error consultando chats para', uid, err);
+    }
+}
+
 function showDeleteProfileDialog() {
     // Crear backdrop específico para el diálogo
     const dlgBackdrop = document.createElement('div');
@@ -408,6 +487,15 @@ function showDeleteProfileDialog() {
                 body2.innerHTML = `<p>Estamos procediendo con la eliminación de tu cuenta, se habrá hecho en unos segundos... cerrando sesión.</p>`;
                 const actions2 = dlg.querySelector('.delete-actions');
                 actions2.innerHTML = `<div style="text-align:center;">Procesando...</div>`;
+
+                // Eliminar todos los chats asociados al usuario antes de borrar el perfil
+                try {
+                    const body3 = dlg.querySelector('.delete-body');
+                    if (body3) body3.innerHTML = `<p>Eliminando chats asociados...</p>`;
+                    await deleteAllUserChats(currentUserId);
+                } catch (e) {
+                    console.warn('Error eliminando chats asociados:', e);
+                }
 
                 // Eliminar documento de Firestore (si existe)
                 try {
@@ -2268,6 +2356,17 @@ async function renderChatItem(chatId, chatData) {
         const otherUserDoc = await db.collection('users').doc(otherUserId).get();
         if (otherUserDoc.exists) {
             otherUserName = otherUserDoc.data().userName;
+        } else {
+            // Si no existe el documento del otro usuario, asumir cuenta eliminada.
+            // Borrar/eliminar este chat de la vista del usuario actual.
+            console.log('[renderChatItem] Usuario participante no encontrado, eliminando chat para el usuario actual:', otherUserId, chatId);
+            try {
+                // Ocultarlo para este usuario (marca permanente con hiddenAt)
+                await deleteChatForMe(chatId, true);
+            } catch (e) {
+                console.warn('[renderChatItem] Error ocultando chat con usuario borrado:', e);
+            }
+            return null;
         }
     } catch (error) {
         console.error('Error al obtener nombre de usuario:', error);
