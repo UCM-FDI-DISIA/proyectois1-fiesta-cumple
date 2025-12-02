@@ -1139,7 +1139,7 @@ html.session-restoring #login-screen { display: none !important; }
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border-radius: 10px;
     padding: 10px;
-    z-index: 2000;
+    z-index: 10001;
     display: none;
 }
 
@@ -1323,8 +1323,11 @@ html.session-restoring #login-screen { display: none !important; }
 
     #chat-screen {
         width: 100%;
-        height: calc(100vh - 100px);
+        min-height: calc(100vh - 100px);
+        height: auto;
+        max-height: calc(100vh - 100px);
         top: 100px;
+        bottom: 0;
         left: 0;
         transform: none;
         border-radius: 0;
@@ -1516,7 +1519,10 @@ html.session-restoring #login-screen { display: none !important; }
     
     #chat-screen {
         top: 90px;
-        height: calc(100vh - 90px);
+        min-height: calc(100vh - 90px);
+        height: auto;
+        max-height: calc(100vh - 90px);
+        bottom: 0;
     }
     
     .chat-sidebar {
@@ -1941,8 +1947,11 @@ html.session-restoring #login-screen { display: none !important; }
 @media (max-width: 768px) {
     #users-panel {
         width: 100%;
-        height: calc(100vh - 100px);
+        min-height: calc(100vh - 100px);
+        height: auto;
+        max-height: calc(100vh - 100px);
         top: 100px;
+        bottom: 0;
         left: 0;
         transform: none;
         border-radius: 0;
@@ -1998,7 +2007,10 @@ html.session-restoring #login-screen { display: none !important; }
 @media (max-width: 480px) {
     #users-panel {
         top: 90px;
-        height: calc(100vh - 90px);
+        min-height: calc(100vh - 90px);
+        height: auto;
+        max-height: calc(100vh - 90px);
+        bottom: 0;
     }
     
     #users-panel > div:first-child {
