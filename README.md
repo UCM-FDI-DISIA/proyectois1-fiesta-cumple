@@ -17,6 +17,12 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 <a href="https://veneriswebcitas.web.app/">
    <img src="Preview.png">
 </a>
+<p> </p> 
+
+> [!NOTE]
+> Si pinchas en la imagen se te redirigirá a la página web.
+
+
 
 ---
 
