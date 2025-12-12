@@ -2907,87 +2907,108 @@ function loadMessages(chatId) {
             }
 
             activeChatListener = query.onSnapshot(snapshot => {
-            messagesDiv.innerHTML = '';
-            
-            snapshot.forEach(doc => {
-                const msg = doc.data();
-                const messageDocId = doc.id; // ✅ AÑADIDO: Obtener ID del documento
+                // ✅ SOLUCIÓN: NO borrar todo el contenido
+                // En su lugar, solo procesar mensajes que NO existan ya en el DOM
                 
-                // Marcar mensaje como leído si no es del usuario actual
-                if (msg.senderId !== currentUserId) {
-                    const readBy = msg.readBy || [];
-                    if (!readBy.includes(currentUserId)) {
-                        // Actualizar el mensaje para añadir currentUserId a readBy
-                        db.collection('chats')
-                            .doc(chatId)
-                            .collection('messages')
-                            .doc(messageDocId)
-                            .update({
-                                readBy: firebase.firestore.FieldValue.arrayUnion(currentUserId)
-                            })
-                            .catch(err => console.warn('Error marcando mensaje como leído:', err));
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const messageDocId = doc.id;
+                    
+                    // ✅ CLAVE: Verificar si el mensaje ya existe en el DOM
+                    const existingMessage = messagesDiv.querySelector(`[data-message-id="${messageDocId}"]`);
+                    if (existingMessage) {
+                        // El mensaje ya existe, no hacer nada (evita re-renderizar)
+                        return;
                     }
+                    
+                    // ✅ NUEVO: Solo llegar aquí si el mensaje NO existe
+                    // Marcar mensaje como leído si no es del usuario actual
+                    if (msg.senderId !== currentUserId) {
+                        const readBy = msg.readBy || [];
+                        if (!readBy.includes(currentUserId)) {
+                            // Actualizar el mensaje para añadir currentUserId a readBy
+                            db.collection('chats')
+                                .doc(chatId)
+                                .collection('messages')
+                                .doc(messageDocId)
+                                .update({
+                                    readBy: firebase.firestore.FieldValue.arrayUnion(currentUserId)
+                                })
+                                .catch(err => console.warn('Error marcando mensaje como leído:', err));
+                        }
+                    }
+                    
+                    // Verificar si es mensaje de sistema con visibilidad específica
+                    if (msg.messageType === 'game-system' && msg.visibleTo && msg.visibleTo !== currentUserId) {
+                        return;
+                    }
+                    
+                    // ✅ CREAR el nuevo mensaje con data-attribute para identificarlo
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message';
+                    messageElement.setAttribute('data-message-id', messageDocId); // ✅ CLAVE para detectar duplicados
+                    
+                    if (msg.messageType === 'game-invitation') {
+                        messageElement.classList.add('game-invitation-message');
+                        
+                        if (msg.senderId === currentUserId) {
+                            messageElement.classList.add('my-message');
+                        }
+                        
+                        if (typeof window.renderGameInvitationFromMessage === 'function') {
+                            window.renderGameInvitationFromMessage(messageElement, msg, messageDocId);
+                        }
+
+                    } else if (msg.messageType === 'dosverdades') {
+                        messageElement.classList.add('dosverdades-message');
+
+                        if (msg.senderId === currentUserId) {
+                            messageElement.classList.add('my-message');
+                        }
+
+                        if (typeof window.renderDosVerdadesFromMessage === 'function') {
+                            window.renderDosVerdadesFromMessage(messageElement, msg, messageDocId);
+                        }
+
+                    } else if (msg.messageType === 'game-system') {
+                        messageElement.classList.add('game-system-message');
+                        messageElement.textContent = msg.text;
+                        
+                    } else {
+                        if (msg.senderId === currentUserId) {
+                            messageElement.classList.add('my-message');
+                        }
+                        
+                        messageElement.innerHTML = `
+                            <div class="message-header">
+                                <strong>${msg.senderName}</strong>
+                                <span class="timestamp">${formatTime(msg.timestamp)}</span>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                        `;
+                    }
+                    
+                    // ✅ INSERTAR el mensaje ANTES del clearDiv (si existe)
+                    const clearDiv = messagesDiv.querySelector('div[style*="clear"]');
+                    if (clearDiv) {
+                        messagesDiv.insertBefore(messageElement, clearDiv);
+                    } else {
+                        messagesDiv.appendChild(messageElement);
+                    }
+                });
+                
+                // ✅ ASEGURAR que existe el clearDiv al final (solo si no existe)
+                let clearDiv = messagesDiv.querySelector('div[style*="clear"]');
+                if (!clearDiv) {
+                    clearDiv = document.createElement('div');
+                    clearDiv.style.clear = 'both';
+                    messagesDiv.appendChild(clearDiv);
                 }
                 
-                // Verificar si es mensaje de sistema con visibilidad específica
-                if (msg.messageType === 'game-system' && msg.visibleTo && msg.visibleTo !== currentUserId) {
-                    return;
-                }
+                // ✅ SCROLL al final solo después de añadir mensajes nuevos
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message';
-                
-                if (msg.messageType === 'game-invitation') {
-                    messageElement.classList.add('game-invitation-message');
-                    
-                    if (msg.senderId === currentUserId) {
-                        messageElement.classList.add('my-message');
-                    }
-                    
-                    // ✅ CORREGIDO: Pasar messageDocId como tercer parámetro
-                    if (typeof window.renderGameInvitationFromMessage === 'function') {
-                        window.renderGameInvitationFromMessage(messageElement, msg, messageDocId);
-                    }
-
-                } else if (msg.messageType === 'dosverdades') {
-                    messageElement.classList.add('dosverdades-message');
-
-                    if (msg.senderId === currentUserId) {
-                        messageElement.classList.add('my-message');
-                    }
-
-                    if (typeof window.renderDosVerdadesFromMessage === 'function') {
-                        window.renderDosVerdadesFromMessage(messageElement, msg, messageDocId);
-                    }
-
-                } else if (msg.messageType === 'game-system') {
-                    messageElement.classList.add('game-system-message');
-                    messageElement.textContent = msg.text;
-                    
-                } else {
-                    if (msg.senderId === currentUserId) {
-                        messageElement.classList.add('my-message');
-                    }
-                    
-                    messageElement.innerHTML = `
-                        <div class="message-header">
-                            <strong>${msg.senderName}</strong>
-                            <span class="timestamp">${formatTime(msg.timestamp)}</span>
-                        </div>
-                        <div class="message-text">${msg.text}</div>
-                    `;
-                }
-                
-                messagesDiv.appendChild(messageElement);
-            });
-            
-            const clearDiv = document.createElement('div');
-            clearDiv.style.clear = 'both';
-            messagesDiv.appendChild(clearDiv);
-            
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            
-            console.log(`Cargados ${snapshot.size} mensajes`);
+                console.log(`Procesados ${snapshot.size} mensajes (solo nuevos añadidos)`);
             }, error => {
                 console.error('Error al cargar mensajes:', error);
             });
@@ -3001,8 +3022,15 @@ function loadMessages(chatId) {
 // FUNCIÓN: FORMATEAR HORA
 // ========================================
 function formatTime(timestamp) {
-    if (!timestamp) return '';
+    // ✅ NUEVO: Si no hay timestamp (mensaje recién enviado), usar hora local actual
+    if (!timestamp) {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
     
+    // ✅ ORIGINAL: Si hay timestamp de Firebase, usarlo
     const date = timestamp.toDate();
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
