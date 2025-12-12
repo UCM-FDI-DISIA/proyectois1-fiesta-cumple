@@ -7,7 +7,7 @@ A diferencia de las aplicaciones de citas convenciales, **Veneris** incorpora ju
 
 <img src="Logo.png" alt="Contribuidores">
 
-Al participar en estos juegos, los usuarios pueden ganar puntos con otros, los cuales servirán para **desbloquear la funcionalidad del chat**.
+Al participar en estos juegos, los usuarios pueden ganar puntos con otros, los cuales servirán para **desbloquear nuevos datos sobre el otro usuario**.
 De esta manera, se evitan las interacciones efímeras, y se fomenta la creación de **relaciones más duraderas y reales**.
 
 ---
@@ -63,7 +63,11 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
 
 - **HTML5** → estructura del contenido  
 - **CSS3** → diseño y estilos responsivos  
-- **JavaScript (ES6)** → interacción y lógica del juego 
+- **JavaScript (ES6)** → interacción y lógica del juego
+
+## Pruebas unitarias  
+
+Si se quieren realizar las pruebas unitarias, se debe instalar npm y jest para javascript, y se pueden correr abriendo la consola de comandos dentro del directorio del proyecto y ejecutando "npm test"
 
 ## Contribuidores
 
