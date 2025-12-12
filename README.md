@@ -46,7 +46,7 @@ El método para ejecutar la página web desde tu dispositivo es sencillo:
    carpeta_nombre_local.zip → carpeta_nombre_local/
 ```
 
-3. Abre la carpeta del proyecto y ejecuta el archivo principal en tu navegador.
+3. Abre la carpeta "Servidor" del proyecto y ejecuta el archivo principal en tu navegador.
 
 ```bash
    index.html
