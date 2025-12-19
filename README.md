@@ -5,7 +5,7 @@
 **Veneris** es una aplicación de citas en la que los usuarios pueden entablar conversaciones con otras personas con el fin de conocerse y establecer relaciones amorosos. 
 A diferencia de las aplicaciones de citas convenciales, **Veneris** incorpora juegos cooperativos en los que los usuarios interactúan entre sí para comprobar su compatibilidad. 
 
-<img src="Logo.png" alt="Material/Contribuidores">
+<img src="./Material/Logo.png" alt="Material/Contribuidores">
 
 Al participar en estos juegos, los usuarios pueden ganar puntos con otros, los cuales servirán para **desbloquear nuevos datos sobre el otro usuario**.
 De esta manera, se evitan las interacciones efímeras, y se fomenta la creación de **relaciones más duraderas y reales**.
@@ -15,7 +15,7 @@ De esta manera, se evitan las interacciones efímeras, y se fomenta la creación
 ## Vista previa
 
 <a href="https://veneriswebcitas.web.app/">
-   <img src="Preview.png">
+   <img src="./Material/Preview.png">
 </a>
 <p> </p> 
 
@@ -74,7 +74,7 @@ Si se quieren realizar las pruebas unitarias, se debe instalar npm y jest para j
 Gracias a todas las personas que han participado en el desarrollo de este proyecto:
 
 <a href="https://github.com/UCM-FDI-DISIA/proyectois1-fiesta-cumple/graphs/contributors">
-  <img src="Contribuidores.jpg" alt="Contribuidores" width="250"/>
+  <img src="./Material/Contribuidores.jpg" alt="Contribuidores" width="250"/>
 </a>
 
 ---
