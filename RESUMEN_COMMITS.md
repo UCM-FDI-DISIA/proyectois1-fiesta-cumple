@@ -9,7 +9,7 @@ Este documento contiene un resumen detallado de todos los commits realizados en 
 - **Total de commits**: 2
 - **Usuarios contribuyentes**: 2
 - **Archivos principales creados**: ~50 (excluyendo node_modules)
-- **Líneas de código**: ~10,862 líneas en archivos principales (JS, HTML, CSS)
+- **Líneas de código**: ~11,693 líneas en archivos principales (JS, HTML, CSS)
 
 ---
 
@@ -52,14 +52,14 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    - `RESPONSIVE_DESIGN.md`: Documentación sobre el diseño responsive implementado
    
    **Archivos Core de la Aplicación**:
-   - `index.html` (~400+ líneas): Estructura HTML principal con:
+   - `index.html` (223 líneas): Estructura HTML principal con:
      - Pantalla de login/registro
      - Barra de navegación
      - Panel de chat
      - Contenedor para juegos
      - Sistema de perfiles de usuario
    
-   - `app.js` (~2,000+ líneas): Lógica principal de la aplicación incluyendo:
+   - `app.js` (3,632 líneas): Lógica principal de la aplicación incluyendo:
      - **Configuración de Firebase**: Inicialización de Auth, Firestore y Storage
      - **Sistema de Autenticación**: Login, registro, logout con email/contraseña
      - **Gestión de Perfiles**: Creación y edición de perfiles con foto, edad, altura, peso, género, preferencias
@@ -68,17 +68,17 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
      - **Sistema de Puntos**: Puntos de pareja que desbloquean información
      - **Listeners en Tiempo Real**: Para mensajes y actualizaciones de estado
    
-   - `style.css` (~2,700 líneas): Estilos principales con:
+   - `style.css` (2,705 líneas): Estilos principales con:
      - Diseño responsive para móvil, tablet y desktop
      - Tema de colores basado en gradientes coral/naranja
      - Animaciones y transiciones suaves
      - Estilos para login, chat, perfiles, juegos
      - Media queries extensivas
    
-   - `profile-styles.css` (~290 líneas): Estilos específicos para perfiles de usuario
+   - `profile-styles.css` (290 líneas): Estilos específicos para perfiles de usuario
    
    **Módulos de Juegos**:
-   - `cuatroEnRayaScript.js` (~800+ líneas): Implementación completa del juego "4 en Raya":
+   - `cuatroEnRayaScript.js` (883 líneas): Implementación completa del juego "4 en Raya":
      - Lógica multijugador en tiempo real
      - Gestión de turnos y estado del tablero
      - Sistema de puntos (+5 por victoria, -2 por derrota)
@@ -87,7 +87,7 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    
    - `cuatroEnRaya.css`: Estilos del juego 4 en Raya
    
-   - `dosVerdades.js` (~500+ líneas): Juego "Dos Verdades y Una Mentira":
+   - `dosVerdades.js` (332 líneas): Juego "Dos Verdades y Una Mentira":
      - Interfaz modal para ingresar frases
      - Sistema de envío y respuesta
      - Integración con el chat
@@ -95,19 +95,19 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    
    - `dosVerdades.css`: Estilos del juego Dos Verdades
    
-   - `gamesMenu.js` (~300+ líneas): Menú de selección de juegos
+   - `gamesMenu.js` (79 líneas): Menú de selección de juegos
    
    - `easterEggs.js`: Funcionalidades ocultas/secretas
    
    **Funcionalidades Complementarias**:
-   - `listausuarios.js` (~400+ líneas): Panel de descubrimiento de usuarios con:
+   - `listausuarios.js` (377 líneas): Panel de descubrimiento de usuarios con:
      - Carga desde Firestore
      - Visualización en tarjetas
      - Botón para iniciar chat
    
    **Scripts de Utilidad**:
-   - `scripts/seed_auth_and_users.js` (~104 líneas): Script para poblar Firebase con usuarios de prueba
-   - `seed_users_firestore.json` (~102 líneas): Datos JSON de usuarios ficticios
+   - `scripts/seed_auth_and_users.js` (104 líneas): Script para poblar Firebase con usuarios de prueba
+   - `seed_users_firestore.json` (102 líneas): Datos JSON de usuarios ficticios
    
    **Archivos de Testing**:
    - `app.test.js`: Tests unitarios para funcionalidades principales
@@ -235,9 +235,9 @@ El proyecto **Veneris** es una aplicación web de citas completamente funcional 
 
 ### Métricas de Desarrollo:
 
-- **Líneas de código JavaScript**: ~4,500 líneas (sin tests ni node_modules)
-- **Líneas de CSS**: ~3,000 líneas
-- **Líneas de HTML**: ~500 líneas
+- **Líneas de código JavaScript**: 6,696 líneas (sin tests ni node_modules)
+- **Líneas de CSS**: 4,115 líneas
+- **Líneas de HTML**: 882 líneas
 - **Archivos de test**: 3 archivos principales
 - **Dependencias**: Firebase, Jest, Express, y otras (~4,900 archivos en node_modules)
 
