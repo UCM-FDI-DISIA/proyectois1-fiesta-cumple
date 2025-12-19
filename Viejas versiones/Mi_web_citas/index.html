@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mi web — Registro e Inicio de sesión</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Barra superior -->
+    <header>
+        <h1>Bienvenido a Web_Citas</h1> <!-- Título principal de la página -->
+        <p>Un sitio para encontrar el amor.</p> <!-- Mensaje de bienvenida -->
+        <!-- Botón circular de usuario -->
+        <button id="userButton" class="user-button" title="Cuenta">
+            <span id="userButtonContent">👤</span>
+        </button>
+        <div id="userMenu" class="user-menu" style="display: none;">
+            <button id="verPanelBtn">Ver panel rápido</button>
+            <button id="verPaginaBtn">Abrir perfil completo</button>
+        </div>
+    </header>
+
+    <section id="resumen">
+        <h2>Sobre la web</h2> <!-- Título de la sección "Sobre mí" -->
+        <p>Crea tu perfil para empezar a conocer gente.</p> <!-- Breve descripción personal -->
+    </section>
+
+    <section id="Inicio">
+        <h2>Inicio</h2> <!-- Título de la sección "Contacto" -->
+        <button id="Ir_a_inicio">Haz clic para ir a la página inicial</button> <!-- Botón para interactuar con el usuario -->
+    </section>
+
+    <footer>
+        <p>© 2025 Fiesta_Cumple</p> <!-- Pie de página con derechos de autor -->
+    </footer>
+
+    <!-- Contenido principal -->
+    <main class="contenedor">
+        <!-- Mensaje inicial según sesión -->
+        <div id="welcomeArea" class="welcome">No hay sesión iniciada.</div>
+        <p>Bienvenido a la página. Usa el botón de arriba a la derecha para registrarte o iniciar sesión.</p>
+    </main>
+
+    <!-- Modal principal (opciones de cuenta) -->
+    <div id="authModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeAuthModal">✕</button>
+            <h2>Cuenta</h2>
+
+            <!-- Botones de opciones (en vertical) -->
+            <div class="actions-vertical">
+                <button id="openRegister" class="btn-grey">Registrarse</button>
+                <button id="openLogin" class="btn-blue">Iniciar sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de registro -->
+    <div id="registerModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeRegisterModal">✕</button>
+            <h2>Registrarse</h2>
+
+            <form id="formRegister">
+                <label>
+                    Usuario
+                    <input id="regUsername" name="username" type="text" placeholder="ej. maria" required />
+                </label>
+                <label>
+                    Contraseña
+                    <input id="regPassword" name="password" type="password" placeholder="Tu contraseña" required />
+                </label>
+                <div id="regMessage" class="message"></div>
+
+                <div class="form-actions">
+                    <button type="submit">Crear cuenta</button>
+                    <button type="button" id="cancelRegister">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de inicio de sesión -->
+    <div id="loginModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeLoginModal">✕</button>
+            <h2>Iniciar sesión</h2>
+
+            <form id="formLogin">
+                <label>
+                    Usuario
+                    <input id="loginUsername" name="username" type="text" placeholder="ej. maria" required />
+                </label>
+                <label>
+                    Contraseña
+                    <input id="loginPassword" name="password" type="password" placeholder="Tu contraseña" required />
+                </label>
+                <div id="loginMessage" class="message"></div>
+
+                <div class="form-actions">
+                    <button type="submit">Continuar</button>
+                    <button type="button" id="cancelLogin">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Panel de sesión (oculto por defecto) -->
+    <div id="sessionPanel" class="session-panel" aria-hidden="true" style="display:none;">
+        <div class="session-panel-inner">
+            <div><strong>Usuario:</strong> <span id="spUsername"></span></div>
+            <div><strong>Contraseña:</strong> <span id="spPasswordMasked"></span></div>
+            <div class="session-actions">
+                <button id="logoutBtn">Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de encuesta (nuevo) -->
+    <div id="surveyModal" class="modal" aria-hidden="true">
+        <div class="modal-panel">
+            <button class="close" id="closeSurveyModal">✕</button>
+            <h2>Completa tu perfil</h2>
+
+            <form id="formSurvey">
+                <label>
+                    Nombre completo
+                    <input id="surveyName" name="name" type="text" placeholder="Ej: María García" required />
+                </label>
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                    Este nombre se asociará a tu cuenta y podrá ser visible para otros usuarios.
+                </p>
+                <div id="surveyMessage" class="message"></div>
+                <label>
+                    Foto de perfil
+                    <input type="file" id="surveyPhoto" accept="image/*">
+                    <img id="surveyPhotoPreview" src="" alt="Vista previa" 
+                    style="display:none; width:80px; height:80px; border-radius:50%; margin-top:10px;">
+                </label>
+
+                <label>
+                    Hábitos
+                    <input id="surveyHabits" name="habits" type="text" placeholder="Ej: madrugar, leer, hacer deporte" />
+                    <small>Separa con comas</small>
+                </label>
+
+                <label>
+                    Intereses
+                    <input id="surveyInterests" name="interests" type="text" placeholder="Ej: cine, videojuegos, animales" />
+                    <small>Separa con comas</small>
+                </label>
+
+                <div class="form-actions">
+                    <button type="submit">Guardar y continuar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="profilePanel" class="profile-panel" style="display: none;">
+        <div class="profile-panel-inner">
+            <button id="closeProfilePanel" class="close">✕</button>
+            <h3>Tu perfil</h3>
+            <img id="panelPhoto" src="" alt="Foto de perfil" />
+            <p><strong>Nombre:</strong> <span id="panelName"></span></p>
+            <div><strong>Hábitos:</strong> <div id="panelHabits" class="tag-container"></div></div>
+            <div><strong>Intereses:</strong> <div id="panelInterests" class="tag-container"></div></div>
+        </div>
+    </div>
+
+
+    <!-- Contenedor de Chat (sin panel semitransparente) -->
+    <div class="chat-container" id="chatContainer" style="display: none;">
+        <!-- Boton de cerrar (flecha izquierda) -->
+        <button id="closeChatBtn" class="chat-close-btn" title="Cerrar chat">
+            ←
+        </button>
+        <div class="chat-header">
+            <h2>Chat</h2>
+        </div>
+        <div class="chat-content">
+            <p>Aqui ira el contenido del chat...</p>
+        </div>
+    </div>
+
+    <!-- Botón para abrir el chat (texto "Chat") -->
+    <div id="openChatBtn" class="chat-open-button">
+        Chat
+    </div>
+
+    <script src="script.js"></script>
+    <script src="chat.js"></script> <!-- Nuevo archivo JavaScript para el chat -->
+    <!-- === Scroll infinito tipo Tinder === -->
+    <button id="btnExplorar" class="explorar-btn">Explorar perfiles</button>
+
+    <div id="scrollContainer" class="scroll-container hidden">
+        <div id="perfilContainer"></div>
+    </div>
+
+    <!-- Script del scroll -->
+    <script src="scroll.js"></script>
+</body>
+</html>
+
+
+
+
