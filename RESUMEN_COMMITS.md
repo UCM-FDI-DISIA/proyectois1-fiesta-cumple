@@ -52,14 +52,14 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    - `RESPONSIVE_DESIGN.md`: Documentación sobre el diseño responsive implementado
    
    **Archivos Core de la Aplicación**:
-   - `index.html` (223 líneas): Estructura HTML principal con:
+   - `index.html` (224 líneas): Estructura HTML principal con:
      - Pantalla de login/registro
      - Barra de navegación
      - Panel de chat
      - Contenedor para juegos
      - Sistema de perfiles de usuario
    
-   - `app.js` (3,632 líneas): Lógica principal de la aplicación incluyendo:
+   - `app.js` (3,633 líneas): Lógica principal de la aplicación incluyendo:
      - **Configuración de Firebase**: Inicialización de Auth, Firestore y Storage
      - **Sistema de Autenticación**: Login, registro, logout con email/contraseña
      - **Gestión de Perfiles**: Creación y edición de perfiles con foto, edad, altura, peso, género, preferencias
@@ -78,7 +78,7 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    - `profile-styles.css` (290 líneas): Estilos específicos para perfiles de usuario
    
    **Módulos de Juegos**:
-   - `cuatroEnRayaScript.js` (883 líneas): Implementación completa del juego "4 en Raya":
+   - `cuatroEnRayaScript.js` (884 líneas): Implementación completa del juego "4 en Raya":
      - Lógica multijugador en tiempo real
      - Gestión de turnos y estado del tablero
      - Sistema de puntos (+5 por victoria, -2 por derrota)
@@ -87,7 +87,7 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    
    - `cuatroEnRaya.css`: Estilos del juego 4 en Raya
    
-   - `dosVerdades.js` (332 líneas): Juego "Dos Verdades y Una Mentira":
+   - `dosVerdades.js` (333 líneas): Juego "Dos Verdades y Una Mentira":
      - Interfaz modal para ingresar frases
      - Sistema de envío y respuesta
      - Integración con el chat
@@ -106,8 +106,8 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
      - Botón para iniciar chat
    
    **Scripts de Utilidad**:
-   - `scripts/seed_auth_and_users.js` (104 líneas): Script para poblar Firebase con usuarios de prueba
-   - `seed_users_firestore.json` (102 líneas): Datos JSON de usuarios ficticios
+   - `scripts/seed_auth_and_users.js` (105 líneas): Script para poblar Firebase con usuarios de prueba
+   - `seed_users_firestore.json` (103 líneas): Datos JSON de usuarios ficticios
    
    **Archivos de Testing**:
    - `app.test.js`: Tests unitarios para funcionalidades principales
@@ -120,9 +120,9 @@ Este commit representa la **creación inicial del proyecto completo** "Veneris",
    - `node_modules/`: ~4,900 archivos de dependencias (express, firebase-admin, jest, etc.)
 
 3. **Prototipo de Chat Adicional** (Carpeta `Web_chats/`):
-   - `index_chat.html` (41 líneas): Prototipo alternativo de interfaz de chat
-   - `script_chat.js` (63 líneas): Lógica del chat prototipo con historial local
-   - `style_chat.css` (133 líneas): Estilos del chat prototipo
+   - `index_chat.html` (42 líneas): Prototipo alternativo de interfaz de chat
+   - `script_chat.js` (64 líneas): Lógica del chat prototipo con historial local
+   - `style_chat.css` (134 líneas): Estilos del chat prototipo
 
 4. **Versión Anterior/Prototipo** (Carpeta `Mi_web_citas/`):
    - `index.html`: Versión anterior de la interfaz
